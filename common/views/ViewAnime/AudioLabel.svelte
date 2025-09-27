@@ -80,20 +80,26 @@
     {#if !banner && !episodeList}
         {@const subEpisodes = String(media.status !== 'NOT_YET_RELEASED' && media.status !== 'CANCELLED' && getMediaMaxEp(media, (media.status !== 'FINISHED')) || dubEpisodes || '')}
         <div bind:this={audioContainer} class='position-absolute bottom-0 right-0 d-flex flex-row-reverse flex-wrap align-items-end justify-content-start h-20 vertical-flip z-1' class:mb-4={!viewAnime} class:mb--3={viewAnime}>
-            <div class='audio-label px-10 z-10 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full bg-septenary slant mrl-1 z-4'>
+            <div class='audio-label px-10 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full bg-septenary slant mrl-1 z-5'>
                 <Captions size='2rem' strokeWidth='1.5' />
                 <span class='d-flex align-items-center line-height-1' class:ml-3={(subEpisodes && subEpisodes.length > 0) || (dubEpisodes && Number(dubEpisodes) > 0)}><div class='line-height-1 mt-2'>{#if subEpisodes && (!dubEpisodes || (Number(subEpisodes) >= Number(dubEpisodes)))}{Number(subEpisodes)}{:else if dubEpisodes && (Number(dubEpisodes) > 0)}{Number(dubEpisodes)}{/if}</div></span>
             </div>
-            {#if $isDubbed || $isPartial}
-                <div class='audio-label pl-10 pr-20 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full slant z-3' class:w-icon={!dubEpisodes || dubEpisodes.length === 0 || Number(dubEpisodes) === 0} class:w-text={dubEpisodes && dubEpisodes.length > 0 && Number(dubEpisodes) > 0} class:bg-senary={$isDubbed} class:bg-octonary={$isPartial}>
-                    <svelte:component this={$isDubbed ? Mic : MicOff} size='1.8rem' strokeWidth='2' />
+            {#if $isDubbed}
+                <div class='audio-label pl-10 pr-20 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full slant z-4 bg-senary' class:w-icon={!dubEpisodes || dubEpisodes.length === 0 || Number(dubEpisodes) === 0} class:w-text={dubEpisodes && dubEpisodes.length > 0 && Number(dubEpisodes) > 0}>
+                    <Mic size='1.8rem' strokeWidth='2' />
                     <span class='d-flex align-items-center line-height-1 ml-2'><div class='line-height-1 mt-2'>{#if Number(dubEpisodes) > 0}{Number(dubEpisodes)}{/if}</div></span>
                 </div>
             {/if}
             {#if media.mediaListEntry?.progress}
-                <div class='audio-label pl-10 pr-20 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full slant w-icon w-text bg-current z-2'>
+                <div class='audio-label pl-10 pr-20 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full slant w-icon w-text bg-current z-3'>
                     <ClockFading size='1.8rem' strokeWidth='2' />
                     <span class='d-flex align-items-center line-height-1 ml-2'><div class='line-height-1 mt-2'>{Number(media.mediaListEntry?.progress)}</div></span>
+                </div>
+            {/if}
+            {#if $isPartial}
+                <div class='audio-label pl-10 pr-20 text-dark rounded-right font-weight-bold d-flex align-items-center vertical-flip h-full slant z-2 bg-octonary' class:w-icon={!dubEpisodes || dubEpisodes.length === 0 || Number(dubEpisodes) === 0} class:w-text={dubEpisodes && dubEpisodes.length > 0 && Number(dubEpisodes) > 0}>
+                    <MicOff size='1.8rem' strokeWidth='2' />
+                    <span class='d-flex align-items-center line-height-1 ml-2'><div class='line-height-1 mt-2'>{#if Number(dubEpisodes) > 0}{Number(dubEpisodes)}{/if}</div></span>
                 </div>
             {/if}
             {#if media.isAdult}
