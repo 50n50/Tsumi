@@ -708,22 +708,6 @@ img[src=''], img[src=' '] {
   100% { transform: none }
 }
 
-@keyframes card-load-out {
-  from {
-    top: 0;
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    top: 1.2rem;
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-.absolute-container.card-load-out {
-  animation: card-load-out 0.2s ease forwards !important;
-}
-
 @keyframes skeleton-swipe {
   0% { transform: translateX(-100%) }
   100% { transform: translateX(100%) }

@@ -8,9 +8,9 @@
 <script>
   import { statusColorMap, formatMap } from '@/modules/anime/anime.js'
   import { episodesList } from '@/modules/episodes.js'
-  import { since } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
   import { getHash } from '@/modules/anime/animehash.js'
+  import { since, fadeIn, fadeOut } from '@/modules/util.js'
   import { liveAnimeEpisodeProgress } from '@/modules/anime/animeprogress.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { settings } from '@/modules/settings.js'
@@ -38,7 +38,7 @@
   $: resolvedHash = getHash(media?.id, { episode: data?.episode, client: true }, false, true)
 </script>
 
-<div class='position-absolute w-400 mh-400 absolute-container top-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer d-flex flex-column' bind:this={element}>
+<div class='position-absolute w-400 mh-400 absolute-container top-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer d-flex flex-column' in:fadeIn out:fadeOut bind:this={element}>
   <div class='image h-200 w-full position-relative d-flex justify-content-between align-items-end text-white'>
     <SmartImage class='img-cover w-full h-full position-absolute rounded p-0 m-0 {!(data.episodeData?.image || media?.bannerImage) && media?.genres?.includes(`Hentai`) ? `cover-rotated cr-400` : ``}' color={media?.coverImage.color || 'var(--tertiary-color)'} images={[episodeThumbnail, './404_episode.png']}/>
     {#if data.episodeData?.video}
@@ -203,21 +203,7 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
-  @keyframes load-in {
-    from {
-      top: 1.2rem;
-      opacity: 0;
-      transform: scale(0.95);
-    }
-
-    to {
-      top: 0;
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
   .absolute-container {
-    animation: 0.3s ease 0s 1 load-in;
     will-change: transform, opacity, bottom;
     left: -100%;
     right: -100%;

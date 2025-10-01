@@ -4,7 +4,7 @@
   import { toast } from 'svelte-sonner'
   import { onMount, onDestroy } from 'svelte'
   import { writable } from 'simple-store-svelte'
-  import { since, capitalize, scaleFade } from '@/modules/util.js'
+  import { since, capitalize, fadeIn, fadeOut } from '@/modules/util.js'
   import { click, hover, focus } from '@/modules/click.js'
   import IPC from '@/modules/ipc.js'
   import WPC from '@/modules/wpc.js'
@@ -71,7 +71,7 @@
     {/if}
   </button>
   {#if $showUser}
-    <div class='popover-container position-absolute top-100 left-0 mw-0 z-5 border rounded-10 overflow-hidden test-remove-later' style:--theme-base-color={user.options?.profileColor ?? `var(--dark-color)`} transition:scaleFade>
+    <div class='popover-container position-absolute top-100 left-0 mw-0 z-5 border rounded-10 overflow-hidden test-remove-later' style:--theme-base-color={user.options?.profileColor ?? `var(--dark-color)`} in:fadeIn={{ duration: 180 }} out:fadeOut={{ duration: 120 }}>
       <div class='popover-card'>
         <div class='position-relative h-140 p-5 d-flex align-items-end'>
           {#if user.bannerImage}

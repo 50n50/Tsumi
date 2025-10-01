@@ -2,6 +2,7 @@
   import { formatMap, getKitsuMappings, getMediaMaxEp, playMedia } from '@/modules/anime/anime.js'
   import { anilistClient, seasons } from '@/modules/anilist.js'
   import { episodesList } from '@/modules/episodes.js'
+  import { fadeIn, fadeOut } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
   import SmartImage from '@/components/visual/SmartImage.svelte'
   import Scoring from '@/views/ViewAnime/Scoring.svelte'
@@ -46,7 +47,7 @@
   }
 </script>
 
-<div class='position-absolute w-350 h-full absolute-container top-0 bottom-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer' bind:this={element} on:scroll={(e) => e.target.scrollTop = 0}>
+<div class='position-absolute w-350 h-full absolute-container top-0 bottom-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer' in:fadeIn out:fadeOut bind:this={element} on:scroll={(e) => e.target.scrollTop = 0}>
   <div class='banner position-relative bg-black overflow-hidden' >
     <SmartImage class='img-cover w-full h-full' images={[media.bannerImage, ...(media.trailer?.id ? [`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`] : []), media.coverImage?.extraLarge ]}/>
     {#await (media.trailer?.id && media) || episodesList.getMedia(media.idMal) then trailer}
@@ -186,20 +187,7 @@
     height: 100%;
     background: var(--preview-card-trailer-gradient);
   }
-  @keyframes load-in {
-    from {
-      top: 1.2rem;
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      top: 0;
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
   .absolute-container {
-    animation: 0.3s ease 0s 1 load-in;
     will-change: transform, opacity, bottom;
     left: -100%;
     right: -100%;

@@ -1,6 +1,6 @@
 import { SUPPORTS } from '@/modules/support.js'
 import { writable, derived } from 'simple-store-svelte'
-import { cubicOut } from 'svelte/easing'
+import { cubicOut, cubicIn } from 'svelte/easing'
 import levenshtein from 'js-levenshtein'
 import Fuse from 'fuse.js'
 
@@ -400,12 +400,51 @@ export function debounce (fn, time) {
   }
 }
 
-export function scaleFade(node, { delay = 0, duration = 150, start = 0.95, end = 1 } = {}) {
+/**
+ * Fade in a node with vertical translation and scaling.
+ *
+ * @param {HTMLElement} node The DOM node to apply the transition to.
+ * @param {Object} [options] Configuration options for the transition.
+ * @param {number} [options.delay=0] Delay in milliseconds before the transition starts.
+ * @param {number} [options.duration=300] Duration of the transition in milliseconds.
+ * @param {number} [options.y=1.2] Vertical translation distance.
+ * @param {number} [options.startScale=0.95] Initial scale at the start of the transition.
+ * @param {function} [options.easing=cubicOut] Easing function for the transition.
+ * @returns {Object} Svelte transition object with delay, duration, easing, and css function.
+ */
+export function fadeIn(node, { delay = 0, duration = 300, y = 1.2, startScale = 0.95, easing = cubicOut } = {}) {
   return {
     delay,
     duration,
-    easing: cubicOut,
-    css: t => `opacity: ${t}; transform: scale(${start + (end - start) * t});`
+    easing,
+    css: (t, u) => `
+      opacity: ${t};
+      transform: translateY(${u * y}rem) scale(${startScale + (1 - startScale) * t});
+      transform-origin: bottom center;`
+  }
+}
+
+/**
+ * Fade out a node with vertical translation and scaling.
+ *
+ * @param {HTMLElement} node The DOM node to apply the transition to.
+ * @param {Object} [options] Configuration options for the transition.
+ * @param {number} [options.delay=0] Delay in milliseconds before the transition starts.
+ * @param {number} [options.duration=200] Duration of the transition in milliseconds.
+ * @param {number} [options.y=1.2] Vertical translation distance.
+ * @param {number} [options.endScale=0.95] Final scale at the end of the transition.
+ * @param {function} [options.easing=cubicIn] Easing function for the transition.
+ * @returns {Object} Svelte transition object with delay, duration, easing, and css function.
+ */
+export function fadeOut(node, { delay = 0, duration = 200, y = 1.2, endScale = 0.95, easing = cubicIn } = {}) {
+  return {
+    delay,
+    duration,
+    easing,
+    css: (t, u) => `
+        opacity: ${t};
+        transform: translateY(${u * y}rem) scale(${1 + (endScale - 1) * u});
+        transform-origin: bottom center;`
   }
 }
 

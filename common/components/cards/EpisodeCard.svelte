@@ -55,15 +55,10 @@
     const episode = data.episode || (media?.episodes === 1 && media?.episodes)
     if (!$prompt && episode && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
     if (!$prompt || !$clicked) {
-      if (previewCard && !state) {
-        previewCard.classList.add('card-load-out')
-        previewCard.addEventListener('animationend', () => {
-          preview = false
-          setTimeout(() => {
-            if (!preview) prompt.set(false)
-          }).unref?.()
-        }, { once: true })
-      } else preview = state
+      preview = state
+      setTimeout(() => {
+        if (!preview) prompt.set(false)
+      }).unref?.()
     }
   }
 
@@ -84,13 +79,10 @@
     blurTimeout = setTimeout(() => {
       const focused = document.activeElement
       if (container && previewCard && focused?.offsetParent !== null && !container.contains(focused) && !previewCard.contains(focused)) {
-        previewCard.classList.add('card-load-out')
-        previewCard.addEventListener('animationend', () => {
-          preview = false
-          setTimeout(() => {
-            if (!preview) prompt.set(false)
-          }).unref?.()
-        }, { once: true })
+        preview = false
+        setTimeout(() => {
+          if (!preview) prompt.set(false)
+        }).unref?.()
       }
     })
     blurTimeout.unref?.()

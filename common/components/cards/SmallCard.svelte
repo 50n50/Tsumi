@@ -29,12 +29,7 @@
 
   let preview = false
   function setHoverState(state) {
-    if (settings.value.cardPreview) {
-      if (previewCard && !state) {
-        previewCard.classList.add('card-load-out')
-        previewCard.addEventListener('animationend', () => preview = false, { once: true })
-      } else preview = state
-    }
+    if (settings.value.cardPreview) preview = state
     else if (state) viewMedia()
   }
 
@@ -54,10 +49,7 @@
     clearTimeouts()
     blurTimeout = setTimeout(() => {
       const focused = document.activeElement
-      if (container && previewCard && focused?.offsetParent !== null && !container.contains(focused) && !previewCard.contains(focused)) {
-        previewCard.classList.add('card-load-out')
-        previewCard.addEventListener('animationend', () => preview = false, { once: true })
-      }
+      if (container && previewCard && focused?.offsetParent !== null && !container.contains(focused) && !previewCard.contains(focused)) preview = false
     })
     blurTimeout.unref?.()
   }
