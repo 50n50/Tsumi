@@ -131,7 +131,7 @@
           </div>
         </div>
 <!--        < html={user.about ?? ''} class='text-white text-wrap pl-20 pr-10 pt-20 font-size-16 overflow-y-auto hm-250' />-->
-        <div class='stats d-flex flex-wrap font-size-14 text-white w-full justify-content-between'>
+        <div class='stats d-flex flex-wrap font-scale-14 text-white w-full justify-content-between'>
           <div class='text-nowrap'>{user.statistics?.anime?.count ?? 0} Anime</div>
           <div class='text-nowrap'>{user.statistics?.anime?.episodesWatched ?? 0} Episodes</div>
           <div class='text-nowrap'>{user.statistics?.anime?.meanScore ?? 0} Mean Score</div>
