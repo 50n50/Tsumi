@@ -30,9 +30,10 @@
   --dark-color-dim-hsl: var(--dark-color-base-hue), var(--dark-color-base-saturation), 8%;
   --dark-color-very-dim-hsl: var(--dark-color-base-hue), var(--dark-color-base-saturation), 4%;
   --dm-shadow: 0px 4px 7px hsla(var(--black-color-hsl), 0.25);
+  --gray-color-base-hue: 216;
   --gray-color-light: hsl(var(--gray-color-light-hsl));
   --gray-color-light-hsl: var(--gray-color-base-hue), 10%, 28%;
-  --gray-color-base-hue: 216;
+  --gray-color-very-dim-hsl: var(--gray-color-base-hue), var(--gray-color-base-saturation), 35%;
   --green-color-base-hue: 106;
   --green-color-base-saturation: 100%;
   --green-color-hsl: var(--green-color-base-hue), var(--green-color-base-saturation), 27%;
