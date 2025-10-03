@@ -781,11 +781,7 @@ class AnilistClient {
                   count,
                   meanScore,
                   minutesWatched,
-                  episodesWatched,
-                  genres(limit: 5, sort: COUNT_DESC) {
-                    genre,
-                    count
-                  }
+                  episodesWatched
                 }
               }
             }

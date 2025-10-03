@@ -20,11 +20,13 @@ function selectionChange(e) {
   const isTextInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)
   if (!isTextInput && !e.target?.closest('.select-all')) window.getSelection()?.removeAllRanges()
   setTimeout(() => {
-    if (lastTapTarget !== e.target && (!lastTapCurrent || !e.target || !e.target.contains(lastTapCurrent))) {
+    if (lastTapTarget !== e.target && (!lastTapCurrent || !e.target || !lastTapCurrent.contains(e.target))) {
       lastTapElement?.(false)
       lastTapElement = null
       lastHoverElement?.(false)
       lastHoverElement = null
+      lastTapCurrent = null
+      lastTapTarget = null
     }
   }, 10)
 }
@@ -35,6 +37,8 @@ document.addEventListener('pointercancel', (e) => {
     lastTapElement = null
     lastHoverElement?.(false)
     lastHoverElement = null
+    lastTapCurrent = null
+    lastTapTarget = null
   }
 })
 
@@ -153,6 +157,7 @@ export function hover(node, hoverUpdate = noop) {
       }
       hoverUpdate(true)
       lastHoverElement = hoverUpdate
+      lastTapCurrent = e.currentTarget
       pointerType = e.pointerType
     }
   })
@@ -173,13 +178,14 @@ export function hover(node, hoverUpdate = noop) {
     if (e.pointerType === 'mouse') hoverUpdate(false)
   })
   node.addEventListener('pointerup', e => {
-    if (e.pointerType === 'touch') {
+    if (e.pointerType === 'touch' && (!lastTapCurrent || !lastTapCurrent.contains(e.target))) {
       e.stopPropagation()
       lastHoverElement?.(false)
       lastTapElement?.(false)
       if (lastTapElement === hoverUpdate) {
         hoverUpdate(false, true)
         lastTapElement = null
+        lastTapCurrent = null
       } else {
         hoverUpdate(true, true)
         lastTapElement = hoverUpdate

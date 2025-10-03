@@ -17,7 +17,9 @@
   export let viewAnime = false
   export let previewAnime = false
 
+  let scoringModal
   const showModal = writable(false)
+  $: setTimeout(() => $showModal && scoringModal?.focus())
 
   let score = 0
   let status = 'NOT IN LIST'
@@ -195,7 +197,7 @@
     {/if}
   </button>
   {#if Helper.isAuthorized()}
-    <div class='modal scoring position-absolute bg-very-dark shadow-lg rounded-3 p-20 z-30 {$showModal ? `visible` : `invisible`} {!previewAnime && !viewAnime ? `banner ${SUPPORTS.isAndroid ? `ml--255` : ``}` : !previewAnime ? `viewAnime` : `previewAnime`} {(!previewAnime || !viewAnime) ? `w-auto h-auto` : ``}' use:click={() => {}}>
+    <div bind:this={scoringModal} class='modal scoring position-absolute bg-very-dark shadow-lg rounded-3 p-20 z-30 {$showModal ? `visible` : `invisible`} {!previewAnime && !viewAnime ? `banner ${SUPPORTS.isAndroid ? `ml--255` : ``}` : !previewAnime ? `viewAnime` : `previewAnime`} {(!previewAnime || !viewAnime) ? `w-auto h-auto` : ``}' use:click={() => {}}>
       <div class='d-flex justify-content-between align-items-center mb-2'>
         <h5 class='font-weight-bold'>List Editor</h5>
         <button type='button' class='btn btn-square d-flex align-items-center justify-content-center' use:click={() => toggleModal({ toggle: false })}><X size='1.7rem' strokeWidth='3'/></button>
@@ -264,7 +266,7 @@
   }
   .previewAnime {
     top: 65%;
-    margin-top: -21.5rem;
+    margin-top: -25rem;
     width: 78% !important;
     left: -1.5rem;
     cursor: auto;

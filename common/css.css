@@ -670,10 +670,28 @@ img[src=''], img[src=' '] {
   box-shadow: inset 0 0 0 .4rem var(--tertiary-color) !important;
 }
 
-[data-toggle="tooltip"]:focus:not(:hover)::before {
-  visibility: visible;
-  opacity: 0;
-  transition: opacity 0.2s;
+@media (hover: none), (pointer: coarse) {
+  [data-toggle="tooltip"]:focus::before {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s !important;
+  }
+  [data-toggle="tooltip"]:hover::before {
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-toggle="tooltip"]:focus-visible::before {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s !important;
+  }
+  [data-toggle="tooltip"]:focus::before {
+    visibility: visible;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
 }
 
 .btn-secondary:focus-visible {
