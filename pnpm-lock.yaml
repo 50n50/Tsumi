@@ -167,7 +167,7 @@ importers:
         version: 4.1.5
       webpack-cli:
         specifier: ^6.0.1
-        version: 6.0.1(webpack-dev-server@5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0))(webpack@5.101.0)
+        version: 6.0.1(webpack-dev-server@5.2.2)(webpack@5.101.0)
       webpack-merge:
         specifier: ^6.0.1
         version: 6.0.1
@@ -278,8 +278,8 @@ importers:
         specifier: ^26.0.12
         version: 26.0.12(electron-builder-squirrel-windows@24.13.3)
       electron-log:
-        specifier: ^5.1.7
-        version: 5.1.7
+        specifier: ^5.4.3
+        version: 5.4.3
       electron-updater:
         specifier: ^6.6.8
         version: 6.6.8
@@ -2321,8 +2321,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  electron-log@5.1.7:
-    resolution: {integrity: sha512-/PjrS9zGkrZCDTHt6IgNE3FeciBbi4wd7U76NG9jAoNXF99E9IJdvBkqvaUJ1NjLojYDKs0kTvn9YhKy1/Zi+Q==}
+  electron-log@5.4.3:
+    resolution: {integrity: sha512-sOUsM3LjZdugatazSQ/XTyNcw8dfvH1SYhXWiJyfYodAAKOZdHs0txPiLDXFzOZbhXgAgshQkshH2ccq0feyLQ==}
     engines: {node: '>= 14'}
 
   electron-publish@24.13.1:
@@ -7116,13 +7116,6 @@ snapshots:
       webpack: 5.101.0(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack-dev-server@5.2.2)(webpack@5.101.0)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0))(webpack@5.101.0)':
-    dependencies:
-      webpack: 5.101.0(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0))(webpack@5.101.0)
-    optionalDependencies:
-      webpack-dev-server: 5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0)
-
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2)(webpack@5.101.0)':
     dependencies:
       webpack: 5.101.0(webpack-cli@6.0.1)
@@ -8628,7 +8621,7 @@ snapshots:
       - electron-builder-squirrel-windows
       - supports-color
 
-  electron-log@5.1.7: {}
+  electron-log@5.4.3: {}
 
   electron-publish@24.13.1:
     dependencies:
@@ -12073,25 +12066,6 @@ snapshots:
 
   webidl-conversions@4.0.2:
     optional: true
-
-  webpack-cli@6.0.1(webpack-dev-server@5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0))(webpack@5.101.0):
-    dependencies:
-      '@discoveryjs/json-ext': 0.6.3
-      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.101.0)
-      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.101.0)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0))(webpack@5.101.0)
-      colorette: 2.0.20
-      commander: 12.1.0
-      cross-spawn: 7.0.3
-      envinfo: 7.14.0
-      fastest-levenshtein: 1.0.16
-      import-local: 3.2.0
-      interpret: 3.1.1
-      rechoir: 0.8.0
-      webpack: 5.101.0(webpack-cli@6.0.1)
-      webpack-merge: 6.0.1
-    optionalDependencies:
-      webpack-dev-server: 5.2.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.101.0)
 
   webpack-cli@6.0.1(webpack-dev-server@5.2.2)(webpack@5.101.0):
     dependencies:

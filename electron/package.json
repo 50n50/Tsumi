@@ -21,7 +21,7 @@
     "common": "workspace:*",
     "electron": "29.1.4",
     "electron-builder": "^26.0.12",
-    "electron-log": "^5.1.7",
+    "electron-log": "^5.4.3",
     "electron-updater": "^6.6.8",
     "webpack-merge": "^6.0.1"
   },
