@@ -12,12 +12,12 @@ const debug = Debug('ui:extensions')
 /** @typedef {import('extensions/index.d.ts').TorrentQuery} Options */
 /** @typedef {import('extensions/index.d.ts').TorrentResult} Result */
 
-const exclusions = ['DTS', 'TrueHD', '[EMBER]']
+const exclusions = []
 const isDev = location.hostname === 'localhost'
 
 const video = document.createElement('video')
 if (!isDev && !video.canPlayType('video/mp4; codecs="hev1.1.6.L93.B0"')) {
-  exclusions.push('HEVC', 'x265', 'H.265')
+  exclusions.push('HEVC', 'x265', 'H.265', 'DTS', 'TrueHD', '[EMBER]')
 }
 if (!isDev && !video.canPlayType('audio/mp4; codecs="ac-3"')) {
   exclusions.push('AC3', 'AC-3')

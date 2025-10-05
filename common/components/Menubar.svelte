@@ -18,32 +18,12 @@
       stringify: e => e
     }
   })
-
-  $: maximized = false
   $: fullscreen = false
-  IPC.on('isMaximized', (isMaximized) => maximized = isMaximized)
   IPC.on('isFullscreen', (isFullscreen) => fullscreen = isFullscreen)
 </script>
 
 <div class='w-full z-101 navbar bg-transparent border-0 p-0 d-flex draggable'>
-  <div class='window-controls d-none position-absolute top-0 {window.version?.platform !== `darwin` ? `right-0 right-width` : `left-0 left-width`} h-full' class:d-flex={!SUPPORTS.isAndroid && !fullscreen || window.version?.platform !== 'darwin'}>
-    {#if window.version?.platform !== 'win32' && window.version?.platform !== 'darwin'}
-      <button class='button max-button d-flex border-0 color-white align-items-center justify-content-center' on:click={() => IPC.emit('minimize')}><svg class='svg-controls' height='12' role='img' viewBox='0 0 12 12' width='12'><rect fill='currentColor' height='1' width='10' x='1' y='6' /></svg></button>
-      <button class='button restore-button d-flex border-0 color-white align-items-center justify-content-center' on:click={async () => IPC.emit('maximize')}>
-        {#if maximized}
-          <svg class='svg-controls' width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <rect x='1' y='3' width='8' height='8' rx='.5' ry='.5' stroke='currentColor' stroke-width='1'/>
-            <path d='M3 1H11V9' stroke='currentColor' stroke-width='1' stroke-linejoin='round'/>
-          </svg>
-        {:else}
-          <svg class='svg-controls' height='12' role='img' viewBox='0 0 12 12' width='12'>
-            <rect fill='none' height='9' stroke='currentColor' width='9' x='1.5' y='1.5' />
-          </svg>
-        {/if}
-      </button>
-      <button class='button close-button d-flex border-0 color-white align-items-center justify-content-center' on:click={() => IPC.emit('close-prompt')}><svg class='svg-controls' height='12' role='img' viewBox='0 0 12 12' width='12'><polygon fill='currentColor' fill-rule='evenodd' points='11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1' /></svg></button>
-    {/if}
-  </div>
+  <div class='controls-container d-none position-absolute top-0 {window.version?.platform !== `darwin` ? `right-0 ${window.version?.platform === `win32` ? `right-width-win` : `right-width-linux`}` : `left-0 left-width`} h-full' class:d-flex={!SUPPORTS.isAndroid && !fullscreen || window.version?.platform !== 'darwin'}/>
 </div>
 <div class='position-absolute' class:right-0={SUPPORTS.isAndroid}>
   <img src='./icon_filled.png' tabindex='-1' class='z-102 position-absolute w-50 h-50 m-10 pointer d-none p-5 transition-mt {window.version?.platform === `darwin` ? fullscreen ? `mt-20` : `mt-30` : ``}' class:d-md-block={!SUPPORTS.isAndroid} alt='ico' use:click={home} />
@@ -84,11 +64,6 @@
     top: 0;
     -webkit-app-region: no-drag
   }
-  svg {
-    width: 18px;
-    height: 18px;
-    width: 100%;
-  }
   .navbar {
     left: unset !important;
     --navbar-height: 28px !important;
@@ -99,42 +74,19 @@
       height: 0;
     }
   }
-  .window-controls {
+  .controls-container {
     -webkit-app-region: no-drag;
     backdrop-filter: blur(8px);
     background: rgba(24, 24, 24, 0.2);
   }
-  .right-width {
+  .right-width-win {
     width: 137px;
+  }
+  .right-width-linux {
+    width: 97px;
   }
   .left-width {
     width: 67px;
     border-bottom-right-radius: var(--rounded-2-border-radius);
-  }
-  .window-controls .button {
-    background: transparent;
-    width: 46px;
-    height: 28px;
-    user-select: none;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .window-controls .button:hover {
-      background: rgba(128, 128, 128, 0.2);
-    }
-  }
-  .window-controls .button:active {
-    background: rgba(128, 128, 128, 0.4);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .close-button:hover {
-      background: var(--danger-color-dim) !important;
-    }
-  }
-  .close-button:active {
-    background: var(--danger-color-light) !important;
-  }
-  .svg-controls {
-    width: 12px;
-    height: 12px;
   }
 </style>

@@ -19,7 +19,7 @@
   "devDependencies": {
     "@electron/notarize": "^3.1.0",
     "common": "workspace:*",
-    "electron": "29.1.4",
+    "electron": "36.2.1",
     "electron-builder": "^26.0.12",
     "electron-log": "^5.4.3",
     "electron-updater": "^6.6.8",
@@ -49,7 +49,7 @@
     "asarUnpack": "**/*.node",
     "electronDownload": {
       "mirror": "https://craftationgaming.com/api/packages/electron/",
-      "customDir": "29.1.4"
+      "customDir": "36.2.1"
     },
     "protocols": {
       "name": "shiru",
