@@ -141,13 +141,9 @@ export default new class AnimeResolver {
       const titleObjects = titles.flatMap(title => {
         const titleObject = { title, key, isAdult: false }
         const titleVariants = [{ ...titleObject }]
-        if (obj.anime_year) {
-          titleVariants.unshift({ ...titleObject, year: obj.anime_year })
-        }
+        if (obj.anime_year) titleVariants.unshift({ ...titleObject, year: obj.anime_year })
         if (obj.release_information?.length > 0) {
-          if (obj.anime_year) {
-            titleVariants.unshift({...titleObject, title: title + ' ' + obj.release_information, year: obj.anime_year})
-          }
+          if (obj.anime_year) titleVariants.unshift({...titleObject, title: title + ' ' + obj.release_information, year: obj.anime_year})
           titleVariants.unshift({...titleObject, title: title + ' ' + obj.release_information})
         }
         return titleVariants
@@ -243,7 +239,7 @@ export default new class AnimeResolver {
 
       // Fix common naming issues, the unfortunate depression of horribly named releases. Please don't be like them, do better.
       name = name
-          .replace('1-2', '1/2').replace('1_2', '1/2') // Ranma 1/2 fix.
+          .replace('1-2', '1/2').replace('1_2', '1/2').replace('½', '1/2') // Ranma 1/2 fix.
           .replace(/\s*part\s*1\+2/i, '') // Primary Misfit of Demon King fix.
           .replace(/PANTY AND STOCKING/i, 'PANTY & STOCKING') // PANTY & STOCKING fix.
           .replace(/Link Click (Season\s*3|S\s*3|\s*03)/i, 'Link Click: Bridon Arc') // Link Click S3 fix.
@@ -302,12 +298,37 @@ export default new class AnimeResolver {
    * @returns {boolean} If any of the media titles matches the parsed anime title.
    */
   isVerified(media, parseObj, titleKeys, threshold) {
-    // Stupid miscellaneous checks for poorly named series.
-    if ((String(parseObj?.episode_number).replace(/^0+/, '') === '1') && (parseObj?.anime_title || '').match(/Golden Time/i) && media?.format === 'MOVIE') return false // stupid fix for the unrelated Golden Time movie having the same name as the TV Series.
+    // Edge case: prevent "Golden Time" movie from being misidentified as the TV series.
+    if (String(parseObj?.episode_number).replace(/^0+/, '') === '1' && /Golden Time/i.test(parseObj?.anime_title) && media?.format === 'MOVIE') return false
 
-    // Check that name "semi-loosely" exists in the resolved media.
+    // Fail if the release year doesn't match (Must be the expected year or later)
+    if (parseObj?.anime_year && media?.seasonYear < Number(parseObj?.anime_year)) return false
+
+    // Prepare title variations for matching
+    const baseTitle = parseObj?.anime_title?.replace(/S\d+|season-\d+/gi, '')?.trim()
     const hasSeason = matchKeys(media, 'Season', titleKeys, threshold)
-    return (!parseObj?.anime_year || (media?.seasonYear >= Number(parseObj?.anime_year))) && !(!matchKeys(media, (!parseObj?.anime_season || !(Number(parseObj?.anime_season) > 1) || !hasSeason) ? parseObj?.anime_title : parseObj?.anime_title?.replace(/S\d+|season-\d+/gi, '') + 'Season ' + Number(parseObj?.anime_season), titleKeys, threshold) && !matchKeys(media, parseObj?.anime_title?.replace(/S\d+|season-\d+/gi, '') + (hasSeason && parseObj?.anime_season ? 'Season ' + Number(parseObj?.anime_season) : ''), titleKeys, threshold) && (!parseObj?.anime_season || !(Number(parseObj?.anime_season) > 1) || !matchKeys(media, parseObj?.anime_title?.replace(/S\d+|season-\d+/gi, `Season ${parseObj?.anime_season}`), titleKeys, 0.3)))
+    const seasonNumber = Number(parseObj?.anime_season)
+    const isMultiSeason = parseObj?.anime_season && (seasonNumber > 1)
+
+    // Build title variations to check
+    const titleVariations = []
+
+    // Variation 1: Title with season if applicable
+    if (!isMultiSeason || !hasSeason) titleVariations.push(parseObj?.anime_title)
+    else titleVariations.push(`${baseTitle} Season ${seasonNumber}`)
+
+    // Variation 2: Title with season (if season exists)
+    const seasonSuffix = (hasSeason && parseObj?.anime_season) ? ` Season ${seasonNumber}` : ''
+    titleVariations.push(`${baseTitle}${seasonSuffix}`)
+
+    // Variation 3: Title with inline season number (relaxed threshold)... if prequel doesn't exist but sequel does there is something seriously wrong.
+    if (isMultiSeason) {
+      if (matchKeys(media, parseObj?.anime_title?.replace(/S\d+|season-\d+/gi, `Season ${seasonNumber}`), titleKeys, 0.3)) return true
+      else if (!this.findEdge(media, 'PREQUEL')?.node && this.findEdge(media, 'SEQUEL')?.node) return false
+    }
+
+    // Check that anime_title "semi-loosely" exists in the resolved media.
+    return titleVariations.some(title => matchKeys(media, title, titleKeys, threshold))
   }
 
   // ~~TODO~~ (LIKELY DONE VIA OUR NEW ZERO EPISODE HANDLING): anidb aka true episodes need to be mapped to anilist episodes a bit better, shit like mushoku offsets caused by episode 0's in between seasons
