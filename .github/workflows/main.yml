@@ -10,13 +10,13 @@ on:
       - '**.md'
       - '**.yml'
 
-jobs:
-  release:
-    runs-on: ${{ matrix.os }}
+env:
+  NODE_VERSION: '22.12'
+  PNPM_VERSION: '10.15.1'
 
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+jobs:
+  release-windows:
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
@@ -25,16 +25,75 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
-          version: 10.15.1
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.12
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          cd electron
+          pnpm install --frozen-lockfile
+
+      - name: Build and Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd electron
+          npm run publish
+
+  release-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          cd electron
+          pnpm install --frozen-lockfile
+
+      - name: Build and Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd electron
+          npm run publish
+
+  release-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Install Setuptools for Python (macOS only)
-        if: matrix.os == 'macos-latest'
         run: pip3 install setuptools --break-system-packages
 
       - name: Install dependencies
