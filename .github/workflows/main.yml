@@ -11,7 +11,7 @@ on:
       - '**.yml'
 
 env:
-  NODE_VERSION: '22.12'
+  NODE_VERSION: '22.15'
   PNPM_VERSION: '10.15.1'
 
 jobs:
