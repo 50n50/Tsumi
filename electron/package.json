@@ -80,8 +80,7 @@
       "!node_modules/**/*.{mk,a,o,h}"
     ],
     "mac": {
-      "artifactName": "${os}-${productName}-v${version}-mac.${ext}",
-      "defaultArch": "universal",
+      "artifactName": "${os}-${arch}-${productName}-v${version}.${ext}",
       "singleArchFiles": "node_modules/+(register-scheme|utp-native|fs-native-extensions)/**",
       "category": "public.app-category.video",
       "darkModeSupport": true,
@@ -91,8 +90,12 @@
       "entitlements": "buildResources/entitlements.mac.plist",
       "target": [
         {
-          "arch": "universal",
-          "target": "default"
+          "target": "default",
+          "arch": "x64"
+        },
+        {
+          "target": "default",
+          "arch": "arm64"
         }
       ]
     },
