@@ -1,5 +1,6 @@
 <script>
   import { click } from '@/modules/click.js'
+  import { SUPPORTS } from '@/modules/support.js'
   import { sections } from '@/modules/sections.js'
   import { ArrowDownUp, Trash2 } from 'lucide-svelte'
   import CustomDropdown from '@/components/CustomDropdown.svelte'
@@ -7,6 +8,8 @@
   $: allowedHomeSections = $sections.map(({ title, sort, format }) => [title, sort, format])
   export let homeSections
 
+  let touchStartY = null
+  let isDraggingTouch = false
   let mouseYCoordinate = null
   let controlDragging = false
   let draggingItem = null
@@ -103,6 +106,34 @@
       }
     }
   }
+
+  function handleTouchEnd() {
+    if (!isDraggingTouch) return
+    mouseYCoordinate = null
+    draggingItem = null
+    draggingItemIndex = null
+    hoveredItemIndex = null
+    lastProcessedHoverIndex = null
+    isDraggingTouch = false
+    touchStartY = null
+  }
+
+  function getListBounds() {
+    const firstElement = document.querySelector('[data-drag-index="0"]')
+    const lastElement = document.querySelector(`[data-drag-index="${homeSections.length - 1}"]`)
+    if (!firstElement || !lastElement) return null
+    const firstRow = firstElement.closest('.d-flex')
+    const lastRow = lastElement.closest('.d-flex')
+    if (!firstRow || !lastRow) return null
+    return { top: firstRow.offsetTop, bottom: lastRow.offsetTop }
+  }
+
+  function clampYCoordinate(y) {
+    if (distanceTopGrabbedVsPointer === null) return y
+    const bounds = getListBounds()
+    if (!bounds) return y
+    return Math.max(bounds.top, Math.min(bounds.bottom, y + distanceTopGrabbedVsPointer)) - distanceTopGrabbedVsPointer
+  }
 </script>
 
 {#if mouseYCoordinate || controlDragging}
@@ -128,10 +159,14 @@
     </div>
   {/if}
   <div class='d-flex mb-10 w-509 mw-full not-reactive' class:tp={draggingItem === item} role='menuitem' tabindex='-1'>
-    <div class='input-group-prepend grab' class:tp={draggingItem === item} draggable='true' role='button' tabindex='0' data-drag-index={index} aria-label={controlDragging && draggingItemIndex === index ? 'Dragging. Use arrow keys to move, Space or Enter to drop, Escape to cancel' : 'Press Space or Enter to start dragging'}
-         on:dragstart={({ clientY, target }) => { mouseYCoordinate = clientY; draggingItem = item; draggingItemIndex = index; distanceTopGrabbedVsPointer = target.offsetTop - clientY }}
-         on:drag={e => { mouseYCoordinate = e.clientY; hoveredItemIndex = calculateHoverIndexFromY(e.clientY) }}
-         on:dragend={() => { mouseYCoordinate = null; draggingItem = null; hoveredItemIndex = null; lastProcessedHoverIndex = null }}
+    <div class='input-group-prepend grab touch-none' class:tp={draggingItem === item} draggable='true' role='button' tabindex='0' data-drag-index={index} aria-label={controlDragging && draggingItemIndex === index ? 'Dragging. Use arrow keys to move, Space or Enter to drop, Escape to cancel' : 'Press Space or Enter to start dragging'}
+         on:dragstart={({ clientY, target }) => { if (!SUPPORTS.isAndroid) { mouseYCoordinate = clientY; draggingItem = item; draggingItemIndex = index; distanceTopGrabbedVsPointer = target.offsetTop - clientY } }}
+         on:drag={e => { if (e.clientY !== 0 && !SUPPORTS.isAndroid) { mouseYCoordinate = clampYCoordinate(e.clientY); hoveredItemIndex = calculateHoverIndexFromY(e.clientY) } }}
+         on:dragend={() => { if (!SUPPORTS.isAndroid) { mouseYCoordinate = null; draggingItem = null; hoveredItemIndex = null; lastProcessedHoverIndex = null } }}
+         on:touchstart={e => { const touch = e.touches[0]; touchStartY = touch.clientY; isDraggingTouch = true; mouseYCoordinate = touch.clientY; draggingItem = item; draggingItemIndex = index; distanceTopGrabbedVsPointer = e.currentTarget.offsetTop - touch.clientY }}
+         on:touchmove={e => { if (!isDraggingTouch) return; const touch = e.touches[0]; mouseYCoordinate = clampYCoordinate(touch.clientY); hoveredItemIndex = calculateHoverIndexFromY(touch.clientY) }}
+         on:touchend={handleTouchEnd}
+         on:touchcancel={handleTouchEnd}
          on:keydown={e => handleKeyDown(e, index, item)}>
       <span class='input-group-text d-flex align-items-center px-5'>
         <ArrowDownUp size='1.8rem' />
