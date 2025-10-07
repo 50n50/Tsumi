@@ -718,14 +718,15 @@ export const tagList = [
 ]
 
 export async function playMedia (media) {
-  let ep = 1
+  const zeroEpisode = await hasZeroEpisode(media)
+  let ep = zeroEpisode ? 0 : 1
   if (media.mediaListEntry) {
     const { status, progress } = media.mediaListEntry
     if (progress) {
       if (status === 'COMPLETED') {
         await setStatus('REPEATING', { episode: 0 }, media)
       } else {
-        ep = Math.min(getMediaMaxEp(media, true) || (progress + 1), progress + 1)
+        ep = Math.min(getMediaMaxEp(media, true) || (progress + 1), progress + 1) - (zeroEpisode ? 1 : 0)
       }
     }
   }

@@ -291,7 +291,7 @@
   function checkAvail (media, current) {
     if ((((media?.media?.nextAiringEpisode?.episode - 1 || getMediaMaxEp(media?.media)) - (media?.zeroEpisode ? 1 : 0)) > media?.episode) || ((media?.media && !media.media.nextAiringEpisode?.episode && !media.media.airingSchedule?.nodes?.[0]?.episode && !media.media.episodes))) hasNext = true
     else hasNext = videos.indexOf(current) !== videos.length - 1
-    if (media?.episode > 1 && media?.media) hasLast = true
+    if (media?.media && (media?.episode > 1 || (media?.zeroEpisode && media?.episode === 1))) hasLast = true
     else hasLast = videos.indexOf(current) > 0
   }
 
@@ -451,7 +451,7 @@
       if (index > 0) {
         handleCurrent(videos[index - 1])
         w2gEmitter.emit('index', { index: index - 1 })
-      } else if (media?.episode > 1) {
+      } else if (media?.episode > 1 || (media?.zeroEpisode && media?.episode === 1)) {
         playAnime(media.media, media.episode - 1)
       }
     }

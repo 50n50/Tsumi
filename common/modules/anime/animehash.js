@@ -14,7 +14,7 @@ function pushFiles(files, data) {
         fileHash: data.fileHash,
         mediaId: data.mediaId,
         ...(data.episodeRange ? { episodeRange: data.episodeRange } : {}),
-        ...(data.episode ? { episode: Number(data.episode) || data.episode } : {}),
+        ...(data.episode || data.episode === 0 ? { episode: Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode } : {}),
         ...(data.season ? { season: Number(data.season) || data.season } : {}),
         parseObject: data.parseObject,
         ...(data.locked ? { locked: data.locked } : {}),
@@ -34,7 +34,7 @@ export function setHash(hash, data) {
                 Object.assign(existingFile, {
                     mediaId: data.mediaId,
                     ...(data.episodeRange ? { episodeRange: data.episodeRange } : {}),
-                    ...(data.episode ? { episode: Number(data.episode) || data.episode } : {}),
+                    ...(data.episode || data.episode === 0 ? { episode: Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode } : {}),
                     ...(data.season ? { season: Number(data.season) || data.season } : {}),
                     parseObject: data.parseObject,
                     ...(data.locked ? { locked: data.locked } : {}),
@@ -54,7 +54,7 @@ export function setHash(hash, data) {
                 hash,
                 mediaId: data.mediaId,
                 ...(data.episodeRange ? { episodeRange: data.episodeRange } : {}),
-                ...(data.episode ? { episode: Number(data.episode) || data.episode } : {}),
+                ...(data.episode || data.episode === 0 ? { episode: Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode } : {}),
                 ...(data.season ? { season: Number(data.season) || data.season } : {}),
                 parseObject: data.parseObject,
                 ...(data.locked ? { locked: data.locked } : {}),
@@ -71,7 +71,7 @@ export function setHash(hash, data) {
             mediaId: data.mediaId,
             ...(!files?.length ? {
                 ...(data.episodeRange ? { episodeRange: data.episodeRange } : {}),
-                ...(data.episode ? { episode: Number(data.episode) || data.episode } : {}),
+                ...(data.episode || data.episode === 0 ? { episode: Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode } : {}),
                 ...(data.season ? { season: Number(data.season) || data.season } : {}),
                 parseObject: data.parseObject,
                 ...(data.locked ? { locked: data.locked } : {}),
@@ -90,11 +90,11 @@ export function getHash(mediaId, data, ignoreCached = false, ignoreExpiry = fals
     const filtered = ignoreCached ? hashes.value : hashes.value.filter(item => availableHashes.has(item.hash) || (item.files?.length && item.files.some(file => availableHashes.has(file.fileHash))))
     const cacheDuration = mediaCache.value?.[mediaId]?.status === 'FINISHED' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
     for (const item of filtered) {
-        if (item.mediaId === mediaId && item.episode === (Number(data.episode) || data.episode) && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash // Root match
+        if (item.mediaId === mediaId && item.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash // Root match
         else if (Array.isArray(item.files)) {
-            const semiMatch = item.files.find(file => item.mediaId === mediaId && file.episode === (Number(data.episode) || data.episode) && (item.parseObject || data.client)) // Semi file-level match: item-level mediaId
+            const semiMatch = item.files.find(file => item.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client)) // Semi file-level match: item-level mediaId
             if (semiMatch && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash
-            const fullMatch = item.files.find(file => file.mediaId === mediaId && file.episode === (Number(data.episode) || data.episode) && (file.parseObject || data.client)) // Full file-level match: file-level mediaId
+            const fullMatch = item.files.find(file => file.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (file.parseObject || data.client)) // Full file-level match: file-level mediaId
             if (fullMatch && (ignoreExpiry || fullMatch.locked || (fullMatch.updatedAt >= Date.now() - cacheDuration))) return item.hash
         }
     }

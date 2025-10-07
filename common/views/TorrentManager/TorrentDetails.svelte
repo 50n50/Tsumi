@@ -36,7 +36,7 @@
   }
 
   $: resolvedId = resolved?.mediaId
-  $: episode = resolved?.files?.length <= 1 ? !resolved?.files?.length ? resolved?.episode : (resolved?.files?.[0]?.episode || resolved?.episode) : null
+  $: episode = resolved?.files?.length <= 1 ? !resolved?.files?.length ? resolved?.episode : (Number.isFinite(Number(resolved?.files?.[0]?.episode)) ? Number(resolved?.files?.[0]?.episode) : resolved?.episode) : null
   $: episodeRange = resolved?.files?.length <= 1 ? !resolved?.files?.length ? (resolved?.episodeRange && `${resolved.episodeRange.first} ~ ${resolved.episodeRange.last}`) : (resolved?.files?.[0]?.episodeRange && `${resolved?.files?.[0].episodeRange.first} ~ ${resolved?.files?.[0].episodeRange.last}`) || (resolved?.episodeRange && `${resolved.episodeRange.first} ~ ${resolved.episodeRange.last}`) : null
 
   function viewMedia() {
