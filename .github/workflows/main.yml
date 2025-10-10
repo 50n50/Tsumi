@@ -11,7 +11,7 @@ on:
       - '**.yml'
 
 env:
-  NODE_VERSION: '22.14'
+  NODE_VERSION: '22.15.0'
   PNPM_VERSION: '10.15.1'
 
 jobs:
@@ -37,6 +37,9 @@ jobs:
         run: |
           cd electron
           pnpm install --frozen-lockfile
+        env:
+          NAPI_VERSION: "10"
+          npm_config_napi_version: "10"
 
       - name: Build and Publish
         env:
@@ -67,6 +70,9 @@ jobs:
         run: |
           cd electron
           pnpm install --frozen-lockfile
+        env:
+          NAPI_VERSION: "10"
+          npm_config_napi_version: "10"
 
       - name: Build and Publish
         env:
@@ -100,6 +106,9 @@ jobs:
         run: |
           cd electron
           pnpm install --frozen-lockfile
+        env:
+          NAPI_VERSION: "10"
+          npm_config_napi_version: "10"
 
       - name: Build and Publish
         env:

@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14'
+          node-version: '22.15.0'
           cache: 'pnpm'
 
       - name: Setup Java
@@ -40,6 +40,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          NAPI_VERSION: "10"
+          npm_config_napi_version: "10"
 
       - name: Install node-pre-gyp
         run: pnpm install -g node-pre-gyp
