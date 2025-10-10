@@ -143,7 +143,7 @@ Credit to [Migu](https://github.com/NoCrypt/migu) for doing the legwork on this.
 
 ### 📋 Requirements:
 - PNPM (or any package manager)
-- NodeJS 22.15.0
+- NodeJS 22.14
 - Docker (with WSL on Windows)
 - ADB & Android Studio (SDK 34)
 - Java 21 (JDK)

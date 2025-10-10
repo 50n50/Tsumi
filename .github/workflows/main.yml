@@ -11,7 +11,7 @@ on:
       - '**.yml'
 
 env:
-  NODE_VERSION: '22.15.0'
+  NODE_VERSION: '22.14'
   PNPM_VERSION: '10.15.1'
 
 jobs:
@@ -32,9 +32,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Fix N-API for Node 22.15
-        run: echo "npm_config_napi_version=9" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -66,9 +63,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
-      - name: Fix N-API for Node 22.15
-        run: echo "npm_config_napi_version=9" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: |
           cd electron
@@ -98,9 +92,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Fix N-API for Node 22.15
-        run: echo "npm_config_napi_version=9" >> $GITHUB_ENV
 
       - name: Install Setuptools for Python (macOS only)
         run: pip3 install setuptools --break-system-packages
