@@ -12,7 +12,7 @@
     "jassub": "^1.8.6",
     "js-levenshtein": "^1.1.6",
     "lucide-svelte": "^0.455.0",
-    "marked": "^16.3.0",
+    "marked": "^16.4.0",
     "p2pt": "github:ThaUnknown/p2pt#modernise",
     "perfect-seekbar": "^1.1.0",
     "quartermoon": "^1.2.3",
