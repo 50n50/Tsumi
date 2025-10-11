@@ -103,7 +103,7 @@
   <div class='pr-5 pl-5 ml-10 font-size-12 glow text-muted pointer btn d-none align-items-center justify-content-center' class:d-flex={!SUPPORTS.isAndroid} aria-hidden='true' use:click={() => scrollCarousel('right')}><ChevronRight strokeWidth='3' size='2rem' /></div>
 </span>
 <div class='position-relative'>
-  <div class='pb-10 w-full d-flex flex-row justify-content-start overflow-y-hidden gallery' use:dragScroll bind:this={scrollContainer}>
+  <div class='pb-10 w-full d-flex flex-row justify-content-start gallery' use:dragScroll bind:this={scrollContainer}>
     {#each ($preview || fakecards).slice(0, visibleLength || previewLength) as card}
       <Card {card} variables={{...opts.variables, section: true}} />
     {/each}
