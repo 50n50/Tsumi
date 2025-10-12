@@ -67,17 +67,23 @@
     items.value = []
     hasNextPage.value = true
     await loadSearchData()
-    while (hasNextPage.value && container && cachedKey === $key && container.scrollHeight <= container.clientHeight) {
+    while ($hasNextPage && container && cachedKey === $key && container.scrollTop + container.clientHeight > container.scrollHeight - 800) {
       canScroll = false
       await loadSearchData()
     }
     canScroll = true
   }
 
-  async function infiniteScroll () {
-    if (canScroll && $hasNextPage && this.scrollTop + this.clientHeight > this.scrollHeight - 800) {
+  async function infiniteScroll (_container) {
+    const cachedKey = $key
+    const container = _container?.currentTarget || _container
+    if (container && canScroll && $hasNextPage && container.scrollTop + container.clientHeight > container.scrollHeight - 800) {
       canScroll = false
       await loadSearchData()
+      while ($hasNextPage && container && cachedKey === $key && container.scrollTop + container.clientHeight > container.scrollHeight - 800) {
+        canScroll = false
+        await loadSearchData()
+      }
       canScroll = true
     }
   }
