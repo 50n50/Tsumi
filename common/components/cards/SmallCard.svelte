@@ -107,7 +107,7 @@
         {:else if Number.isInteger(type) && type < 0}
           <ThumbsDown fill='currentColor' class='text-danger pr-5 pb-5' size='2rem' />
         {/if}
-        {(Number.isInteger(type) ? Math.abs(type).toLocaleString() + (type >= 0 ? ' likes' : ' dislikes') : type)}
+        {(Number.isInteger(type) ? Math.abs(type).toLocaleString() + (type >= 0 ? ' like' : ' dislike') + ((type !== 1 && type !== -1) ? 's' : '') : type)}
       </div>
     {/if}
     <div class='text-white font-weight-very-bold font-size-16 title overflow-hidden' class:mb-10={type || type === 0}>

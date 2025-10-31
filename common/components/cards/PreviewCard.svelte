@@ -102,7 +102,7 @@
             {:else if Number.isInteger(type) && type < 0}
               <ThumbsDown fill='currentColor' class='text-danger m-0 p-0 pr-5' size='1.9rem'/>
             {/if}
-            <span> {(Number.isInteger(type) ? Math.abs(type).toLocaleString() + (type >= 0 ? ' likes' : ' dislikes') : type)}</span>
+            <span> {(Number.isInteger(type) ? Math.abs(type).toLocaleString() + (type >= 0 ? ' like' : ' dislike') + ((type !== 1 && type !== -1) ? 's' : '') : type)}</span>
           </span>
         {/if}
         <span class='badge pl-5 pr-5 font-scale-14'>
