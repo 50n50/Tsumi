@@ -81,7 +81,7 @@
       "!node_modules/**/*.{mk,a,o,h}"
     ],
     "mac": {
-      "artifactName": "${os}-${arch}-${productName}-v${version}.${ext}",
+      "artifactName": "${os}-${productName}-v${version}.${ext}",
       "singleArchFiles": "node_modules/+(register-scheme|utp-native|fs-native-extensions)/**",
       "category": "public.app-category.video",
       "darkModeSupport": true,
