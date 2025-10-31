@@ -20,8 +20,10 @@ const capacitorConfig = {
   },
   mode,
   externals: {
+    bridge: 'require("bridge")',
     'utp-native': 'require("utp-native")',
-    bridge: 'require("bridge")'
+    'fs-native-extensions': 'commonjs2 fs-native-extensions',
+    'require-addon': 'commonjs2 require-addon'
   },
   resolve: {
     aliasFields: [],

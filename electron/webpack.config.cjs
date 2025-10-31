@@ -17,7 +17,9 @@ module.exports = [
     },
     mode,
     externals: {
-      'utp-native': 'require("utp-native")'
+      'utp-native': 'require("utp-native")',
+      'fs-native-extensions': 'commonjs2 fs-native-extensions',
+      'require-addon': 'commonjs2 require-addon'
     },
     resolve: {
       aliasFields: [],

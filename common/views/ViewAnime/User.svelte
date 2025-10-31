@@ -78,7 +78,7 @@
             <SmartImage class='position-absolute h-full w-full cover-img opacity-55 inset-0' images={[user.bannerImage, './404_banner.png']}/>
           {/if}
           <div class='top-inner d-flex align-items-end w-full z-2'>
-            <div class='rounded-circle' class:pointer={user.siteUrl} data-toggle='{user.siteUrl ? `tooltip` : ``}' data-placement='top-left' data-title='Share to Clipboard' tabindex='-1' use:click={() => copyToClipboard(user.siteUrl)} on:contextmenu|preventDefault={() => { if (user.siteUrl) IPC.emit('open', user.siteUrl) }}>
+            <div role='button' class='rounded-circle' class:pointer={user.siteUrl} data-toggle='{user.siteUrl ? `tooltip` : ``}' data-placement='top-left' data-title='Share to Clipboard' tabindex='-1' use:click={() => copyToClipboard(user.siteUrl)} on:contextmenu|preventDefault={() => { if (user.siteUrl) IPC.emit('open', user.siteUrl) }}>
               <div class='h-80 w-80 rounded-circle overflow-hidden flex-shrink-0' style='border: .4rem solid hsla(var(--gray-color-hsl), 0.15); clip-path: circle(50% at 50% 50%)'>
                 {#if avatar}
                   <SmartImage class='w-full h-full cover-img' images={[avatar, './404_square.png']}/>

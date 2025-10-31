@@ -457,10 +457,6 @@
     .date-row {
       justify-content: center !important;
     }
-    img {
-      width: 100%;
-      height: 15rem !important;
-    }
   }
 
   @media (min-width: 1920px) {

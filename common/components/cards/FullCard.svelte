@@ -41,7 +41,7 @@
         <span class='airing-badge rounded-10 font-weight-semi-bold text-light bg-success' class:d-none={!airingInfo?.episode?.match(/out for/i)}>AIRING</span>
         <SmartImage class='cover-img cover-color w-full h-270' color={media.coverImage.color || 'var(--tertiary-color)'} images={[media.coverImage.extraLarge, media.coverImage?.medium, './404_cover.png']}/>
         {#if !_variables?.scheduleList}
-          <AudioLabel {media} smallCard={false} />
+          <AudioLabel {media} />
         {/if}
       </div>
       <div class='col h-full card-grid'>

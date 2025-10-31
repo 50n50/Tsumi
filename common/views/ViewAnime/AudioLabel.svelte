@@ -14,7 +14,6 @@
 
     export let banner = false
     export let viewAnime = false
-    export let smallCard = true
     export let episode = false
     export let episodeList = false
 
@@ -148,9 +147,6 @@
      }
      .mb-4 {
          margin-bottom: .38rem;
-     }
-     .mb-3 {
-         margin-bottom: -.3rem !important;
      }
      .slant {
          clip-path: polygon(15% -1px, 100% 0, 100% 100%, 0% calc(100% + 1px));
