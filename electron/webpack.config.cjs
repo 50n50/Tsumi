@@ -33,7 +33,7 @@ module.exports = [
       }
     },
     plugins: [new HtmlWebpackPlugin({ filename: 'background.html' })],
-    target: 'electron20.0-renderer',
+    target: 'electron39.0-renderer',
     devServer: {
       devMiddleware: {
         writeToDisk: true
@@ -58,7 +58,7 @@ module.exports = [
       aliasFields: []
     },
     mode,
-    target: 'electron20.0-preload'
+    target: 'electron39.0-preload'
   },
   {
     devtool: 'source-map',
@@ -77,6 +77,6 @@ module.exports = [
       }
     },
     mode,
-    target: 'electron20.0-main'
+    target: 'electron39.0-main'
   }
 ]
