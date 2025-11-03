@@ -21,9 +21,10 @@ function createWorker(source) {
  * Fetches and validates an extension manifest from a given URL.
  * Supports 'gh:', 'npm:', 'file:', 'extension:', and 'http(s)' protocols.
  * @param {string} url The manifest URL or file path.
+ * @param {boolean} updateCheck If the reason for getting the manifest is to check for updates.
  * @returns {Promise<object[]|null>} A parsed manifest array or null on error.
  */
-async function getManifest(url) {
+async function getManifest(url, updateCheck = false) {
   try {
     if (url.startsWith('http')) return await (await fetch(url)).json()
     if (/^[A-Z]:/.test(url) || url.startsWith('file:') || url.startsWith('extension:')) {
@@ -44,7 +45,7 @@ async function getManifest(url) {
     if (!Array.isArray(manifest)) throw new Error('Manifest is not an array')
     return manifest
   } catch (error) {
-    await printError('Failed to fetch Source', `Unable to load manifest for: ${url}`, error)
+    if (!updateCheck || !(error?.status === 429 || error?.status === 503)) await printError('Failed to fetch Source', `Unable to load manifest for: ${url}`, error)
     return null
   }
 }
@@ -294,7 +295,7 @@ class ExtensionManager {
     const extensionIds = Object.keys(currentExtensions || {})
     if (!extensionIds?.length) return false
     try {
-      const latestManifests = await Promise.all(Object.values(currentExtensions || {}).map(ext => ext?.locale || ext?.update).filter(url => url).map(url => getManifest(url)))
+      const latestManifests = await Promise.all(Object.values(currentExtensions || {}).map(ext => ext?.locale || ext?.update).filter(url => url).map(url => getManifest(url, true)))
       const validManifests = latestManifests.filter(manifest => manifest !== null && Array.isArray(manifest))
       if (validManifests.length === 0) {
         debug('No valid manifests retrieved during update check, skipping update')
