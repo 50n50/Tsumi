@@ -30,7 +30,7 @@ export default class Subtitles {
     this.tracks = []
     this._tracksString = []
     this._stylesMap = []
-    this.fonts = ['/Roboto.ttf']
+    this.fonts = ['/Roboto.ttf', './NotoSansCJK.otf']
     this.renderer = null
     this.parsed = false
     this.stream = null
@@ -168,7 +168,8 @@ export default class Subtitles {
         maxRenderHeight: parseInt(settings.value.subtitleRenderHeight) || 0,
         fallbackFont: settings.value.font?.name || 'roboto medium',
         availableFonts: {
-          'roboto medium': './Roboto.ttf'
+          'roboto medium': './Roboto.ttf',
+          'noto sans cjk regular': './NotoSansCJK.otf'
         },
         workerUrl: new URL('jassub/dist/jassub-worker.js', import.meta.url).toString(),
         wasmUrl: new URL('jassub/dist/jassub-worker.wasm', import.meta.url).toString(),
@@ -179,6 +180,7 @@ export default class Subtitles {
       }
       if (SUPPORTS.isAndroid) JASSUB._hasBitmapBug = true
       this.renderer = new JASSUB(options)
+      this.renderer?.setDefaultFont('noto sans cjk regular')
     }
   }
 
