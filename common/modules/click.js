@@ -93,11 +93,11 @@ export function click(node, cb = noop) {
  * @param {Function} [onBlur=noop] - The callback function to be executed on blur.
  */
 export function blurExit(node, onBlur = noop) {
-  if (!node.hasAttribute('tabindex')) node.tabIndex = 0
-  node.role = 'button'
-  node.addEventListener('blur', e => {
-    onBlur()
-  })
+  if (SUPPORTS.isAndroid) {
+    if (!node.hasAttribute('tabindex')) node.tabIndex = 0
+    node.role = 'button'
+    node.addEventListener('blur', e => onBlur())
+  }
 }
 
 /**
