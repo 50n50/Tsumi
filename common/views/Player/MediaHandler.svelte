@@ -246,11 +246,20 @@
 
     // unwatched
     let lowestUnwatched
-    for (const format of ['TV', 'MOVIE', 'ONA', 'OVA', 'SPECIAL']) {
-      for (const { media } of videoFiles) {
-        const cachedMedia = mediaCache.value[media?.media?.id] || media?.media
-        if (cachedMedia?.format === format && !cachedMedia.mediaListEntry && (!lowestUnwatched || (((Number(lowestUnwatched.episode) >= Number(media?.episode)) || (media?.episode && !lowestUnwatched.episode)) && ((Number(lowestUnwatched.season) >= Number(media?.season)) && (cachedMedia?.format !== 'SPECIAL' || (mediaCache.value[lowestUnwatched?.media?.id] || lowestUnwatched?.media)?.format === 'SPECIAL'))))) lowestUnwatched = { media: cachedMedia, episode: media?.episode, season: media?.season }
-      }
+    // for (const format of ['TV', 'MOVIE', 'ONA', 'OVA', 'SPECIAL']) {
+    //   for (const { media } of videoFiles) {
+    //     const cachedMedia = mediaCache.value[media?.media?.id] || media?.media
+    //     if (cachedMedia?.format === format && !cachedMedia.mediaListEntry && (!lowestUnwatched || (((Number(lowestUnwatched.episode) >= Number(media?.episode)) || (media?.episode && !lowestUnwatched.episode)) && ((Number(lowestUnwatched.season) >= Number(media?.season)) && (cachedMedia?.format !== 'SPECIAL' || (mediaCache.value[lowestUnwatched?.media?.id] || lowestUnwatched?.media)?.format === 'SPECIAL'))))) lowestUnwatched = { media: cachedMedia, episode: media?.episode, season: media?.season }
+    //   }
+    // }
+    // Probably better to prefer the lowest media id as going by format is unreliable... ids of series should be sequential (in order of release) so this should be fine?
+    for (const { media } of videoFiles) {
+      const cachedMedia = mediaCache.value[media?.media?.id] || media?.media
+      if (!cachedMedia || cachedMedia.mediaListEntry) continue
+      const ep = media?.episode != null ? Number(media.episode) : Infinity
+      const season = media?.season != null ? Number(media.season) : Infinity
+      if (!lowestUnwatched) lowestUnwatched = { media: cachedMedia, episode: ep, season }
+      else if (cachedMedia.id < lowestUnwatched.media?.id || (cachedMedia.id === lowestUnwatched.media?.id && (season < (lowestUnwatched.season != null ? Number(lowestUnwatched.season) : Infinity) || (season === (lowestUnwatched.season != null ? Number(lowestUnwatched.season) : Infinity) && ep < (lowestUnwatched.episode != null ? Number(lowestUnwatched.episode) : Infinity))))) lowestUnwatched = { media: cachedMedia, episode: ep, season }
     }
     if (lowestUnwatched) return lowestUnwatched
 
