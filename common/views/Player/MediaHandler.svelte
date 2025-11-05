@@ -348,33 +348,43 @@
     // Identify files that still need to be resolved, attempting again using the torrent name instead.
     let failedToResolve = videoFiles.filter(file => !file.media)
     if (failedToResolve.length) {
-        debug('Some media files failed to resolve using the file name, trying again using the torrent name...')
-        const torrentName = [...new Set(torrentNames)][0] // temporary, may need to handle multiple torrents in the future.
-        let resolvedByName = []
-        try {
-            resolvedByName = await AnimeResolver.resolveFileAnime(failedToResolve.map(file => `${torrentName} ${file.name}`))
-        } catch (e) { debug(e) }
-        failedToResolve.forEach((file) => {
-            const parseObject = resolvedByName.find(({ parseObject }) => AnimeResolver.cleanFileName(`${torrentName} ${file.name}`).includes(parseObject.file_name))
-            const failedEntry = resolved.find(resolvedFile => AnimeResolver.cleanFileName(resolvedFile.parseObject.file_name) === AnimeResolver.cleanFileName(file.name))
-            const animeType = failedEntry?.parseObject.anime_type
-            if (animeType) parseObject.parseObject.anime_type = animeType
-            if (parseObject?.failed) { // hacky fix to remove the episode number when it failed to resolved, when using the torrent name + file name the resolver has a bias toward detecting the video resolution as the episode number.
-                if (parseObject?.parseObject?.episode_number && (String(parseObject?.parseObject?.episode_number || '') === String(failedEntry?.parseObject?.video_resolution || '').replace('p', ''))) delete parseObject.parseObject.episode_number
-                if (parseObject?.episode && (String(parseObject?.episode || '') === String(failedEntry?.parseObject?.video_resolution || '').replace('p', ''))) delete parseObject.episode
-            }
-            if (parseObject) {
-                file.media = parseObject
-                setHash(file.infoHash, {
-                    fileHash: file.fileHash,
-                    mediaId: parseObject.media?.id,
-                    episode: parseObject.episode,
-                    season: parseObject.season,
-                    parseObject: parseObject.parseObject,
-                    failed: parseObject.failed
-                })
-            }
+      debug('Some media files failed to resolve using the file name, trying again using the torrent name...')
+      const torrentName = [...new Set(torrentNames)][0] // temporary, may need to handle multiple torrents in the future.
+      let resolvedByName = []
+      try {
+        resolvedByName = await AnimeResolver.resolveFileAnime(failedToResolve.map(file => `${torrentName} ${file.name}`))
+      } catch (e) { debug(e) }
+      failedToResolve.forEach((file) => {
+        const parseObject = resolvedByName.find(({ parseObject }) => AnimeResolver.cleanFileName(`${torrentName} ${file.name}`).includes(parseObject.file_name))
+        const failedEntry = resolved.find(result => AnimeResolver.cleanFileName(result.parseObject.file_name) === AnimeResolver.cleanFileName(file.name))
+        const animeType = failedEntry?.parseObject?.anime_type
+        if (animeType) parseObject.parseObject.anime_type = animeType
+        const failedEpisode = failedEntry?.episode || failedEntry?.parseObject?.episode_number
+        const failedSeason = failedEntry?.season || failedEntry?.parseObject?.season_number
+        if (failedEpisode) {
+          parseObject.episode = failedEpisode
+          if (parseObject.parseObject) parseObject.parseObject.episode_number = failedEpisode
+        }
+        if (failedSeason) {
+          parseObject.season = failedSeason
+          if (parseObject.parseObject) parseObject.parseObject.season_number = failedSeason
+        }
+        if (parseObject?.failed) {
+          if (parseObject?.failed) { // hacky fix to remove the episode number when it failed to resolved, when using the torrent name + file name the resolver has a bias toward detecting the video resolution as the episode number.
+            if (parseObject?.parseObject?.episode_number && (String(parseObject?.parseObject?.episode_number || '') === String(failedEntry?.parseObject?.video_resolution || '').replace('p', ''))) delete parseObject.parseObject.episode_number
+            if (parseObject?.episode && (String(parseObject?.episode || '') === String(failedEntry?.parseObject?.video_resolution || '').replace('p', ''))) delete parseObject.episode
+          }
+        }
+        file.media = parseObject
+        setHash(file.infoHash, {
+          fileHash: file.fileHash,
+          mediaId: parseObject.media?.id,
+          episode: parseObject.episode,
+          season: parseObject.season,
+          parseObject: parseObject.parseObject,
+          failed: parseObject.failed
         })
+      })
     }
 
     failedToResolve = videoFiles.filter(file => !file.media)
