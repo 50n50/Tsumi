@@ -1,6 +1,6 @@
 <p align="center">
 	<a href="https://github.com/RockinChaos/Shiru">
-		<img src="./.github/docs/assets/logo_filled.svg" width="400" alt="Shiru">
+		<img src="../.github/docs/assets/logo_filled.svg" width="400" alt="Shiru">
 	</a>
 </p>
 <h4 align="center"><b>Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!</b></h4>
