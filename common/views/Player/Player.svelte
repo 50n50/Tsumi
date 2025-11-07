@@ -1053,7 +1053,7 @@
     ['Opening', /^op$|opening$|title$|^ncop/mi],
     ['Outro', /^outro$/mi],
     ['Ending', /^ed$|ending$|^nced/mi],
-    ['Credits', /^credits$/mi],
+    ['Credits', /credits/i],
     ['Preview', /^preview$|previews$|pv$|next$/mi],
     ['Recap', /recap/mi]
   ]

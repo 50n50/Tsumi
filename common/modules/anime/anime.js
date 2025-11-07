@@ -173,8 +173,8 @@ export function getMediaMaxEp (media, playable) {
 export async function anitomyscript (...args) {
   // @ts-ignore
   const res = await _anitomyscript(...args)
-
   const parseObjs = Array.isArray(res) ? res : [res]
+  debug('AnitoMyScript found titles:', JSON.stringify(parseObjs))
 
   for (const obj of parseObjs) {
     obj.anime_title ??= ''
@@ -209,7 +209,7 @@ export async function anitomyscript (...args) {
     if (obj.file_name?.match(/(^|[\s()[\]\-_])NCOP($|[\s()[\]\-_])/i)) addAnimeType(obj, 'NCOP')
     if (obj.file_name && /(^|\s|[[(-_])trailer(?=$|\s|[\]))-_])/i.test(obj.file_name)) addAnimeType(obj, 'Trailer')
   }
-  debug('AnitoMyScript found titles:', JSON.stringify(parseObjs))
+  debug('AnitoMyScript corrected titles:', JSON.stringify(parseObjs))
   return parseObjs
 }
 
