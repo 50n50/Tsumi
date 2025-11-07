@@ -242,6 +242,7 @@
   async function handleCurrent (file) {
     canPlay = false
     externalPlayerReady = false
+    showBuffering()
     if (file) {
       if (thumbnailData.video?.src) URL.revokeObjectURL(video?.src)
       Object.assign(thumbnailData, {
@@ -265,11 +266,9 @@
         subs = new Subtitles(video, files, current, handleHeaders)
         video.load()
         await loadAnimeProgress()
-      }
-      emit('current', current)
+      } else externalPlaying = false
+      emit('current', current) // #handleCurrent in MediaHandler
       if (externalPlayback) {
-        externalPlaying = false
-        showBuffering()
         WPC.clear('externalReady', externalReadyListener)
         externalReadyListener = () => {
           hideBuffering()
