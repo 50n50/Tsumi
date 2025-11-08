@@ -52,7 +52,7 @@ jobs:
             }
             
             // Extract the Bug Severity section
-            const severityMatch = body.match(/### Bug Severity\s*\n\s*How severely does this bug impact your use of the app\?\s*\n\s*(Critical|High|Medium|Low)/i);
+            const severityMatch = body.match(/### Bug Severity\s*\n\s*(Critical|High|Medium|Low)/i);
             
             // Determine new severity label
             let newLabel = null;
@@ -116,7 +116,7 @@ jobs:
             }
             
             // Extract the Feature Priority section
-            const priorityMatch = body.match(/### How Important Is This Feature To You\?\s*\n\s*Help us understand the impact this feature would have\.\s*\n\s*(Critical|High|Medium|Low)/i);
+            const priorityMatch = body.match(/### How Important Is This Feature To You\?\s*\n\s*(Critical|High|Medium|Low)/i);
             
             // Determine new priority label
             let newLabel = null;
