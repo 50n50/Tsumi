@@ -1,43 +1,74 @@
 name: Feature Request
-description: Suggest an idea for the app.
-title: '[Feature Request]: '
-labels:
-  - enhancement
+description: Suggest a new idea for this resource.
+labels: ["enhancement"]
+assignees: RockinChaos
 body:
   - type: checkboxes
-    id: '1'
     attributes:
-      label: Preflight checklist
-      description: Make sure you completed this before creating an issue.
+      label: Which Platforms Should This Feature Apply To?
+      description: Select all platforms where this feature would be relevant.
+      multiple: true
       options:
-        - label: >-
-            I have searched the [issue
-            tracker](https://github.com/RockinChaos/Shiru/issues) for a bug report
-            that matches the one I want to file, without success.
-          required: true
-        - label: >-
-            I have searched the [features
-            list](https://github.com/RockinChaos/Shiru#features) for this feature,
-            and I couldn't find it.
-          required: true
-        - label: >-
-            I have checked that I'm using the [latest
-            stable](https://github.com/RockinChaos/Shiru/releases/latest) version
-            of the app.
-          required: true
-  - type: textarea
-    id: '4'
-    attributes:
-      label: Problem Description
-      description: >-
-        Please add a clear and concise description of the problem you are
-        seeking to solve with this feature request.
+        - label: Android
+        - label: Windows
+        - label: Linux
+        - label: macOS
     validations:
       required: true
+
+  - type: dropdown
+    attributes:
+      label: How Important Is This Feature To You?
+      description: Help us understand the impact this feature would have.
+      options:
+        - Critical - Prevents me from using the app effectively
+        - High - Would significantly improve my experience
+        - Medium - Nice to have, would use occasionally
+        - Low - Minor improvement
+    validations:
+      required: true
+
   - type: textarea
-    id: '5'
+    attributes:
+      label: Describe The Feature
+      description: A clear description of the feature you'd like to see added. Is it related to a problem you're experiencing?
+      placeholder: I'd like the ability to customize notification sounds for different categories. Currently, all notifications use the same sound, making it hard to distinguish between important updates and general activity...
+    validations:
+      required: true
+
+  - type: textarea
     attributes:
       label: Proposed Solution
-      description: Describe the solution you'd like in a clear and concise manner.
+      description: How would you like this feature to work? Be as specific as possible.
+      placeholder: Add a new section in Settings > Interface where users can select different notification sounds for each category (Dubs, Subs, Announcements, etc.)...
     validations:
       required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: I tried using my phone's system notification settings, but it only allows one sound for the entire app...
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Any other context or screenshots (highly recommended) about this request.
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      description: Let's make sure this report is valid.
+      options:
+        - label: I have searched the [frequently asked questions](https://github.com/RockinChaos/Shiru/wiki/faq) and found this request has not been already implemented.
+          required: true
+        - label: I have searched the [issue tracker](https://github.com/RockinChaos/Shiru/issues) and confirmed this feature has not been requested before.
+          required: true
+        - label: I ticked all of these boxes without actually reading them.
+          required: false
+        - label: I confirm that my request is **legal and lawful**, and does not promote or link to piracy or copyrighted material.
+          required: true

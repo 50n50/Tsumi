@@ -1,6 +1,6 @@
-name: Bug Report
-description: Unwanted behavior that was not intended or expected.
-labels: ["bug"]
+name: Assistance Request
+description: Ask a question or seek help with this resource.
+labels: ["question"]
 assignees: RockinChaos
 body:
   - type: dropdown
@@ -66,52 +66,19 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    attributes:
-      label: Bug Severity
-      description: How severely does this bug impact your use of the app?
-      options:
-        - Critical - App is unusable
-        - High - Major feature broken
-        - Medium - Feature works but with issues
-        - Low - Minor inconvenience
-    validations:
-      required: true
-
   - type: textarea
     attributes:
-      label: Describe The Bug
-      description: A clear and concise description of the bug you're experiencing.
-      placeholder: When I try to launch the app, it crashes immediately with an error message. I've tried reinstalling but the issue persists...
+      label: What Do You Need Help With?
+      description: A clear and concise description of your question or issue.
+      placeholder: I'm trying to understand how to configure the notification settings. I want notifications to only show for certain categories, but I can't find where to set this up...
     validations:
       required: true
-
-  - type: textarea
-    attributes:
-      label: Expected Behavior
-      description: A clear and concise description of what you expected to happen.
-      placeholder: The app should load normally and show the home page.
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: Steps To Reproduce
-      description: Detailed steps to reproduce this bug. Be as specific as possible.
-      placeholder: |
-        1. Open the app
-        2. Navigate to Settings > Interface
-        3. Toggle the 'Prefer Dubs' option
-        4. Return to home screen
-        5. Bug occurs: App crashes/freezes/shows error
-      validations:
-        required: true
 
   - type: textarea
     attributes:
       label: What Have You Tried?
       description: List any troubleshooting steps or solutions you've already attempted.
-      placeholder: I've tried reinstalling the app, clearing the cache, and restarting my device...
+      placeholder: I've checked the settings menu and looked through the notification options, but I couldn't find a way to filter by category...
     validations:
       required: false
 
@@ -129,11 +96,13 @@ body:
       options:
         - label: I am using the [latest stable](https://github.com/RockinChaos/Shiru/releases/latest) version of the app.
           required: true
-        - label: I have searched the [frequently asked questions](https://github.com/RockinChaos/Shiru/wiki/faq) and did not find a fix.
+        - label: I have searched the [frequently asked questions](https://github.com/RockinChaos/Shiru/wiki/faq) and did not find an answer.
           required: true
-        - label: I have searched the [issue tracker](https://github.com/RockinChaos/Shiru/issues) and confirmed this bug has not been reported before.
+        - label: I have searched the [issue tracker](https://github.com/RockinChaos/Shiru/issues) and confirmed this question hasn't been asked before.
           required: true
         - label: I ticked all of these boxes without actually reading them.
           required: false
-        - label: I confirm that my issue is **legal and lawful**, and does not promote or link to piracy or copyrighted material.
+        - label: I confirm that my question is **legal and lawful**, and does not promote or link to piracy or copyrighted material.
+          required: true
+        - label: I acknowledge this is not a bug report and is instead a help request.
           required: true
