@@ -34,10 +34,10 @@ body:
       label: Bug Severity
       description: How severely does this bug impact your use of the app?
       options:
-        - Critical - App is unusable
-        - High - Major feature broken
-        - Medium - Feature works but with issues
-        - Low - Minor inconvenience
+        - Low
+        - Medium
+        - High
+        - Critical
     validations:
       required: true
 

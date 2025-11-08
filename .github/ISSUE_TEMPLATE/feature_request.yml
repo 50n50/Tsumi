@@ -20,10 +20,10 @@ body:
       label: How Important Is This Feature To You?
       description: Help us understand the impact this feature would have.
       options:
-        - Critical - Prevents me from using the app effectively
-        - High - Would significantly improve my experience
-        - Medium - Nice to have, would use occasionally
-        - Low - Minor improvement
+        - Low
+        - Medium
+        - High
+        - Critical
     validations:
       required: true
 

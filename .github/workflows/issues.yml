@@ -51,20 +51,21 @@ jobs:
               }
             }
             
+            // Extract the Bug Severity section
+            const severityMatch = body.match(/### Bug Severity\s*\n\s*How severely does this bug impact your use of the app\?\s*\n\s*(Critical|High|Medium|Low)/i);
+            
             // Determine new severity label
             let newLabel = null;
-            if (body.includes('Critical - App is unusable')) {
-              newLabel = 'severity: critical';
-            } else if (body.includes('High - Major feature broken')) {
-              newLabel = 'severity: high';
-            } else if (body.includes('Medium - Feature works but with issues')) {
-              newLabel = 'severity: medium';
-            } else if (body.includes('Low - Minor inconvenience')) {
-              newLabel = 'severity: low';
+            if (severityMatch) {
+              const severity = severityMatch[1].toLowerCase();
+              newLabel = `severity: ${severity}`;
+              console.log(`Found severity: ${severity}`);
+            } else {
+              console.log('Could not find Bug Severity section or value');
             }
             
             // Add new severity label
-            if (newLabel) {
+            if (newLabel && severityLabels.includes(newLabel)) {
               await github.rest.issues.addLabels({
                 owner,
                 repo,
@@ -114,20 +115,21 @@ jobs:
               }
             }
             
+            // Extract the Feature Priority section
+            const priorityMatch = body.match(/### How Important Is This Feature To You\?\s*\n\s*Help us understand the impact this feature would have\.\s*\n\s*(Critical|High|Medium|Low)/i);
+            
             // Determine new priority label
             let newLabel = null;
-            if (body.includes('Critical - Prevents me from using the app effectively')) {
-              newLabel = 'priority: critical';
-            } else if (body.includes('High - Would significantly improve my experience')) {
-              newLabel = 'priority: high';
-            } else if (body.includes('Medium - Nice to have, would use occasionally')) {
-              newLabel = 'priority: medium';
-            } else if (body.includes('Low - Minor improvement')) {
-              newLabel = 'priority: low';
+            if (priorityMatch) {
+              const priority = priorityMatch[1].toLowerCase();
+              newLabel = `priority: ${priority}`;
+              console.log(`Found priority: ${priority}`);
+            } else {
+              console.log('Could not find Feature Priority section or value');
             }
             
             // Add new priority label
-            if (newLabel) {
+            if (newLabel && priorityLabels.includes(newLabel)) {
               await github.rest.issues.addLabels({
                 owner,
                 repo,
