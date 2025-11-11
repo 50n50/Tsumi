@@ -7,7 +7,6 @@ export const SUPPORTS = {
   doh: true,
   discord: true,
   keybinds: true,
-  extensions: true,
   isAndroid: false,
   maxSeeding: 10,
   externalPlayer: true,

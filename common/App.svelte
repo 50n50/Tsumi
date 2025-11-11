@@ -1,8 +1,8 @@
 <script context='module'>
+  import IPC from '@/modules/ipc.js'
   import { setContext } from 'svelte'
   import { writable } from 'simple-store-svelte'
   import { anilistClient } from '@/modules/anilist.js'
-  import IPC from '@/modules/ipc.js'
   import { enableHistory, destroyHistory } from '@/modules/history.js'
   import { settings } from '@/modules/settings.js'
   export const page = writable('home')

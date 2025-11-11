@@ -173,9 +173,6 @@
     <button type='button' disabled={listStatus.every(option => settings.releasesNotify.includes(option[1]))} use:click={() => { settings.releasesNotify = [...settings.releasesNotify, ''] }} class='btn btn-primary mb-10 mr-10 d-flex align-items-center justify-content-center'><span>Add Status</span></button>
   </div>
 </SettingCard>
-<SettingCard title='RSS Default URL' description='URL of the API used to query data for torrents. Useful for proxies if your ISP blocks some domains. Needs to be CORS enabled.'>
-  <input type='url' class='form-control bg-dark w-300 mw-full text-truncate' bind:value={settings.toshoURL} placeholder={defaults.toshoURL} />
-</SettingCard>
 <SettingCard title='RSS Feed' description={'When each RSS feed updates with new entries, notifications will be sent depending on your list status. These notifications will combine with Anilist and Releases notifications for the in-app notification tray.'}>
   <div>
     {#each settings.rssNotify as status, i}
@@ -204,18 +201,12 @@
     </div>
   </SettingCard>
 {/if}
-<SettingCard title='RSS Feeds' description={`RSS feeds to display on the home screen. This needs to be a CORS enabled URL to a Nyaa or Tosho like RSS feed which cotains either an "infoHash" or "enclosure" tag. This only shows the releases on the home screen, it doesn't automatically download the content.\n\nSince the feeds only provide the name of the file, Shiru might not always detect the anime correctly! Some presets for popular groups are already provided as an example, custom feeds require the FULL URL. Be aware that adding more than 5 RSS URLs could result in getting rate limited. These will always be resolved and handle notifications so not adding them as a home sections makes no difference.`}>
+<SettingCard title='RSS Feeds' description={`RSS feeds to display on the home screen. This needs to be a CORS enabled URL to a RSS feed which cotains either an "infoHash" or "enclosure" tag. This only shows the releases on the home screen, it doesn't automatically download the content.\n\nSince the feeds only provide the name of the file, Shiru might not always detect the anime correctly! Some presets for popular groups are already provided as an example, custom feeds require the FULL URL. Be aware that adding more than 5 RSS URLs could result in getting rate limited. These will always be resolved and handle notifications so not adding them as a home sections makes no difference.`}>
   <div>
     {#each settings.rssFeedsNew as _, i}
       <div class='input-group mb-10 w-500 mw-full'>
         <input type='text' class='form-control w-150 mw-full bg-dark text-truncate' placeholder='New Releases' autocomplete='off' bind:value={settings.rssFeedsNew[i][0]} />
-        <input id='rss-feed-{i}' type='text' list='rss-feed-list-{i}' class='w-400 form-control mw-full bg-dark text-truncate' placeholder={settings.toshoURL + 'rss2?qx=1&q="[SubsPlease] "'} autocomplete='off' bind:value={settings.rssFeedsNew[i][1]} />
-        <datalist id='rss-feed-list-{i}'>
-          <option value='SubsPlease'>{settings.toshoURL + 'rss2?qx=1&q="[SubsPlease] "'}</option>
-          <option value='Erai-raws [Multi-Sub]'>{settings.toshoURL + 'rss2?qx=1&q="[Erai-raws] "'}</option>
-          <option value='Yameii [Dubbed]'>{settings.toshoURL + 'rss2?qx=1&q="[Yameii] "'}</option>
-          <option value='Judas [Small Size]'>{settings.toshoURL + 'rss2?qx=1&q="[Judas] "'}</option>
-        </datalist>
+        <input id='rss-feed-{i}' type='text' list='rss-feed-list-{i}' class='w-400 form-control mw-full bg-dark text-truncate' placeholder={'https://feed.example.com/rss2?qx=1&q="[Name] "'} autocomplete='off' bind:value={settings.rssFeedsNew[i][1]} />
         <div class='input-group-append'>
           <button type='button' use:click={() => { settings.rssFeedsNew.splice(i, 1); settings.rssFeedsNew = settings.rssFeedsNew }} class='btn btn-danger btn-square input-group-append px-5 d-flex align-items-center'><Trash2 size='1.8rem' /></button>
         </div>

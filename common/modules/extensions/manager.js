@@ -92,8 +92,6 @@ class ExtensionManager {
   inactiveWorkers = {}
   /** @type {Promise<void|boolean>} */
   whenReady = Promise.resolve(false)
-  /** @type {string|false} */
-  defaultSource = SUPPORTS.extensions && atob('Z2g6Um9ja2luQ2hhb3MvU2hpcnUtRXh0ZW5zaW9ucy9hbmlzZWFyY2g=')
 
   constructor() {
     let sources = null
@@ -104,12 +102,10 @@ class ExtensionManager {
       const sourcesNew = Object.keys(newSources)
       if ((!sourcesOld?.length && !sourcesNew?.length) || !(sourcesOld.length === sourcesNew.length && sourcesOld.every(key => sourcesNew.includes(key)))) {
         if (sourcesOld.length && !sourcesNew.length) { sources = structuredClone(newSources); return }
-        if (!sources && !sourcesNew.length && this.defaultSource) {
-          sources = {}
-          this.whenReady = this.addSource(this.defaultSource)
-        } else if (sourcesNew.length) {
+        if (!sources && !sourcesNew.length) sources = {}
+        else if (sourcesNew.length) {
           sources = structuredClone(newSources)
-          this.whenReady = this.updateExtensions(newSources).then(update => this.loadExtensions(newSources, update)).catch(error => {
+          this.whenReady = this.updateExtensions(newSources, value.extensionSources).then(update => this.loadExtensions(newSources, update)).catch(error => {
             printError('Failed to Update Extensions', `Unable to check for updates or update extensions.`, error)
             return this.loadExtensions(value.sourcesNew, false)
           })
@@ -184,23 +180,35 @@ class ExtensionManager {
         this.pending.delete(url)
         return `Failed to load extension(s) from the provided source '${url}': ${status.value !== 'offline' ? 'the source is not valid.' : 'no network connection!'}`
       }
-      for (const extension of config) {
-        if (!this.validateConfig(extension)) {
-          await printError('Invalid extension format', `Invalid extension config: ${url}`, { message: `Invalid extension config: ${url} ${JSON.stringify(extension)}`})
+      if (config.every(entry => entry?.main && !entry?.update)) { // source repository manifests
+        const current = settings.value.extensionSources?.[url]
+        if (JSON.stringify(current) !== JSON.stringify(config)) {
+          settings.update(value => ({ ...value, extensionSources: { ...(value.extensionSources || {}), [url]: config } }))
+          debug(`Stored new source repository: ${url}`)
+        } else {
+          debug(`Source repository unchanged: ${url}`)
           this.pending.delete(url)
-          return `Failed to load extension(s) from '${url}': invalid extension format.`
+          return `Source repository unchanged: ${url}`
         }
-      }
-      settings.update((value) => {
-        const sourcesNew = { ...value.sourcesNew }
-        const extensionsNew = { ...value.extensionsNew }
-        config.forEach(extension => {
-          const key = (extension.locale || (extension.update + '/')) + extension.id
-          sourcesNew[key] = { ...extension, trusted }
-          if (!extensionsNew[key]) extensionsNew[key] = { enabled: true }
+      } else { // extension manifests
+        for (const extension of config) {
+          if (!this.validateConfig(extension)) {
+            await printError('Invalid extension format', `Invalid extension config: ${url}`, {message: `Invalid extension config: ${url} ${JSON.stringify(extension)}`})
+            this.pending.delete(url)
+            return `Failed to load extension(s) from '${url}': invalid extension format.`
+          }
+        }
+        settings.update(value => {
+          const sourcesNew = {...value.sourcesNew}
+          const extensionsNew = {...value.extensionsNew}
+          config.forEach(extension => {
+            const key = (extension.locale || (extension.update + '/')) + extension.id
+            sourcesNew[key] = {...extension, trusted}
+            if (!extensionsNew[key]) extensionsNew[key] = {enabled: true}
+          })
+          return {...value, sourcesNew, extensionsNew}
         })
-        return { ...value, sourcesNew, extensionsNew }
-      })
+      }
       this.pending.delete(url)
     })()
     this.pending.set(url, promise)
@@ -287,11 +295,35 @@ class ExtensionManager {
   }
 
   /**
+   * Updates the extension source repository if it has changed.
+   *
+   * @param {string} url - The URL of the source repository.
+   * @returns {Promise<boolean>} True if updated, false if unchanged or failed.
+   */
+  async updateSources(url) {
+    try {
+      const repositoryManifest = await getManifest(url, true)
+      if (!repositoryManifest || !Array.isArray(repositoryManifest) || !repositoryManifest.every(entry => entry?.main && !entry?.update)) return false
+      if (JSON.stringify(settings.value.extensionSources?.[url]) !== JSON.stringify(repositoryManifest)) {
+        settings.update(value => ({ ...value,  extensionSources: { ...(value.extensionSources || {}), [url]: repositoryManifest } }))
+        debug(`Source repository updated: ${url}`)
+        return true
+      }
+      debug(`Source repository unchanged: ${url}`)
+      return false
+    } catch (error) {
+      await printError('Failed to update Source Repository', `Unable to update repository for: ${url}`, error)
+      return false
+    }
+  }
+
+  /**
    * Checks for newer versions of existing extensions and updates them.
    * @param {object} currentExtensions Currently installed extensions.
+   * @param {object} extensionSources Currently added extension source repositories.
    * @returns {Promise<boolean>} True if updates were found, false otherwise.
    */
-  async updateExtensions(currentExtensions) {
+  async updateExtensions(currentExtensions, extensionSources) {
     const extensionIds = Object.keys(currentExtensions || {})
     if (!extensionIds?.length) return false
     try {
@@ -327,7 +359,12 @@ class ExtensionManager {
         })
         return true
       }
-      return false
+      const sourceUrls = Object.keys(extensionSources || {})
+      if (sourceUrls.length) {
+        debug(`Checking ${sourceUrls.length} stored source repositories for updates...`)
+        await Promise.all(sourceUrls.map(url => this.updateSources(url)))
+      }
+      return toUpdate.length > 0
     } catch (error) {
       await printError('Extension update check failed', 'The previously cached version will be used if available', error)
       return false

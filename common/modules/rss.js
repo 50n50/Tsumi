@@ -41,17 +41,6 @@ export function parseRSSNodes (nodes) {
   })
 }
 
-const rssmap = {
-  SubsPlease: settings.value.toshoURL + 'rss2?qx=1&q="[SubsPlease] "',
-  'Erai-raws [Multi-Sub]': settings.value.toshoURL + 'rss2?qx=1&q="[Erai-raws] "',
-  'Yameii [Dubbed]': settings.value.toshoURL + 'rss2?qx=1&q="[Yameii] "',
-  'Judas [Small Size]': settings.value.toshoURL + 'rss2?qx=1&q="[Judas] "'
-}
-export function getReleasesRSSurl (val) {
-  const rss = rssmap[val] || val
-  return rss && new URL(rssmap[val] ? `${rss}${settings.value.rssQuality ? `${settings.value.rssQuality}p|${settings.value.rssQuality}` : ''}` : rss)
-}
-
 export async function getRSSContent (url) {
   if (!url) return null
   let res = {}
@@ -95,7 +84,7 @@ class RSSMediaManager {
   async getContentChanged (page, perPage, url, ignoreChanged = false) {
     let content
     try {
-      content = await getRSSContent(getReleasesRSSurl(url))
+      content = await getRSSContent(url)
     } catch (e) {
       const cachedEntry = await cache.cachedEntry(caches.RSS, `${btoa(url)}`, true)
       if (cachedEntry) {

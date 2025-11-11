@@ -1,36 +1,20 @@
-<script context='module'>
-  import { SUPPORTS } from '@/modules/support.js'
+<script>
   import Debug from 'debug'
   const debug = Debug('ui:extensions-view')
 
-  let availableSources = getSources()
-  window.addEventListener('online', () => availableSources = getSources())
-  async function getSources() {
-    try {
-      const sources = SUPPORTS.extensions && await (await fetch(atob('aHR0cHM6Ly9lc20uc2gvZ2gvUm9ja2luQ2hhb3MvU2hpcnUtRXh0ZW5zaW9ucy9pbmRleC5qc29u'))).json()
-      return Array.isArray(sources) ? sources.reduce((acc, source) => {
-        if (source.main) acc.push(source.main)
-        return acc
-      }, []) : []
-    } catch (error) {
-      debug('Failed to load available sources', error)
-      return []
-    }
-  }
-</script>
-
-<script>
   import { click } from '@/modules/click.js'
   import SettingCard from '@/views/Settings/SettingCard.svelte'
   import { stringToHex, capitalize, toFlags } from '@/modules/util.js'
   import { extensionManager } from '@/modules/extensions/manager.js'
   import { TriangleAlert, Github, Folder, FileQuestion, Trash2, CircleX, ChevronDown, ChevronUp, SquarePlus, Adult } from 'lucide-svelte'
   export let settings
+  const npmIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcBAMAAACAI8KnAAAALVBMVEXLAADKAADMERHVSkrURkb////eeXnghITfgIDstrbFAADJAADhiorPJCTVSUliGH6+AAAAUklEQVR4AWMgETAKQoEAmKvsAgVGYEnTUCgIFmBgYmAQgOtiAHERACdXSNkBmevi/AGZyxrwAU3v4OJ+gLACGP7DA8dZgOGeixEi6ECUAIlhDgBoOA7wXH0RDQAAAABJRU5ErkJggg=='
 
   $: mainTab = true
   $: viewSources = false
   $: pendingSource = false
   $: failedSource = null
+  $: availableSources = settings.extensionSources
 
   let sourceUrl = ''
   async function addSource(source, trusted = false) {
@@ -41,9 +25,16 @@
     pendingSource = false
   }
 
-  async function removeSource(sourceUrl) {
+  async function removeSource(sourceUrl, extensionSource = false) {
     pendingSource = true
-    await extensionManager.removeSource(sourceUrl)
+    if (!extensionSource) await extensionManager.removeSource(sourceUrl)
+    else {
+      const newSources = {}
+      for (const [key, value] of Object.entries(settings.extensionSources)) {
+        if (key !== sourceUrl) newSources[key] = value
+      }
+      settings.extensionSources = newSources
+    }
     pendingSource = false
   }
 </script>
@@ -211,7 +202,7 @@
             {:else if extension?.host?.startsWith('gh:')}
               <Github size='2.2rem' />
             {:else if extension?.host?.startsWith('npm:')}
-              <img class='rounded sourceIcon' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcBAMAAACAI8KnAAAALVBMVEXLAADKAADMERHVSkrURkb////eeXnghITfgIDstrbFAADJAADhiorPJCTVSUliGH6+AAAAUklEQVR4AWMgETAKQoEAmKvsAgVGYEnTUCgIFmBgYmAQgOtiAHERACdXSNkBmevi/AGZyxrwAU3v4OJ+gLACGP7DA8dZgOGeixEi6ECUAIlhDgBoOA7wXH0RDQAAAABJRU5ErkJggg==' alt='NPM' title='NPM'/>
+              <img class='rounded sourceIcon' src={npmIcon} alt='NPM' title='NPM'/>
             {:else}
               <FileQuestion size='2.2rem' />
             {/if}
@@ -223,30 +214,57 @@
       {/each}
     {/if}
   </div>
-  {#await availableSources then sources}
-    {#if sources?.length && sources.filter(source => !Object.values(settings.sourcesNew)?.some(existing => existing.update === source))?.length}
+  {#if availableSources && Object.keys(availableSources)?.length}
+    {@const addedSources = Object.keys(availableSources)}
+    <div class='wm-1200'>
+      {#each addedSources as sourceUrl, i}
+        <div class='d-flex align-items-center bg-dark-light border rounded-2 p-10 mb-10'>
+          <div class='d-flex align-items-center ml-10'>
+            {#if sourceUrl.startsWith('gh:')}
+              <Github size='2.2rem' />
+            {:else if sourceUrl.startsWith('npm:')}
+              <img class='rounded sourceIcon' src={npmIcon} alt='NPM' title='NPM'/>
+            {:else}
+              <FileQuestion size='2.2rem' />
+            {/if}
+          </div>
+          <span class='font-weight-semi-bold ml-10 overflow-hidden text-truncate mr-5 font-scale-18'>{sourceUrl.replace(/^[^:]+:/, '')}</span>
+          <span class='font-weight-semi-bold ml-auto text-muted text-nowrap text-truncate'>{availableSources[sourceUrl].length} Sources</span>
+          <button type='button' use:click={() => removeSource(sourceUrl, true)} class='btn btn-square d-flex align-items-center justify-content-center ml-10 bg-transparent shadow-none border-0' title='Remove Repo' style='color: var(--accent-color)' disabled={pendingSource} class:cursor-wait={pendingSource}><Trash2 size='1.8rem' /></button>
+        </div>
+      {/each}
+    </div>
+  {/if}
+  {#if availableSources && Object.keys(availableSources)?.length}
+    {@const missingSources = Object.values(availableSources).flat().map(entry => entry.main).filter(main => !Object.values(settings.sourcesNew)?.some(existing => existing.update === main))}
+    {#if missingSources.length}
       <div class='wm-1200'>
-        <button type='button' class='btn w-full h-full p-5 rounded-2 d-flex align-items-center long-button' class:bg-dark-light={!viewSources} class:bg-primary={viewSources} use:click={()=> { viewSources = !viewSources }}>
-          <span class='ml-10 text-truncate'>{sources.filter(source => !Object.values(settings.sourcesNew)?.some(existing => existing.update === source))?.length} Available Sources</span>
+        <button type='button' class='btn w-full h-full p-5 rounded-2 d-flex align-items-center long-button' class:bg-dark-light={!viewSources} class:bg-primary={viewSources} use:click={() => { viewSources = !viewSources }}>
+          <span class='ml-10 text-truncate'>{missingSources.length} Available Source{missingSources.length > 1 ? 's' : ''}</span>
           <svelte:component this={ viewSources ? ChevronUp : ChevronDown } class='ml-auto mr-10' size='2.2rem' />
         </button>
       </div>
       {#if viewSources}
-        {@const missingSources = sources.filter(source => !Object.values(settings.sourcesNew)?.some(existing => existing.update === source))}
         <div class='wm-1200 mt-5'>
           {#each missingSources as source, i}
             <div class='d-flex align-items-center bg-dark-light border rounded-2 p-10 mb-10'>
               <div class='d-flex align-items-center ml-10'>
-                <Github size='2.2rem' />
+                {#if source.startsWith('gh:')}
+                  <Github size='2.2rem' />
+                {:else if source.startsWith('npm:')}
+                  <img class='rounded sourceIcon' src={npmIcon} alt='NPM' title='NPM'/>
+                {:else}
+                  <FileQuestion size='2.2rem' />
+                {/if}
               </div>
-              <span class='font-weight-semi-bold ml-10 font-scale-18'>{source.startsWith('gh:') ? source.slice(3) : source}</span>
+              <span class='font-weight-semi-bold ml-10 font-scale-18'>{source.startsWith('gh:') ? source.slice(3) : source.startsWith('npm:') ? source.slice(4) : source}</span>
               <button type='button' use:click={() => { addSource(source, true); if (missingSources.length <= 1) viewSources = !viewSources }} class='btn btn-square d-flex align-items-center justify-content-center ml-10 bg-transparent shadow-none border-0 ml-auto' title='Add Source' style='color: var(--success-color)' disabled={pendingSource} class:cursor-wait={pendingSource}><SquarePlus size='1.8rem' /></button>
             </div>
           {/each}
         </div>
       {/if}
     {/if}
-  {/await}
+  {/if}
 {/if}
 
 <style>
