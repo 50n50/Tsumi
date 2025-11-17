@@ -72,7 +72,7 @@ export default class Subtitles {
             this._stylesMap[track.number] = {
               Default: 0
             }
-            const styleMatches = track.header.match(stylesRx)
+            const styleMatches = track.header.match(stylesRx) ?? []
             for (let i = 0; i < styleMatches.length; ++i) {
               const style = styleMatches[i].replace('Style:', '').trim()
               this._stylesMap[track.number][style] = i + 1
