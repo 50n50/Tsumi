@@ -35,7 +35,7 @@
    * @param {boolean} exactMatch
    */
   async function getRequestedAudio(search, result, audioLang, exactMatch = true) {
-    const terms = await sanitiseTerms(search, result)
+    const terms = (await sanitiseTerms(search, result))?.map(term => term.term)
     const checkTerm = (term, keyword) => (Array.isArray(term.text) ? term.text : [term.text]).some(text => text.toLowerCase().includes(keyword.toLowerCase()))
     const exactAudio = terms.some(term => checkTerm(term, audioLang))
     const dualAudio = terms.some(term => checkTerm(term, 'dual'))

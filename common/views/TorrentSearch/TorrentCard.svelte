@@ -18,23 +18,27 @@
   termMapping['5.1'] = { text: '5.1', color: 'var(--octonary-color)' }
   termMapping['5.1CH'] = termMapping[5.1]
   termMapping['TRUEHD5.1'] = { text: 'TrueHD 5.1', color: 'var(--octonary-color)' }
-  termMapping.AAC = { text: 'AAC', color: 'var(--octonary-color)' }
+  termMapping['AAC2.0'] = { text: 'AAC', color: 'var(--octonary-color)' }
+  termMapping['AAC 2.0'] = termMapping['AAC2.0']
+  termMapping.AAC = termMapping['AAC2.0']
   termMapping.AACX2 = termMapping.AAC
   termMapping.AACX3 = termMapping.AAC
   termMapping.AACX4 = termMapping.AAC
   termMapping.AC3 = { text: 'AC3', color: 'var(--octonary-color)' }
   termMapping.EAC3 = { text: 'EAC3', color: 'var(--octonary-color)' }
   termMapping['E-AC-3'] = termMapping.EAC3
+  termMapping['AC-3'] = termMapping.AC3
+  termMapping.DDP = { text: 'Dolby', color: 'var(--octonary-color)' }
   termMapping.FLAC = { text: 'FLAC', color: 'var(--octonary-color)' }
   termMapping.FLACX2 = termMapping.FLAC
   termMapping.FLACX3 = termMapping.FLAC
   termMapping.FLACX4 = termMapping.FLAC
+  termMapping.BLURAY = { text: 'Blu-ray', color: 'var(--octonary-color)' }
   termMapping.VORBIS = { text: 'Vorbis', color: 'var(--octonary-color)' }
   termMapping.DUALAUDIO = { text: 'Dual Audio', color: 'var(--octonary-color)' }
+  termMapping.MULTISUB = { text: 'Multi Sub', color: 'var(--octonary-color)' }
   termMapping.ENGLISHAUDIO = { text: 'English Audio', color: 'var(--octonary-color)' }
   termMapping.CHINESEAUDIO = { text: 'Chinese Audio', color: 'var(--octonary-color)' }
-  termMapping['DUB'] = termMapping.ENGLISHAUDIO
-  termMapping['DUAL'] = termMapping.DUALAUDIO
   termMapping['DUAL AUDIO'] = termMapping.DUALAUDIO
   termMapping['DUAL-AUDIO'] = termMapping.DUALAUDIO
   termMapping['MULTI AUDIO'] = termMapping.DUALAUDIO
@@ -45,6 +49,15 @@
   termMapping['CHINESE AUDIO'] = termMapping.CHINESEAUDIO
   termMapping['CHINESE DUB'] = termMapping.CHINESEAUDIO
   termMapping['CN DUB'] = termMapping.CHINESEAUDIO
+  termMapping['DUAL'] = termMapping.DUALAUDIO
+  termMapping['DUB'] = termMapping.ENGLISHAUDIO
+  termMapping['MULTISUBS'] = termMapping.MULTISUB
+  termMapping['MULTI-SUBS'] = termMapping.MULTISUB
+  termMapping['MULTISUB'] = termMapping.MULTISUB
+  termMapping['MULTI-SUB'] = termMapping.MULTISUB
+  termMapping['BDRIP'] = termMapping.BLURAY
+  termMapping['BDREMUX'] = termMapping.BLURAY
+  termMapping['BD-'] = termMapping.BLURAY
   termMapping['10BIT'] = { text: '10 Bit', color: 'var(--tertiary-color)' }
   termMapping['10BITS'] = termMapping['10BIT']
   termMapping['10-BIT'] = termMapping['10BIT']
@@ -54,6 +67,10 @@
   termMapping.HI444 = { text: 'HI444', color: 'var(--tertiary-color)' }
   termMapping.HI444P = termMapping.HI444
   termMapping.HI444PP = termMapping.HI444
+  termMapping.AVC = { text: 'AVC', color: 'var(--tertiary-color)' }
+  termMapping.H264 = termMapping.AVC
+  termMapping['H.264'] = termMapping.AVC
+  termMapping.X264 = termMapping.AVC
   termMapping.HEVC = { text: 'HEVC', color: 'var(--tertiary-color)' }
   termMapping.H265 = termMapping.HEVC
   termMapping['H.265'] = termMapping.HEVC
@@ -63,7 +80,7 @@
   /**
    * @param {Object} search
    * @param {AnitomyResult} param0
-   * */
+   */
   export async function sanitiseTerms (search, { video_term: vid, audio_term: aud, video_resolution: resolution, file_name: _fileName }) {
     const isEnglishDubbed = await malDubs.isDubMedia(search?.media)
     const video = !Array.isArray(vid) ? [vid] : vid
@@ -85,43 +102,80 @@
       }
     }
 
-    let terms = [...new Set([...video, ...audio].map(term => termMapping[term?.toUpperCase()]).filter(t => t))]
+    let terms = [...new Set([...video, ...audio].map(term => {
+      const key = term?.toUpperCase()
+      const mappedTerm = termMapping[key]
+      return mappedTerm ? { key, term: mappedTerm } : null
+    }).filter(t => t))]
+
     if (resolution) {
-      for (const res of Array.isArray(resolution) ? [...new Set(resolution)].flatMap(r => String(r).split(/[\/,|]+/).map(s => s.trim()).filter(Boolean)) : String(resolution).split(/[\/,|]+/).map(s => s.trim()).filter(Boolean)) terms.unshift({ text: res, color: 'var(--quaternary-color)' })
+      for (const res of Array.isArray(resolution) ? [...new Set(resolution)].flatMap(r => String(r).split(/[\/,|]+/).map(s => s.trim()).filter(Boolean)) : String(resolution).split(/[\/,|]+/).map(s => s.trim()).filter(Boolean)) {
+        terms.unshift({ key: res, term: { text: res, color: 'var(--quaternary-color)' } })
+      }
     }
 
     for (const key of Object.keys(termMapping)) {
-      if (fileName && (isEnglishDubbed || termMapping[key] !== termMapping.ENGLISHAUDIO) && !terms.some(existingTerm => existingTerm.text === termMapping[key].text)) {
+      if (fileName && (isEnglishDubbed || termMapping[key] !== termMapping.ENGLISHAUDIO) && !terms.some(existingTerm => existingTerm.term.text === termMapping[key].text)) {
         if (!fileName.toLowerCase().includes(key.toLowerCase())) {
           if (matchPhrase(key.toLowerCase(), fileName, 1)) {
-            terms.push(termMapping[key])
+            terms.push({ key, term: termMapping[key] })
           }
         } else {
-          terms.push(termMapping[key])
+          terms.push({ key, term: termMapping[key] })
         }
       }
     }
 
     // If the series has an English Dub and Other audio is detected like Chinese, we can't rely on "DUB" term alone as it could be an ONA with a Japanese Dub or a Chinese Dub.
-    for (const dubKey of [...(terms.some(t => t === termMapping.CHINESEAUDIO) ? ['DUB'] : []), ...(terms.some(t => t === termMapping.DUALAUDIO) && /dual\s*track/i.test(fileName) ? ['DUAL'] : [])]) { // Remove these keys
-      if (terms.includes(termMapping[dubKey])) terms = terms.filter(term => term !== termMapping[dubKey])
+    for (const dubKey of [...(terms.some(t => t.term === termMapping.CHINESEAUDIO) ? ['DUB'] : []), ...(terms.some(t => t.term === termMapping.DUALAUDIO) && /dual\s*track/i.test(fileName) ? ['DUAL'] : [])]) { // Remove these keys
+      if (terms.some(t => t.key === dubKey && t.term === termMapping[dubKey])) {
+        terms = terms.filter(t => !(t.key === dubKey && t.term === termMapping[dubKey]))
+      }
     }
 
     return [...terms]
   }
 
-  /** @param {AnitomyResult} param0 */
-  function simplifyFilename ({ video_term: vid, audio_term: aud, video_resolution: resolution, file_name: name, release_group: group, file_checksum: checksum }) {
+  /**
+   * @param {Object} search
+   * @param {AnitomyResult} result
+   */
+  export async function simplifyFilename (search, result) {
+    const { video_term: vid, audio_term: aud, video_resolution: resolution, file_name: name, release_group: group, file_checksum: checksum } = result
     const video = !Array.isArray(vid) ? [vid] : vid
     const audio = !Array.isArray(aud) ? [aud] : aud
+    const resolutions = resolution ? (Array.isArray(resolution) ? resolution : [resolution]) : []
+    const removeTerm = term => {
+      if (term) simpleName = simpleName.replace(new RegExp(String(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+    }
 
+    // Preprocess simpleName: remove titles from search.media.titles if they exist to prevent incorrect termMappings e.g; Synduality Noir being detected as Dual Audio (SynDUALity).
     let simpleName = name
-    if (group) simpleName = simpleName.replace(group, '')
-    if (resolution) simpleName = simpleName.replace(resolution, '')
-    if (checksum) simpleName = simpleName.replace(checksum, '')
-    for (const term of video) simpleName = simpleName.replace(term, '')
-    for (const term of audio) simpleName = simpleName.replace(term, '')
-    return simpleName.replace(/[[{(]\s*[\]})]/g, '').replace(/\s+/g, ' ').trim()
+    const titleHolders = []
+    if (simpleName && search?.media?.title) {
+      for (const title of Object.values(search.media.title)) {
+        if (title) {
+          const words = title.split(/\s+/).filter(Boolean)
+          for (let n = 3; n >= 1; n--) {
+            if (words.length >= n) {
+              const piece = words.slice(0, n).join(' ')
+              if (piece.length >= 4) {
+                const placeholder = `TITLE_PLACEHOLDER_${titleHolders.length}`
+                titleHolders.push({placeholder, original: piece})
+                simpleName = simpleName.replace(new RegExp(piece.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), placeholder)
+              }
+            }
+          }
+        }
+      }
+    }
+
+    [group, checksum, ...resolutions, ...video, ...audio].forEach(removeTerm)
+    const sanitized = (await sanitiseTerms(search, result))
+    sanitized.forEach(term => removeTerm(term.key))
+    simpleName = simpleName.replace(/[[{(]\s*[\]})]/g, '').replace(/,\s*[)\]]/g, match => match.slice(-1)).replace(/,+/g, ',').replace(/[-_.\s]{2,}/g, ' ').replace(/^[, ]+|[, ]+$/g, '').replace(/,\s*([)\]])/g, '$1').trim()
+    titleHolders.forEach(title => simpleName = simpleName.replace(new RegExp(title.placeholder, 'g'), title.original))
+    return simpleName
   }
 </script>
 
@@ -200,7 +254,9 @@
       </div>
     </div>
     <div class='py-5 font-size-14 text-muted d-flex align-items-center'>
-      <span class='overflow-hidden text-truncate'>{simplifyFilename(result.parseObject)}</span>
+      {#await simplifyFilename({ media, episode }, result.parseObject) then fileName}
+        <span class='overflow-hidden text-truncate'>{fileName}</span>
+      {/await}
       <span class='ml-auto mr-5 w-30 h-10 flex-shrink-0'/>
       <TorrentButton class='position-absolute btn btn-square shadow-none bg-transparent bd-highlight h-40 w-40 right-0 mr--8 z-1' hash={result.hash} torrentID={result.link} search={{ media, episode: (media?.format !== 'MOVIE' && result.type !== 'batch') && episode }} size={'2.5rem'} strokeWidth={'2.3'}/>
     </div>
@@ -222,7 +278,8 @@
             Alt Release
           </div>
         {/if}
-        {#await sanitiseTerms({ media, episode }, result.parseObject) then terms}
+        {#await sanitiseTerms({ media, episode }, result.parseObject) then termObjects}
+          {@const terms = termObjects?.map(term => term.term)}
           {#each terms as term, index}
             <div class='rounded px-15 py-5 bg-very-dark text-nowrap text-white d-flex align-items-center' class:ml-10={index !== 0} style='margin-top: 0.15rem;'>
               {term.text}
