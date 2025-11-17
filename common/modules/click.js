@@ -124,8 +124,10 @@ export function focus(node, focusUpdate = noop) {
   function handleOutsideClick(e) {
     const focused = e.target
     if (node && focused?.offsetParent !== null && !node.contains(focused)) {
+      clearTimeouts()
       focusUpdate(false)
       lastTapElement = null
+      lastTapCurrent = null
       document.removeEventListener('pointerup', handleOutsideClick)
     }
   }
@@ -143,6 +145,7 @@ export function focus(node, focusUpdate = noop) {
       if (node && focused?.offsetParent !== null && !node.contains(focused)) {
         focusUpdate(false)
         lastTapElement = null
+        lastTapCurrent = null
         document.removeEventListener('pointerup', handleOutsideClick)
       }
     })
