@@ -305,14 +305,19 @@
     seek(currentTime - video.currentTime)
   }
 
-  function saveAnimeProgress () {
-    if (buffering || video.readyState < 4) return
+  function saveAnimeProgress (error = false) {
+    if (!error && (buffering || video.readyState < 4)) return
+    if (error) {
+      currentTime = 0
+      targetTime = 0
+      video.currentTime = targetTime
+    }
     if (!current?.media?.media?.id || !current?.media?.episode || current?.media?.failed || !media?.media?.id || !media?.episode) setAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name, currentTime: video.currentTime, safeduration })
     else setAnimeProgress({ mediaId: current.media.media.id, episode: current.media.episode, currentTime: video.currentTime, safeduration })
   }
   setInterval(() => {
     if (!paused) saveAnimeProgress()
-  }, 10000)
+  }, 10_000)
 
   function cycleSubtitles () {
     if (current && subs?.headers) {
@@ -1317,6 +1322,7 @@
         break
       case target.error.MEDIA_ERR_NETWORK:
         debug('A network error caused the video download to fail part-way.', target.error)
+        saveAnimeProgress(true)
         toast.error('Video Network Error', {
           description: 'A network error caused the video download to fail part-way. Dismiss this toast to reload the video.',
           duration: Infinity,
@@ -1325,6 +1331,7 @@
         break
       case target.error.MEDIA_ERR_DECODE:
         debug('The video playback was aborted due to a corruption problem or because the video used features your browser did not support.', target.error)
+        saveAnimeProgress(true)
         toast.error('Video Decode Error', {
           description: 'The video playback was aborted due to a corruption problem. Dismiss this toast to reload the video.',
           duration: Infinity,
@@ -1334,6 +1341,7 @@
       case target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
         if (target.error.message !== 'MEDIA_ELEMENT_ERROR: Empty src attribute') {
           debug('The video could not be loaded, either because the server or network failed or because the format is not supported.', target.error)
+          saveAnimeProgress(true)
           toast.error('Video Codec Unsupported', {
             description: 'The video could not be loaded, either because the server or network failed or because the format is not supported. Try a different release by disabling Autoplay Torrents in RSS settings.',
             duration: 30000
