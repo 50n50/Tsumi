@@ -85,20 +85,40 @@ export function setHash(hash, data) {
     write(hashes.value)
 }
 
-export function getHash(mediaId, data, ignoreCached = false, ignoreExpiry = false) {
-    const availableHashes = ignoreCached ? null : new Set([...completedTorrents.value.map(torrent => torrent.infoHash), ...seedingTorrents.value.map(torrent => torrent.infoHash), ...stagingTorrents.value.map(torrent => torrent.infoHash), loadedTorrent.value.infoHash].filter(Boolean))
-    const filtered = ignoreCached ? hashes.value : hashes.value.filter(item => availableHashes.has(item.hash) || (item.files?.length && item.files.some(file => availableHashes.has(file.fileHash))))
-    const cacheDuration = mediaCache.value?.[mediaId]?.status === 'FINISHED' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
-    for (const item of filtered) {
-        if (item.mediaId === mediaId && item.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash // Root match
-        else if (Array.isArray(item.files) && item.files?.length) {
-            const semiMatch = item.files.find(file => item.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client)) // Semi file-level match: item-level mediaId
-            if (semiMatch && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash
-            const fullMatch = item.files.find(file => file.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (file.parseObject || data.client)) // Full file-level match: file-level mediaId
-            if (fullMatch && (ignoreExpiry || fullMatch.locked || (fullMatch.updatedAt >= Date.now() - cacheDuration))) return item.hash
-        } else if (data.batchGuess && item.mediaId === mediaId && !item.episode && item.episode !== 0 && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) return item.hash
-    }
-    return null
+export function getHash(mediaId, data, ignoreCached = false, ignoreExpiry = false, allHashes = false) {
+  const loadedHash = loadedTorrent.value?.infoHash
+  const seedingHashes = new Set(seedingTorrents.value.map(torrent => torrent.infoHash).filter(Boolean))
+  const stagingHashes = new Set(stagingTorrents.value.map(torrent => torrent.infoHash).filter(Boolean))
+  const completedHashes = new Set(completedTorrents.value.map(torrent => torrent.infoHash).filter(Boolean))
+  const availableHashes = ignoreCached ? null : new Set([...completedHashes, ...stagingHashes, ...seedingHashes, loadedHash].filter(Boolean))
+  const getPriority = (hash) => {
+    if (hash === loadedHash) return 0
+    if (seedingHashes.has(hash)) return 1
+    if (stagingHashes.has(hash)) return 2
+    if (completedHashes.has(hash)) return 3
+    return 4
+  }
+
+  const foundHashes = []
+  const cacheDuration = mediaCache.value?.[mediaId]?.status === 'FINISHED' ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+  const filtered = ignoreCached ? hashes.value : hashes.value.filter(item => availableHashes.has(item.hash) || (item.files?.length && item.files.some(file => availableHashes.has(file.fileHash))))
+  for (const item of filtered) {
+    let matchFound = false
+    if (item.mediaId === mediaId && item.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) matchFound = true // Root match
+    else if (Array.isArray(item.files) && item.files?.length) {
+      const semiMatch = item.files.find(file => item.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (item.parseObject || data.client)) // Semi file-level match: item-level mediaId
+      if (semiMatch && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) matchFound = true
+      else {
+        const fullMatch = item.files.find(file => file.mediaId === mediaId && file.episode === (Number.isFinite(Number(data.episode)) ? Number(data.episode) : data.episode) && (file.parseObject || data.client)) // Full file-level match: file-level mediaId
+        if (fullMatch && (ignoreExpiry || fullMatch.locked || (fullMatch.updatedAt >= Date.now() - cacheDuration))) matchFound = true
+      }
+    } else if (data.batchGuess && item.mediaId === mediaId && !item.episode && item.episode !== 0 && (item.parseObject || data.client) && (ignoreExpiry || item.locked || (item.updatedAt >= Date.now() - cacheDuration))) matchFound = true
+    if (matchFound) foundHashes.push(item.hash)
+  }
+
+  if (foundHashes.length === 0) return allHashes ? [] : null
+  if (allHashes) return foundHashes.sort((hashA, hashB) => getPriority(hashA) - getPriority(hashB))
+  return foundHashes.reduce((best, current) => getPriority(current) < getPriority(best) ? current : best)
 }
 
 export function getId(hash, data, ignoreExpiry = false) {
