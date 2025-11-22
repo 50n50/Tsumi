@@ -213,13 +213,11 @@ class AnimeSchedule {
     async getFeed(feed) {
         let res = {}
         try {
-            res = await fetch(`https://raw.githubusercontent.com/RockinChaos/AniSchedule/master/raw/${feed}.json?timestamp=${new Date().getTime()}`, { method: 'GET' })
+            res = await fetch(`${atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL1JvY2tpbkNoYW9zL0FuaVNjaGVkdWxlL21hc3Rlci9yYXc=')}/${feed}.json?timestamp=${new Date().getTime()}`, { method: 'GET' })
         } catch (e) {
             if (!res || res.status !== 404) throw e
         }
-        if (!res.ok && (res.status === 429 || res.status === 500)) {
-            throw res
-        }
+        if (!res.ok && (res.status === 429 || res.status === 500)) throw res
         let json = null
         try {
             json = await res.json()
@@ -228,13 +226,10 @@ class AnimeSchedule {
         }
         if (!res.ok) {
             if (json) {
-                for (const error of json?.errors || []) {
-                    printError('Search Failed', 'Failed to fetch the anime schedule(s)!', error)
-                }
-            } else {
-                printError('Search Failed', 'Failed to fetch the anime schedule(s)!', res)
-            }
+                for (const error of json?.errors || []) printError('Search Failed', 'Failed to fetch the anime schedule(s)!', error)
+            } else printError('Search Failed', 'Failed to fetch the anime schedule(s)!', res)
         }
+        if (!json) throw res
         return json
     }
 
@@ -257,7 +252,7 @@ class AnimeSchedule {
           let lastUpdated
             try {
                 lastUpdated = await this.getFeed('last-updated')
-            } catch (e) {
+            } catch (error) {
                 if (previousManifest) {
                     debug(`Failed to request last updated manifest, this is likely due to an outage... falling back to cached data.`)
                     return { changed: false }
@@ -284,13 +279,13 @@ class AnimeSchedule {
         let content
         try {
             content = await this.getFeed(`${feed}`)
-        } catch (e) {
+        } catch (error) {
             const cachedEntry = await cache.cachedEntry(caches.RSS, `${feed}`, true)
             if (cachedEntry) {
                 debug(`Failed to request RSS schedule for ${feed}, this is likely due to an outage... falling back to cached data.`)
                 content = cachedEntry
             }
-            else throw e
+            else throw error
         }
         const res = !schedule && updateStore ? await this[`${type.toLowerCase()}AiredLists`].value : null
         if (!res || JSON.stringify(content) !== JSON.stringify(res)) {

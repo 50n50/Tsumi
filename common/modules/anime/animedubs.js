@@ -6,7 +6,6 @@ import Debug from 'debug'
 const debug = Debug('ui:animedubs')
 
 /**
- * MAL (MyAnimeList) Dubs (Mal-Dubs)
  * Dub information is returned as MyAnimeList ids.
  */
 class MALDubs {
@@ -43,37 +42,32 @@ class MALDubs {
             if (status.value === 'offline' && cachedEntry) return cachedEntry
             let res = {}
             try {
-                res = await fetch(`https://raw.githubusercontent.com/MAL-Dubs/MAL-Dubs/main/data/dubInfo.json?timestamp=${new Date().getTime()}`)
-            } catch (e) {
-                if (!res || res.status !== 404) throw e
+                res = await fetch(`${atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL01BTC1EdWJzL01BTC1EdWJzL21haW4vZGF0YS9kdWJJbmZvLmpzb24=')}?timestamp=${new Date().getTime()}`)
+            } catch (error) {
+                if (!res || res.status !== 404) throw error
             }
-            if (!res.ok && (res.status === 429 || res.status === 500)) {
-                throw res
-            }
+            if (!res.ok && (res.status === 429 || res.status === 500)) throw res
             let json = null
             try {
                 json = await res.json()
             } catch (error) {
-                if (res.ok) printError('Dub Caching Failed', 'Failed to load dub information!', error)
+                if (res.ok && !cachedEntry) printError('Dub Caching Failed', 'Failed to load dub information!', error)
             }
             if (!res.ok) {
                 if (json) {
                     for (const error of json?.errors || []) {
-                        printError('Dub Caching Failed', 'Failed to load dub information!', error)
+                        if (!cachedEntry) printError('Dub Caching Failed', 'Failed to load dub information!', error)
                     }
-                } else {
-                    printError('Dub Caching Failed', 'Failed to load dub information!', res)
-                }
-            } else if (json) {
-                return await cache.cacheEntry(caches.RSS, 'MALDubs', { mappings: true }, json, Date.now() + getRandomInt(100, 200) * 60 * 1000)
-            }
-        } catch (e) {
+                } else if (!cachedEntry) printError('Dub Caching Failed', 'Failed to load dub information!', res)
+            } else if (json) return await cache.cacheEntry(caches.RSS, 'MALDubs', { mappings: true }, json, Date.now() + getRandomInt(100, 200) * 60 * 1000)
+            else throw res
+        } catch (error) {
             const cachedEntry = await cache.cachedEntry(caches.RSS, 'MALDubs', true)
             if (cachedEntry) {
                 debug(`Failed to request MALDubs RSS, this is likely due to an outage... falling back to cached data.`)
                 return cachedEntry
             }
-            else throw e
+            else throw error
         }
     }
 }
