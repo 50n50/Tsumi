@@ -89,6 +89,19 @@
       })
     }
   })
+  IPC.on('log-reset', detail => {
+    if (detail.success) {
+      toast.success('Logs Reset', {
+        description: 'The log file has successfully been reset',
+        duration: 5_000
+      })
+    } else {
+      toast.error('Log Not Reset', {
+        description: 'Failed to reset the log file',
+        duration: 10_000
+      })
+    }
+  })
 </script>
 
 <h4 class='mb-10 font-weight-bold'>App Settings</h4>
@@ -100,15 +113,15 @@
   </div>
 </SettingCard>
 {#if !SUPPORTS.isAndroid}
-<SettingCard title='Close Action' description='Choose the functionality of the close button for the app. You can choose to receive a Prompt to Minimize or Close, default to Minimize, or default to Closing the app.'>
-  <div>
-    <select class='form-control bg-dark mw-150 w-150 text-truncate' bind:value={settings.closeAction}>
-      <option value='Prompt'>Prompt</option>
-      <option value='Minimize'>Minimize</option>
-      <option value='Close'>Close</option>
-    </select>
-  </div>
-</SettingCard>
+  <SettingCard title='Close Action' description='Choose the functionality of the close button for the app. You can choose to receive a Prompt to Minimize or Close, default to Minimize, or default to Closing the app.'>
+    <div>
+      <select class='form-control bg-dark mw-150 w-150 text-truncate' bind:value={settings.closeAction}>
+        <option value='Prompt'>Prompt</option>
+        <option value='Minimize'>Minimize</option>
+        <option value='Close'>Close</option>
+      </select>
+    </div>
+  </SettingCard>
 {/if}
 <SettingCard title='Query Complexity' description="Complex queries result in slower loading times but help in reducing the chances of hitting AniList's rate limit. Simple queries split up the requests into multiple queries which are requested as needed.">
   <div>
@@ -156,8 +169,11 @@
   <button type='button' use:click={() => IPC.emit('get-device-info')} class='btn btn-primary d-flex align-items-center justify-content-center'><span class='text-truncate'>Copy To Clipboard</span></button>
 </SettingCard>
 {#if !SUPPORTS.isAndroid}
-  <SettingCard title='Log Output' description='Export logs to a selection location. Once you enable a logging level you can use this to quickly get the created logs instead of navigating to the log file in directories.'>
-    <button type='button' use:click={() => IPC.emit('get-log-contents')} class='btn btn-primary d-flex align-items-center justify-content-center'><span class='text-truncate'>Export Logs</span></button>
+  <SettingCard title='Log Output' description='Export logs to a selection location or reset the log file. Once you enable a logging level you can use this to quickly get the created logs instead of navigating to the log file in directories.'>
+    <div class='d-inline-flex flex-column'>
+      <button type='button' use:click={() => IPC.emit('get-log-contents')} class='btn btn-primary d-flex align-items-center justify-content-center'><span class='text-truncate'>Export Logs</span></button>
+      <button type='button' use:click={() => IPC.emit('reset-log-contents')} class='btn btn-danger mt-5 d-flex align-items-center justify-content-center'><span class='text-truncate'>Reset Logs</span></button>
+    </div>
   </SettingCard>
   <SettingCard title='Open Torrent Devtools' description="Open devtools for the detached torrent process, this allows to inspect code execution and memory. DO NOT PASTE ANY CODE IN THERE, YOU'RE LIKELY BEING SCAMMED IF SOMEONE TELLS YOU TO!">
     <button type='button' use:click={() => IPC.emit('torrent-devtools')} class='btn btn-primary d-flex align-items-center justify-content-center'><span class='text-truncate'>Open Devtools</span></button>

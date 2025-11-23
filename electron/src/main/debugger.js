@@ -11,9 +11,8 @@ autoUpdater.logger = log
 
 export default class Debug {
   constructor () {
-    ipcMain.on('get-log-contents', async ({ sender }) => {
-      ipcMain.emit('log-contents', sender, await readFile(log.transports.file.getFile().path, 'utf8'))
-    })
+    ipcMain.on('get-log-contents', async ({ sender }) => ipcMain.emit('log-contents', sender, await readFile(log.transports.file.getFile().path, 'utf8')))
+    ipcMain.on('reset-log-contents', async ({ sender }) => sender.send('log-reset', { success: await log.transports.file.getFile().clear() }))
     ipcMain.on('get-device-info', async ({ sender }) => {
       const { model, speed } = os.cpus()[0]
       const deviceInfo = {

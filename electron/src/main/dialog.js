@@ -40,14 +40,8 @@ export default class Dialog {
           filters: [{ name: 'Log File', extensions: ['log'] }]
         })
         if (canceled || !filePath) return
-        writeFile(filePath, log, { encoding: 'utf8', mode: 0o644 }, error => {
-          if (error) {
-            console.error(error)
-            sender.send('log-exported', { error: true })
-            return
-          }
-          sender.send('log-exported', { error: false })
-        })
+        await writeFile(filePath, log, { encoding: 'utf8', mode: 0o644 })
+        sender.send('log-exported', { error: false })
       } catch (error) {
         console.error(error)
         sender.send('log-exported', { error: true })
