@@ -205,7 +205,7 @@
       }
     } else {
       src = ''
-      showBuffering()
+      buffering = true
       current = null
       currentTime = 0
       targetTime = 0
@@ -1467,7 +1467,7 @@
   class:miniplayer
   class:pip
   class:immersed={immersed}
-  class:buffering={buffering}
+  class:buffering={(page === 'player' || miniplayer) && buffering}
   class:fitWidth
   bind:this={container}
   role='none'
