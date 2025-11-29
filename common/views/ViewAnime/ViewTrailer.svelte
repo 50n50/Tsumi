@@ -5,18 +5,23 @@
   import { anilistClient } from '@/modules/anilist.js'
   import { click } from '@/modules/click.js'
   import { X } from 'lucide-svelte'
-  import Helper from '@/modules/helper.js'
+  import SmartImage from '@/components/visual/SmartImage.svelte'
   import { episodesList } from '@/modules/episodes.js'
 
   export let overlay
   export let staticMedia
   const hide = writable(true)
-
+  let loading = true
   let trailer = writable(false)
 
   function close () {
     if (overlay.includes('trailer')) overlay = overlay.filter(item => item !== 'trailer')
     trailer.set(false)
+  }
+
+  function show () {
+    hide.set(false)
+    return ''
   }
 
   $: if ($trailer && !overlay.includes('trailer')) overlay = [...overlay, 'trailer']
@@ -33,11 +38,23 @@
   <div class='pointer-events-auto ratio-16-9 position-relative w-full wm-calc overflow-hidden rounded-bottom-5'>
 <!--    < css='h-full' bind:hide={$hide} loop={false} bind:autoPause={$trailer} autoPlay={false} autoMute={false} controls={true} fullScreen={true} ids={[staticMedia.trailer?.id, () => episodesList.getMedia(staticMedia.idMal).then(metadata => [metadata?.data?.trailer?.youtube_id])]} title={staticMedia.title.userPreferred}/>-->
     {#await (staticMedia.trailer?.id && staticMedia) || episodesList.getMedia(staticMedia.idMal) then trailerUrl}
-      {#if trailerUrl?.trailer?.id || trailerUrl?.data?.trailer?.youtube_id }
-        {$hide = false && ''}
-        <button class='btn bg-dark-light btn-lg btn-square d-flex align-items-center justify-content-center shadow-none border-0' data-toggle='tooltip' data-placement='top' data-target-breakpoint='md' data-title='Watch Trailer' class:ml-10={Helper.isAuthorized()} use:click={() => $trailer = { media: staticMedia, id: (trailerUrl?.trailer?.id || trailerUrl?.data?.trailer?.youtube_id) }}>
-          <TvMinimalPlay size='1.7rem' />
-        </button>
+      {@const trailerId = trailerUrl?.trailer?.id || trailerUrl?.data?.trailer?.youtube_id}
+      {#if trailerId}
+        {show()}
+        {#if $trailer}
+          <div class='pointer-events-auto ratio-16-9 position-relative w-full wm-calc'>
+            <SmartImage class='ratio-16-9 img-cover w-full h-full rounded-bottom-6' images={[...(trailerId ? [`https://i.ytimg.com/vi/${trailerId}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${trailerId}/hqdefault.jpg`] : []), staticMedia.bannerImage, staticMedia.coverImage?.extraLarge ]} hidden={!loading}/>
+            <iframe
+                class='position-absolute w-full h-full top-0 left-0 border-0 rounded-bottom-5'
+                class:d-none={loading}
+                title={staticMedia.title.userPreferred}
+                allow='autoplay'
+                allowfullscreen
+                on:load={() => { loading = false }}
+                src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&vq=medium&cc_lang_pref=ja`}
+            />
+          </div>
+        {/if}
       {/if}
     {/await}
   </div>

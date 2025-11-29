@@ -47,28 +47,34 @@
   }
 </script>
 
-<div class='position-absolute w-350 h-full absolute-container top-0 bottom-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer fade-change' in:fadeIn out:fadeOut bind:this={element} on:scroll={(e) => e.target.scrollTop = 0}>
-  <div class='banner position-relative bg-black overflow-hidden' >
-    <SmartImage class='img-cover w-full h-full' images={[media.bannerImage, ...(media.trailer?.id ? [`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`] : []), media.coverImage?.extraLarge ]}/>
-    {#await (media.trailer?.id && media) || episodesList.getMedia(media.idMal) then trailer}
-      {#if trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id }
-        <div class='position-absolute z-10 top-0 right-0 m-15 rounded sound' use:click={toggleMute}>
-          {#if muted}
-            <VolumeX size='2.2rem' fill='currentColor'/>
-          {:else}
-            <Volume2 size='2.2rem' fill='currentColor'/>
-          {/if}
-        </div>
-        <iframe
-          class='w-full border-0 position-absolute left-0'
-          class:d-none={hide}
-          title={media.title.userPreferred}
-          allow='autoplay'
-          on:load={() => { hide = false }}
-          src={`https://www.youtube.com/embed/${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}?autoplay=1&controls=0&mute=${muted ? 1 : 0}&disablekb=1&loop=1&vq=medium&playlist=${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}&cc_lang_pref=ja`}
-        />
-      {/if}
-    {/await}
+<div class='position-absolute w-350 h-full absolute-container top-0 bottom-0 m-auto bg-dark-light z-30 rounded pointer fade-change overflow-hidden clip-0-rounded' in:fadeIn out:fadeOut bind:this={element} on:scroll={(e) => e.target.scrollTop = 0}>
+  <div class='banner position-relative bg-black'>
+    <div class='ratio-16-9 w-full h-full clip-0'>
+      <SmartImage class='img-cover w-full h-full' images={[media.bannerImage, ...(media.trailer?.id ? [`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`] : []), media.coverImage?.extraLarge ]}/>
+      {#await (media.trailer?.id && media) || episodesList.getMedia(media.idMal) then trailer}
+        {#if trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id }
+          <div style='transition: opacity .3s' class:hidden={hide}>
+            <SmartImage class='position-absolute top-0 left-0 w-full h-full img-cover blur-6' images={[`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`]}/>
+            <button type='button' class='position-absolute z-10 top-0 right-0 m-15 btn-square bg-transparent shadow-none border-0 rounded pointer mute' style='filter: drop-shadow(0 0 .4rem hsla(var(--black-color-hsl), 1))' use:click={toggleMute}>
+              {#if muted}
+                <VolumeX size='2.2rem' fill='currentColor'/>
+              {:else}
+                <Volume2 size='2.2rem' fill='currentColor'/>
+              {/if}
+            </button>
+            <iframe
+                class='w-full border-0 position-absolute left-0 pv-trailer pointer-events-none'
+                tabindex='-1'
+                title={media.title.userPreferred}
+                loading='lazy'
+                allow='autoplay'
+                on:load={() => { hide = false }}
+                src={`https://www.youtube-nocookie.com/embed/${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}?autoplay=1&controls=0&mute=${muted ? 1 : 0}&disablekb=1&loop=1&vq=medium&playlist=${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}&cc_lang_pref=ja`}
+            />
+          </div>
+        {/if}
+      {/await}
+    </div>
   </div>
   <div class='w-full px-20'>
     <div class='font-scale-20 font-weight-bold text-truncate d-inline-block w-full text-white' title={anilistClient.title(media)}>
@@ -157,12 +163,6 @@
 </div>
 
 <style>
-  .banner {
-    height: 40%
-  }
-  .sound {
-    filter: drop-shadow(0 0 .4rem hsla(var(--black-color-hsl), 1))
-  }
   .details > span:not(:last-child) {
     margin-right: .2rem;
     margin-bottom: .1rem;
@@ -170,21 +170,21 @@
   .details::after {
     content: '';
     position: absolute;
+    pointer-events: none;
     left: 0;
     bottom: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
     background: var(--preview-card-end-gradient);
   }
   .banner::after {
     content: '';
     position: absolute;
+    pointer-events: none;
     left: 0;
-    bottom: 0;
-    margin-bottom: -1px;
+    top: 0;
     width: 100%;
-    height: 100%;
+    height: 100.5%;
     background: var(--preview-card-trailer-gradient);
   }
   .absolute-container {
@@ -196,17 +196,5 @@
     margin-top: -1rem !important;
     margin-left: -1rem !important;
     width: calc(100% + 2rem) !important;
-  }
-  @keyframes delayedShow {
-    to {
-      visibility: visible;
-    }
-  }
-  iframe {
-    height: 200%;
-    top: 50%;
-    transform: translate(0, -50%);
-    visibility: hidden;
-    animation: 0s linear 0.5s forwards delayedShow;
   }
 </style>

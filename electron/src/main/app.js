@@ -281,6 +281,7 @@ export default class App {
     this.tray.destroy()
     try {
       if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) { // WebTorrent shouldn't ever be destroyed before main, but it's better to be safe.
+        this.webtorrentWindow.webContents?.closeDevTools?.()
         this.webtorrentWindow.webContents.postMessage('destroy', null)
         await new Promise(resolve => {
           ipcMain.once('destroyed', resolve)
