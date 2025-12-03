@@ -302,7 +302,7 @@ class AnilistClient {
       const newNotifications = (lastNotified > 0) && notifications ? notifications.filter(({createdAt}) => createdAt > lastNotified) : []
       debug(`Found ${newNotifications?.length} new notifications`)
       for (const { media, episode, type, createdAt } of newNotifications) {
-        if ((settings.value.aniNotify !== 'limited' || type !== 'AIRING') && media.type === 'ANIME' && media.format !== 'MUSIC' && (!settings.value.preferDubs || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(mediaCache.value[media?.id]))) {
+        if ((settings.value.aniNotify !== 'limited' || type !== 'AIRING') && media.type === 'ANIME' && media.format !== 'MUSIC' && (!settings.value.preferDubs || (media?.status === 'FINISHED' && !['WATCHING', 'REPEATING']?.includes(media?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(mediaCache.value[media?.id]))) {
           window.dispatchEvent(new CustomEvent('notification-app', {
             detail: {
               id: media?.id,
@@ -353,6 +353,9 @@ class AnilistClient {
               },
               coverImage {
                 medium
+              },
+              mediaListEntry {
+                status
               }
             }
           },

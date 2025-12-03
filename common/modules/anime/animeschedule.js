@@ -326,7 +326,7 @@ class AnimeSchedule {
         let res = (await this[`${type.toLowerCase()}AiredLists`].value) || []
         const section = settings.value.homeSections.find(s => s[0] === `${type}${type === `Hentai` ? `` : `bed`} Releases`)
         if (section && section[2].length > 0) res = res.filter(episode => section[2].includes(episode.format) && (section[2].includes('TV_SHORT') || !episode.duration || (episode.duration >= 12)))
-        const filteredRes = await Promise.all(res.map(async episode => !settings.value.preferDubs || !(await malDubs.isDubMedia(episode)) || !mediaCache.value[episode.id] || (type === 'Dub' ? !(await isSubbedProgress(mediaCache.value[episode.id])) : (await isSubbedProgress(mediaCache.value[episode.id])))))
+        const filteredRes = await Promise.all(res.map(async episode => !settings.value.preferDubs || (mediaCache.value[episode.id]?.status === 'FINISHED' && !['WATCHING', 'REPEATING']?.includes(mediaCache.value[episode.id]?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(episode)) || !mediaCache.value[episode.id] || (type === 'Dub' ? !(await isSubbedProgress(mediaCache.value[episode.id])) : (await isSubbedProgress(mediaCache.value[episode.id])))))
         res = res.filter((_, index) => filteredRes[index])
         const cachedAiredLists = this[`${type.toLowerCase()}AiredListsCache`].value[`${page}-${perPage}`]
         const paginatedLists = res.slice((page - 1) * perPage, page * perPage) || []
@@ -390,7 +390,7 @@ class AnimeSchedule {
                     const addedAt = Math.floor(new Date(media.episode.addedAt).getTime() / 1000)
                     const notify = (!media?.mediaListEntry && settings.value.releasesNotify?.includes('NOTONLIST')) || (media?.mediaListEntry && settings.value.releasesNotify?.includes(media?.mediaListEntry?.status))
                     debug(`Attempting to notify for ${media?.id}:${media?.title?.userPreferred}...`)
-                    if (notify && (type === 'Dub' || !settings.value.preferDubs || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media)) && media.format !== 'MUSIC') {
+                    if (notify && (type === 'Dub' || !settings.value.preferDubs || (mediaCache.value[episode.id]?.status === 'FINISHED' && !['WATCHING', 'REPEATING']?.includes(mediaCache.value[episode.id]?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media)) && media.format !== 'MUSIC') {
                         window.dispatchEvent(new CustomEvent('notification-app', {
                             detail: {
                                 id: media?.id,
@@ -413,7 +413,7 @@ class AnimeSchedule {
                         }))
                         debug(`Successfully notified for ${media?.id}:${media?.title?.userPreferred}!`)
                     } else {
-                        debug(`Failed to notify for ${media?.id}:${media?.title?.userPreferred}:${notify}:${(type === 'Dub' || !settings.value.preferDubs || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media))}:${(media.format !== 'MUSIC')}`)
+                        debug(`Failed to notify for ${media?.id}:${media?.title?.userPreferred}:${notify}:${(type === 'Dub' || !settings.value.preferDubs || (mediaCache.value[episode.id]?.status === 'FINISHED' && !['WATCHING', 'REPEATING']?.includes(mediaCache.value[episode.id]?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media))}:${(media.format !== 'MUSIC')}`)
                     }
                 }
             }

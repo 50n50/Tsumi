@@ -136,7 +136,7 @@ class RSSMediaManager {
     for (const { media, parseObject, episode, link, hash, date } of newReleases) {
       const notify = (!media?.mediaListEntry && settings.value.rssNotify?.includes('NOTONLIST')) || (media?.mediaListEntry && settings.value.rssNotify?.includes(media?.mediaListEntry?.status))
       const dubbed = await malDubs.isDubMedia(parseObject)
-      if (notify && (!settings.value.preferDubs || dubbed || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media))) {
+      if (notify && (!settings.value.preferDubs || (media?.status === 'FINISHED' && !['WATCHING', 'REPEATING']?.includes(media?.mediaListEntry?.status)) || dubbed || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media))) {
         const highestEp = Number(episode) || episodesList.handleArray(episode, episode)
         const progress = media?.mediaListEntry?.progress
         const behind = progress < ((Number(episode) || Number(highestEp)) - 1)
