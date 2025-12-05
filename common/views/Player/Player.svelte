@@ -242,7 +242,9 @@
 
   let externalReadyListener
   async function handleCurrent (file) {
+    paused = true
     canPlay = false
+    video?.pause?.()
     externalPlayerReady = false
     showBuffering()
     if (file) {
