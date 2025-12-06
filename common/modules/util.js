@@ -48,6 +48,21 @@ export function stringToHex(str) {
 }
 
 /**
+ * Creates a deferred promise that can be resolved manually.
+ * @returns {{ promise: Promise<boolean>, resolve: (value?: boolean) => void }}
+ */
+export function createDeferred() {
+  let resolveFn
+  const promise = new Promise((resolve) => {
+    resolveFn = resolve
+  })
+  if (typeof resolveFn !== 'function') {
+    throw new Error('Failed to create deferred promise')
+  }
+  return { promise, resolve: resolveFn }
+}
+
+/**
  * Converts a number of seconds into a human-readable countdown string.
  *
  * The output includes:
