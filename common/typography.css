@@ -100,7 +100,7 @@
   }
 }
 
-@media (max-height: 500px) {
+@media (max-height: 530px) {
   .d-sm-h-none {
     display: none !important;
   }

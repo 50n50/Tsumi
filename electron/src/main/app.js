@@ -8,7 +8,7 @@ import fs from 'fs'
 import { BrowserWindow, MessageChannelMain, Notification, Tray, Menu, nativeImage, app, dialog, ipcMain, powerMonitor, shell, session } from 'electron'
 import electronShutdownHandler from '@paymoapp/electron-shutdown-handler'
 
-import { development } from './util.js'
+import { development, getWindowState, saveWindowState } from './util.js'
 import Discord from './discord.js'
 import Protocol from './protocol.js'
 import Updater from './updater.js'
@@ -23,9 +23,11 @@ export default class App {
   torrentLoad = null
   webtorrentWindow = this.makeWebTorrentWindow()
 
+  windowState = getWindowState()
   mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
+    ...this.windowState.bounds,
+    minWidth: 320,
+    minHeight: 390,
     frame: process.platform === 'darwin',
     titleBarStyle: 'hidden',
     ...(process.platform !== 'darwin' ? { titleBarOverlay: {
@@ -74,7 +76,17 @@ export default class App {
     ipcMain.on('maximize', () => this.mainWindow?.isMaximized() ? this.mainWindow.unmaximize() : this.mainWindow.maximize())
     ipcMain.on('webtorrent-restart', () => this.setWebTorrentWindow(true))
     this.mainWindow.on('maximize', () => this.mainWindow.webContents.send('isMaximized', true))
-    this.mainWindow.on('unmaximize', () => this.mainWindow.webContents.send('isMaximized', false))
+    this.mainWindow.on('unmaximize', () => {
+      saveWindowState(this.mainWindow)
+      this.mainWindow.webContents.send('isMaximized', false)
+    })
+    let stateTimeout
+    const debounceState = () => {
+      clearTimeout(stateTimeout)
+      stateTimeout = setTimeout(() => saveWindowState(this.mainWindow), 150)
+    }
+    this.mainWindow.on('resize', debounceState)
+    this.mainWindow.on('move', debounceState)
     if (process.platform === 'darwin') {
       this.mainWindow.on('enter-full-screen', () => this.mainWindow.webContents.send('isFullscreen', true))
       this.mainWindow.on('leave-full-screen', () => this.mainWindow.webContents.send('isFullscreen', false))
@@ -279,6 +291,7 @@ export default class App {
     this.mainWindow.hide()
     this.mainWindow.webContents?.closeDevTools?.()
     this.tray.destroy()
+    saveWindowState(this.mainWindow)
     try {
       if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) { // WebTorrent shouldn't ever be destroyed before main, but it's better to be safe.
         this.webtorrentWindow.webContents?.closeDevTools?.()
@@ -343,6 +356,11 @@ export default class App {
   showAndFocus(ready = false) {
     if (!this.ready && !ready) return
     if (!this.ready) this.ready = true
+    if (ready) {
+      this.mainWindow.setBounds(this.windowState.bounds)
+      if (this.windowState.isMaximized) this.mainWindow.maximize()
+      if (this.windowState.isFullScreen) this.mainWindow.setFullScreen(true)
+    }
     if (this.mainWindow.isMinimized()) {
       this.mainWindow.restore()
     } else if (!this.mainWindow.isVisible()) {
