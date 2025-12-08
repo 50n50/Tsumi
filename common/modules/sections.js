@@ -263,6 +263,19 @@ function createSections () {
         return SectionsManager.wrapResponse(res, perPage)
       }
     }, { userList: true, disableHide: true, status_not }),
+    createSection({ title: 'Rewatching List', sort: 'UPDATED_TIME_DESC', format: [], hide: !Helper.isAuthorized(),
+      load: (page = 1, perPage = 50, variables = {}) => {
+        const res = Helper.userLists(variables).then(res => {
+          if (!res?.data && res?.errors) throw res.errors[0]
+          const mediaList = Helper.isAniAuth()
+            ? res.data.MediaListCollection.lists.find(({ status }) => status === 'REPEATING')?.entries
+            : res.data.MediaList.filter(({ node }) => node.my_list_status.status === Helper.statusMap('REPEATING'))
+          if (!mediaList) return {}
+          return Helper.getPaginatedMediaList(page, perPage, variables, mediaList)
+        })
+        return SectionsManager.wrapResponse(res, perPage)
+      }
+    }, { userList: true, disableHide: true, status_not }),
     createSection({ title: 'Completed List', sort: 'UPDATED_TIME_DESC', format: [], hide: !Helper.isAuthorized(),
       load: (page = 1, perPage = 50, variables = {}) => {
         const res = Helper.userLists(variables).then(res => {
