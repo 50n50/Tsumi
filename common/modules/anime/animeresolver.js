@@ -259,7 +259,7 @@ export default new class AnimeResolver {
       if (name.match(/Kanchigai no Atelier Meister/i) && !name.match(/Mini|Short|Eiyuu|Party/i)) name = name.replace(/Kanchigai no Atelier Meister/i, 'The Unaware Atelier Meister') // stupid fix to prevent the Mini Anime from being fetched due to egregiously long romaji name in the TV series.
       if (name.match(/Prince/i) && name.match(/Tennis/i)) name = name.replace(/new /i, '') // Prince of Tennis fix.
       if (name.match(/Mugen Gacha/i) && !name.match(/Shinjiteita|Nakamatachi|Korosarekaketa|Fukushuu|Unlimited|Backstabbed|Backwater|Dungeon|Revenge/i)) name = name.replace(/Mugen Gacha/i, `My Gift Lvl 9999 Unlimited Gacha: Backstabbed in a Backwater Dungeon, I'm Out for Revenge!`) // My Gift Lvl 9999 Unlimited Gacha fix.
-      if (name.match(/Gintama /i) && name.match(/3-nen|Z-gumi|Ginpachi/i) && !name.match(/Tuuuunnn/i)) name = name.replace(/Gintama /i, '') // Mr. Ginpachi's Zany Class fix.
+      if (name.match(/Gintama[: ]/i) && name.match(/3-nen|Z-gumi|Ginpachi/i) && !name.match(/Tuuuunnn/i)) name = name.replace(/Gintama[: ]?/i, '') // Mr. Ginpachi's Zany Class fix.
       if (name.match(/Mobile Suit Z /i)) name = name.replace(/ Z /i, ' Zeta ') // Mobile Suit Zeta Gundam fix.
       if (name.match(/Kaijuu 8-gou/i) && name.match(/Mission Recon/i)) name = name.replace(/- Mission Recon| -Mission Recon|Mission Recon/i, '').replace(/Kaijuu 8-gou/i, 'Kaiju No. 8: Mission Recon') // Kaiju No. 8: Mission Recon fix...
       if (name.match(/Living/i) && name.match(/Otaku/i) && name.match(/NEET Kunoichi/i)) name = name.replace(/ an /i, ' a ') // I'm Living With a Otaku NEET Kunoichi?! fix for release groups like ToonsHub using Engrish...
