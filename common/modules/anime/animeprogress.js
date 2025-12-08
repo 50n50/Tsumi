@@ -32,7 +32,8 @@ export function liveAnimeProgress (mediaId) {
 }
 
 // Return an individual episode's progress in percent (0-100)
-export function liveAnimeEpisodeProgress (mediaId, episode) {
+export function liveAnimeEpisodeProgress (mediaId, episode, completed) {
+  if (completed) return null
   return derived(animeProgressStore, (data) => {
     if (!mediaId || !episode) return 0
     const result = data.find(item => item.mediaId === mediaId && item.episode === episode)

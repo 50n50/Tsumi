@@ -36,9 +36,9 @@
   $: episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
   $: lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || data?.episode || (media?.episodes === 1 && media?.episodes)
   $: episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
-  $: progress = liveAnimeEpisodeProgress(media?.id, data?.episode)
   $: watched = media?.mediaListEntry?.status === 'COMPLETED'
   $: completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
+  $: progress = liveAnimeEpisodeProgress(media?.id, data?.episode, completed)
   let hide = true
 
   const view = getContext('view')
@@ -168,7 +168,7 @@
         </div>
       {:else if $progress > 0}
         <div class='progress container-fluid position-absolute z-10' style='height: 2px; min-height: 2px;'>
-          <div class='progress-bar' style='width: {progress}%' />
+          <div class='progress-bar' style='width: {$progress}%' />
         </div>
       {/if}
     </div>
