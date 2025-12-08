@@ -5,6 +5,7 @@
   import { SUPPORTS } from '@/modules/support.js'
   import { createListener, past } from '@/modules/util.js'
 
+  const episodeRx = /Episode (\d+) - (.*)/
   const { reactive, init } = createListener(['torrent-button'])
   init(true)
 
@@ -72,9 +73,7 @@
   $: id = media.id
   $: idMal = media.idMal
   $: duration = media.duration
-
-  const episodeRx = /Episode (\d+) - (.*)/
-  const animeProgress = liveAnimeProgress(id)
+  $: animeProgress = liveAnimeProgress(id)
 
   let loadScroll = false
   let maxEpisodes = 15
