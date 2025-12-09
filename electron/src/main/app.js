@@ -138,7 +138,7 @@ export default class App {
       if (process.platform === 'win32') {
         notification = new Notification({toastXml: toXmlString(opts) })
       } else {
-        const defaultIconPath = join(__dirname, process.platform === 'darwin' ? '/icon_filled.png' : '/icon_filled.png')
+        const defaultIconPath = join(__dirname, '/icon_filled.png')
         notification = new Notification({
           title: opts.title || '',
           body: opts.message || '',
