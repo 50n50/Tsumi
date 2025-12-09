@@ -134,7 +134,17 @@ export default class App {
       opts.icon &&= await this.getImage(opts.id, opts.icon)
       opts.heroImg &&= await this.getImage(opts.id, opts.heroImg, true)
       opts.inlineImg &&= await this.getImage(opts.id, opts.inlineImg)
-      const notification = new Notification({toastXml: toXmlString(opts) })
+      let notification
+      if (process.platform === 'win32') {
+        notification = new Notification({toastXml: toXmlString(opts) })
+      } else {
+        const defaultIconPath = join(__dirname, process.platform === 'darwin' ? '/icon_filled.png' : '/icon_filled.png')
+        notification = new Notification({
+          title: opts.title || '',
+          body: opts.message || '',
+          icon: opts.icon || defaultIconPath
+        })
+      }
       notification.show()
     })
 
