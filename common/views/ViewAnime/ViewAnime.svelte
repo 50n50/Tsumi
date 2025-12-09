@@ -82,6 +82,7 @@
     if (keyCode === 27) close()
   }
   function play (episode) {
+    if (!media) return
     if (episode || episode === 0) return playAnime(media, episode)
     if (media.status === 'NOT_YET_RELEASED') return
     playMedia(media)
@@ -107,6 +108,7 @@
 
   function handlePlay(id, episode, torrentOnly) {
     const cachedMedia = mediaCache.value[id]
+    if (!cachedMedia) return
     const cachedEpisode = episode || cachedMedia?.mediaListEntry?.progress
     const desiredEpisode = (episode ? episode : cachedEpisode && cachedEpisode !== 0 ? cachedEpisode + 1 : cachedEpisode)
     if (torrentOnly) {
