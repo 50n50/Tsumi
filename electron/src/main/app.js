@@ -131,19 +131,24 @@ export default class App {
     fs.rmSync(this.imageDir, { recursive: true, force: true })
     ipcMain.on('notification-unread', async (e, notificationCount) => this.setTrayIcon(notificationCount))
     ipcMain.on('notification', async (e, opts) => {
-      opts.icon &&= await this.getImage(opts.id, opts.icon)
-      opts.heroImg &&= await this.getImage(opts.id, opts.heroImg, true)
-      opts.inlineImg &&= await this.getImage(opts.id, opts.inlineImg)
+      opts.icon = opts.icon ? ((await this.getImage(opts.id, opts.icon)) || this.icon) : this.icon
       let notification
       if (process.platform === 'win32') {
-        notification = new Notification({toastXml: toXmlString(opts) })
+        opts.heroImg &&= await this.getImage(opts.id, opts.heroImg, true)
+        opts.inlineImg &&= await this.getImage(opts.id, opts.inlineImg)
+        notification = new Notification({ toastXml: toXmlString(opts) })
       } else {
-        const defaultIconPath = join(__dirname, '/icon_filled.png')
-        notification = new Notification({
-          title: opts.title || '',
-          body: opts.message || '',
-          icon: opts.icon || defaultIconPath
+        const simpleOpts = { title: opts.title, body: opts.message, icon: opts.icon }
+        if (process.platform === 'darwin' && opts.button && opts.button.length) simpleOpts.actions = opts.button.map(button => ({ type: 'button', text: button.text }))
+        notification = new Notification(simpleOpts)
+        notification.on('click', () => {
+          if (opts.activation?.launch) shell.openExternal(opts.activation.launch)
         })
+        if (process.platform === 'darwin') {
+          notification.on('action', (event, index) => {
+            if (opts.button && opts.button[index]) shell.openExternal(opts.button[index].activation)
+          })
+        }
       }
       notification.show()
     })
