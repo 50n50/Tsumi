@@ -55,7 +55,7 @@
   export let playPage
   export let miniplayer = false
   $: viewAnime = overlay.includes('viewanime')
-  $condition = () => SUPPORTS.keybinds && ((!miniplayer && !overlay.length && !document.querySelector('.modal.show')) || (viewAnime && page === 'player'))
+  $condition = () => SUPPORTS.keybinds && page === 'player' && ((!miniplayer && !overlay.length && !document.querySelector('.modal.show')) || viewAnime)
 
   export let files = []
   export let playableFiles = []
