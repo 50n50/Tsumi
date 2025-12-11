@@ -25,7 +25,7 @@
   import 'rvfc-polyfill'
   import IPC from '@/modules/ipc.js'
   import WPC from '@/modules/wpc.js'
-  import { X, Minus, ArrowDown, ArrowUp, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Users, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
+  import { X, Minus, ArrowDown, ArrowUp, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Users, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
   import Debug from 'debug'
   const debug = Debug('ui:player')
 
@@ -91,7 +91,8 @@
   let playbackRate = 1
   let externalPlayerReady = false
   $: cache.setEntry(caches.GENERAL, 'volume', String(volume || 0))
-  $: externalPlayback = settings.value.enableExternal && (SUPPORTS.isAndroid || settings.value.playerPath)
+  $: launchedExternal = false
+  $: externalPlayback = ($settings.enableExternal || launchedExternal) && (SUPPORTS.isAndroid || $settings.playerPath)
   $: safeduration = externalPlayback ? ((current?.media?.media?.duration || (current?.media?.media?.format && durationMap[current?.media?.media?.format]) || 24) * 60) : (isFinite(duration) ? duration : currentTime)
   $: {
     if (hidden) setDiscordRPC(media, video?.currentTime)
@@ -265,26 +266,31 @@
         subs = null
       }
       current = file
-      if (!externalPlayback) {
-        src = file.url
-        subs = new Subtitles(video, files, current, handleHeaders)
-        video.load()
-        await loadAnimeProgress()
-      } else externalPlaying = false
-      emit('current', current) // #handleCurrent in MediaHandler
-      if (externalPlayback) {
-        WPC.clear('externalReady', externalReadyListener)
-        externalReadyListener = () => {
-          hideBuffering()
-          externalPlayerReady = true
-          setTimeout(() => {
-            if (externalPlayerReady && !externalPlaying) autoPlay()
-          }, 1_500)
-        }
-        WPC.listen('externalReady', externalReadyListener)
-      }
-      WPC.send('current', { current: file, external: settings.value.enableExternal })
+      setCurrent(file)
     }
+  }
+
+  async function setCurrent(file, launchExternal = false) {
+    launchedExternal = launchExternal
+    if (!externalPlayback) {
+      src = file.url
+      subs = new Subtitles(video, files, current, handleHeaders)
+      video.load()
+      await loadAnimeProgress()
+    } else externalPlaying = false
+    emit('current', current) // #handleCurrent in MediaHandler
+    if (externalPlayback) {
+      WPC.clear('externalReady', externalReadyListener)
+      externalReadyListener = () => {
+        hideBuffering()
+        externalPlayerReady = true
+        setTimeout(() => {
+          if (externalPlayerReady && !externalPlaying) autoPlay()
+        }, 1_500)
+      }
+      WPC.listen('externalReady', externalReadyListener)
+    }
+    WPC.send('current', { current: file, external: settings.value.enableExternal || launchExternal })
   }
 
   export let media
@@ -413,7 +419,10 @@
       const duration = current.media?.media?.duration || durationMap[current.media?.media?.format]
       if (duration) {
         WPC.clear('externalWatched', watchedListener)
-        watchedListener = (detail) => checkCompletionByTime(detail, duration * 60)
+        watchedListener = (detail) => {
+          launchedExternal = false
+          checkCompletionByTime(detail, duration * 60)
+        }
         WPC.listen('externalWatched', watchedListener)
       }
       externalPlaying = true
@@ -1054,7 +1063,7 @@
   }
 
   let currentSkippable = null
-  $: currentSkippable && settings.value.playerAutoSkip && skip()
+  $: currentSkippable && $settings.playerAutoSkip && skip()
   function checkSkippableChapters () {
     const current = findChapter(currentTime)
     if (current) {
@@ -1728,10 +1737,10 @@
         <div class='ts mr-auto font-scale-20'>x{playbackRate.toFixed(1)}</div>
       {/if}
       <input type='file' class='d-none' id='search-subtitle' accept='.srt,.vtt,.ass,.ssa,.sub,.txt' on:input|preventDefault|stopPropagation={handleFile} bind:this={fileInput}/>
-      <div class='dropdown dropleft with-arrow' use:click={() => {showOptions.set(!$showOptions)}}>
+      <div class='dropdown dropleft with-arrow' use:click={() => { showOptions.set(!$showOptions) }}>
         <span class='icon text-white ctrl d-flex align-items-center h-full' title='More'><EllipsisVertical size='2.5rem' strokeWidth={2.5} /></span>
-        <div class='position-absolute hm-40 text-capitalize text-nowrap bg-dark rounded dr-arrow' style='margin-top: {(externalPlayback ? -10.3 : -17.5)}rem !important; margin-left: {(externalPlayback ? -9.6 : -11.4)}rem !important; transition: opacity 0.1s ease-in;' class:hidden={!$showOptions}>
-          <div role='button' aria-label='Add External Subtitles' class='pointer d-none align-items-center justify-content-center font-size-16 bd-highlight py-5 px-10 rounded-top option' class:d-flex={!externalPlayback} title='Add External Subtitles' use:click={() => { fileInput.click(); showOptions.set(false); }}>
+        <div class='position-absolute hm-40 text-capitalize text-nowrap bg-dark rounded dr-arrow' style='margin-top: {launchedExternal ? -14 : externalPlayback ? -10.3 : SUPPORTS.isAndroid || $settings.playerPath ? -21 : -17.5}rem !important; margin-left: {launchedExternal ? -11.1 : externalPlayback ? -9.8 : -11.4}rem !important; transition: opacity 0.1s ease-in;' class:hidden={!$showOptions}>
+          <div role='button' aria-label='Add External Subtitles' class='pointer d-none align-items-center justify-content-center font-size-16 bd-highlight py-5 px-10 rounded-top option' class:d-flex={!externalPlayback} title='Add External Subtitles' use:click={() => { fileInput.click(); showOptions.set(false) }}>
             <FilePlus2 size='2rem' strokeWidth={2.5} /> <div class='ml-10'>Add Subtitles</div>
           </div>
           <div class='dropdown dropleft with-arrow pointer bg-dark option font-size-16 bd-highlight' class:d-none={externalPlayback}>
@@ -1745,7 +1754,10 @@
               </div>
             </div>
           </div>
-          <div role='button' aria-label='Modify Existing Files or Change to a New File' class='pointer d-flex align-items-center justify-content-center font-size-16 bd-highlight py-5 px-10 rounded-bottom option' class:rounded-top={externalPlayback} title='Modify Existing Files or Change to a New File' use:click={() => { resolvePrompt = false; $managerView = !$managerView; showOptions.set(false); }}>
+          <div role='button' aria-label='Play the Current Video in an External Player' class='pointer d-none align-items-center justify-content-center font-size-16 bd-highlight py-5 px-10 option' class:d-flex={(!externalPlayback || launchedExternal) && (SUPPORTS.isAndroid || $settings.playerPath)} title='Play the Current Video in an External Player' use:click={() => { setCurrent(current, true); showOptions.set(false) }}>
+            <SquareArrowOutUpRight size='2rem' strokeWidth={2.5} /> <div class='ml-10'>External Player</div>
+          </div>
+          <div role='button' aria-label='Modify Existing Files or Change to a New File' class='pointer d-flex align-items-center justify-content-center font-size-16 bd-highlight py-5 px-10 rounded-bottom option' class:rounded-top={externalPlayback && !launchedExternal} title='Modify Existing Files or Change to a New File' use:click={() => { resolvePrompt = false; $managerView = !$managerView; showOptions.set(false) }}>
             <SquarePen size='2rem' strokeWidth={2.5} /> <div class='ml-10'>File Manager</div>
           </div>
         </div>
@@ -1794,7 +1806,7 @@
           </div>
         </div>
       {/if}
-      {#if subHeaders?.length}
+      {#if subHeaders?.length && !externalPlayback}
         <div class='subtitles dropdown dropup with-arrow' use:click={toggleDropdown}>
           <span class='icon text-white ctrl mr-5 d-flex align-items-center h-full' title='Subtitles [C]'>
             <Captions size='2.5rem' strokeWidth={2.5} />
@@ -1837,7 +1849,7 @@
           {#if pip}
             <PictureInPicture size='2.5rem' strokeWidth={2.5} />
           {:else}
-            <PictureInPicture2 size='2.5rem'strokeWidth={2.5} />
+            <PictureInPicture2 size='2.5rem' strokeWidth={2.5} />
           {/if}
         </span>
       {/if}
