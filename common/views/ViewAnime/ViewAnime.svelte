@@ -81,9 +81,9 @@
   function checkClose ({ keyCode }) {
     if (keyCode === 27) close()
   }
-  function play (episode) {
+  function play (episode, force = false) {
     if (!media) return
-    if (episode || episode === 0) return playAnime(media, episode)
+    if (episode || episode === 0) return playAnime(media, episode, force)
     if (media.status === 'NOT_YET_RELEASED') return
     playMedia(media)
   }
