@@ -20,6 +20,10 @@ contextBridge.exposeInMainWorld('version', {
   platform: process.platform,
   session: process.env.XDG_SESSION_TYPE || ''
 })
+contextBridge.exposeInMainWorld('bridge', {
+  isMinimized: () => ipcRenderer.invoke('bridge:isMinimized'),
+  onWindowState: (callback) => ipcRenderer.on('bridge:windowState', (event, isMinimized) => callback(isMinimized))
+})
 
 let _ports
 ipcRenderer.once('port', ({ ports }) => {

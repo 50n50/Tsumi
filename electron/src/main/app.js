@@ -23,6 +23,7 @@ export default class App {
   torrentLoad = null
   webtorrentWindow = this.makeWebTorrentWindow()
 
+  isMinimized = false
   windowState = getWindowState()
   mainWindow = new BrowserWindow({
     ...this.windowState.bounds,
@@ -62,10 +63,6 @@ export default class App {
   constructor() {
     this.mainWindow.setMenuBarVisibility(false)
     this.mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
-    this.mainWindow.on('minimize', () => this.mainWindow.webContents.postMessage('visibilitychange', 'hidden'))
-    this.mainWindow.on('hide', () => this.mainWindow.webContents.postMessage('visibilitychange', 'hidden'))
-    this.mainWindow.on('restore', () => this.mainWindow.webContents.postMessage('visibilitychange', 'visible'))
-    this.mainWindow.on('show', () => this.mainWindow.webContents.postMessage('visibilitychange', 'visible'))
     if (development) this.mainWindow.once('ready-to-show', () => this.showAndFocus(true))
     else ipcMain.once('main-ready', () => this.showAndFocus(true)) // HACK: Prevents the window from being shown while it's still loading. This is nice for production as the window can't be moved without the elements being rendered.
     ipcMain.on('torrent-devtools', () => this.webtorrentWindow.webContents.openDevTools({ mode: 'detach' }))
@@ -80,6 +77,15 @@ export default class App {
       saveWindowState(this.mainWindow)
       this.mainWindow.webContents.send('isMaximized', false)
     })
+    const stateChange = (isMinimized) => {
+      this.isMinimized = isMinimized
+      this.mainWindow.webContents.send('bridge:windowState', !isMinimized)
+    }
+    this.mainWindow.on('minimize', () => stateChange(true))
+    this.mainWindow.on('hide', () => stateChange(true))
+    this.mainWindow.on('restore', () => stateChange(false))
+    this.mainWindow.on('show', () => stateChange(false))
+    ipcMain.handle('bridge:isMinimized', () => this.isMinimized)
     let stateTimeout
     const debounceState = () => {
       clearTimeout(stateTimeout)

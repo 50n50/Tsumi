@@ -77,9 +77,9 @@
   let bufferTimeout = null
   let subHeaders = null
   let pip = false
-  const presentationRequest = null
-  const presentationConnection = null
-  const canCast = false
+  // const presentationRequest = null
+  // const presentationConnection = null
+  // const canCast = false
   let isFullscreen = false
   let ended = false
   let gain = 0
@@ -397,7 +397,7 @@
     await promptFiller()
     if ((((page === 'player') && (!overlay || overlay.length === 0)) || pip) && !resolvePrompt && !skipPrompt) {
       if (externalPlayback) playPause()
-      else {
+      else if (!hidden) {
         video.play()
         resetImmerse()
         setTimeout(() => subs?.renderer?.resize(), 200) // stupid fix because video metadata doesn't update for multiple frames
@@ -408,6 +408,7 @@
   let watchedListener
   let externalPlaying = false
   function playPause () {
+    if (hidden) return
     if (externalPlayback) {
       const duration = current.media?.media?.duration || durationMap[current.media?.media?.format]
       if (duration) {
@@ -421,23 +422,25 @@
     resetImmerse()
     setTimeout(() => subs?.renderer?.resize(), 200) // stupid fix because video metadata doesn't update for multiple frames
   }
-  const handleVisibility = visibility => {
-    if ($settings.playerPause && !pip) {
-      hidden = (visibility === 'hidden')
-      if (!video?.ended) {
-        if (hidden) {
-          visibilityPaused = paused
-          paused = true
-        } else {
-          if (!visibilityPaused) paused = false
+  let hidden = false
+  let visibilityPaused = true
+  if (!SUPPORTS.isAndroid) {
+    const handleVisibility = visible => {
+      if ($settings.playerPause && !pip) {
+        hidden = !visible
+        if (!video?.ended) {
+          if (hidden) {
+            visibilityPaused = paused
+            paused = true
+          } else if (!visibilityPaused) paused = false
         }
       }
     }
+    window.bridge.isMinimized().then(isMinimized => {
+      handleVisibility(!isMinimized)
+      window.bridge.onWindowState(handleVisibility)
+    })
   }
-  let hidden = false
-  let visibilityPaused = true
-  document.addEventListener('visibilitychange', () => handleVisibility(document.visibilityState))
-  IPC.on('visibilitychange', handleVisibility)
   function tryPlayNext () {
     currentSkippable = null
     if ($settings.playerAutoplay && !state.value) playNext()
