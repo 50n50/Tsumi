@@ -20,6 +20,9 @@ export default class App {
   trayIcon = process.platform === 'darwin' ? nativeImage.createFromPath(join(__dirname, '/trayMacOSTemplate.png')) : this.icon
   trayNotifyIcon = nativeImage.createFromPath(join(__dirname, process.platform === 'darwin' ? '/trayNotifyMacOSTemplate.png' : process.platform === 'win32' ? '/icon_filled_notify.ico' : '/icon_filled_notify.png'))
 
+  timeouts = new Set()
+  stateTimeout = null
+
   torrentLoad = null
   webtorrentWindow = this.makeWebTorrentWindow()
 
@@ -86,10 +89,10 @@ export default class App {
     this.mainWindow.on('restore', () => stateChange(false))
     this.mainWindow.on('show', () => stateChange(false))
     ipcMain.handle('bridge:isMinimized', () => this.isMinimized)
-    let stateTimeout
     const debounceState = () => {
-      clearTimeout(stateTimeout)
-      stateTimeout = setTimeout(() => saveWindowState(this.mainWindow), 150)
+      clearTimeout(this.stateTimeout)
+      this.stateTimeout = setTimeout(() => saveWindowState(this.mainWindow), 150)
+      this.stateTimeout.unref?.()
     }
     this.mainWindow.on('resize', debounceState)
     this.mainWindow.on('move', debounceState)
@@ -284,7 +287,12 @@ export default class App {
   setWebTorrentWindow(crashed = false) {
     if (!crashed || ++this.webTorrentCrashes < 5) {
       if (crashed) {
-        setTimeout(() => { if (this.webTorrentCrashes < 5) this.webTorrentCrashes = 0 }, 60_000).unref?.()
+        const timeout = setTimeout(() => {
+          this.timeouts.delete(timeout)
+          if (this.webTorrentCrashes < 5) this.webTorrentCrashes = 0
+        }, 60_000)
+        timeout.unref?.()
+        this.timeouts.add(timeout)
         try {
           if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) {
             this.webtorrentWindow.removeAllListeners('closed')
@@ -312,15 +320,21 @@ export default class App {
     this.mainWindow.hide()
     this.mainWindow.webContents?.closeDevTools?.()
     this.tray.destroy()
+    for (const timeout of this.timeouts) clearTimeout(timeout)
+    this.timeouts.clear()
+    clearTimeout(this.stateTimeout)
     saveWindowState(this.mainWindow)
     try {
       if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) { // WebTorrent shouldn't ever be destroyed before main, but it's better to be safe.
         this.webtorrentWindow.webContents?.closeDevTools?.()
         this.webtorrentWindow.webContents?.postMessage('destroy', null)
+        let resolveTimeout
         await new Promise(resolve => {
           ipcMain.once('destroyed', resolve)
-          setTimeout(resolve, 5000).unref?.()
+          resolveTimeout = setTimeout(resolve, 5_000)
+          resolveTimeout.unref?.()
         })
+        clearTimeout(resolveTimeout)
       }
     } catch {} // WebTorrent crashed... prevents hanging infinitely.
     if (!this.updater.install(forceRunAfter)) app.quit()
@@ -354,11 +368,14 @@ export default class App {
       const squareRatio = Math.min(width, height)
       await image.crop((width - squareRatio) / 2, (height - squareRatio) / 2, squareRatio, squareRatio).resize(128, 128, Jimp.RESIZE_BEZIER).writeAsync(imagePath)
     }
-    setTimeout(() => {
-      fs.unlink(imagePath, (err) => {
-        if (!err) this.imageCache.delete(cacheKey)
+    const timeout = setTimeout(() => {
+      this.timeouts.delete(timeout)
+      fs.unlink(imagePath, (error) => {
+        if (!error) this.imageCache.delete(cacheKey)
       })
     }, 90_000)
+    timeout.unref?.()
+    this.timeouts.add(timeout)
     return imagePath
   }
 

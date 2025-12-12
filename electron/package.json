@@ -19,6 +19,7 @@
   "devDependencies": {
     "@electron/notarize": "^3.1.0",
     "common": "workspace:*",
+    "client": "workspace:*",
     "electron": "39.1.2",
     "electron-builder": "^26.0.12",
     "electron-log": "^5.4.3",

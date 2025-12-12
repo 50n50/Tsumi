@@ -271,7 +271,6 @@
   }
 
   async function setCurrent(file, launchExternal = false) {
-    launchedExternal = launchExternal
     if (!externalPlayback) {
       src = file.url
       subs = new Subtitles(video, files, current, handleHeaders)
@@ -290,6 +289,7 @@
       }
       WPC.listen('externalReady', externalReadyListener)
     }
+    launchedExternal = launchExternal
     WPC.send('current', { current: file, external: settings.value.enableExternal || launchExternal })
   }
 

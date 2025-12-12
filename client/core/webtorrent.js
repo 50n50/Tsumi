@@ -1,13 +1,13 @@
 import WebTorrent from 'webtorrent'
+import HTTPTracker from 'http-tracker'
 import Client from 'bittorrent-tracker'
-import HTTPTracker from 'bittorrent-tracker/lib/client/http-tracker.js'
 import { hex2bin, arr2hex, text2arr } from 'uint8-util'
-import { makeHash, getInfoHash, hasIntegrity, getProgressAndSize, stringifyQuery, errorToString, encodeStreamURL, ANNOUNCE, TMP } from '../lib/util.js'
-import { fontRx, sleep, subRx, videoRx } from '../../util.js'
+import { makeHash, getInfoHash, hasIntegrity, getProgressAndSize, stringifyQuery, errorToString, encodeStreamURL, ANNOUNCE, TMP } from '@client/lib/util.js'
+import { fontRx, sleep, subRx, videoRx } from '@/modules/util.js'
 import { SUPPORTS } from '@/modules/support.js'
 import { spawn } from 'node:child_process'
-import Metadata from '../lib/metadata.js'
-import Cache from '../lib/torrentcache.js'
+import Metadata from '@client/lib/metadata.js'
+import Cache from '@client/lib/torrentcache.js'
 import Debug from 'debug'
 const debug = Debug('torrent:worker')
 
