@@ -12,18 +12,16 @@ const debug = Debug('ui:extensions')
 /** @typedef {import('extensions/index.d.ts').TorrentQuery} Options */
 /** @typedef {import('extensions/index.d.ts').TorrentResult} Result */
 
-const exclusions = ['DTS', 'TrueHD']
+const exclusions = []
 const isDev = location.hostname === 'localhost'
 
 const video = document.createElement('video')
-if (!isDev && !video.canPlayType('video/mp4; codecs="hev1.1.6.L93.B0"')) {
-  exclusions.push('HEVC', 'x265', 'H.265', '[EMBER]')
-}
-if (!isDev && !video.canPlayType('audio/mp4; codecs="ac-3"')) {
-  exclusions.push('AC3', 'AC-3')
-}
-if (!('audioTracks' in HTMLVideoElement.prototype)) {
-  exclusions.push('DUAL')
+if (!isDev) {
+  if (!video.canPlayType('video/mp4; codecs="hev1.1.6.L93.B0"')) exclusions.push('HEVC', 'x265', 'H.265', '[EMBER]')
+  if (!video.canPlayType('audio/mp4; codecs="ac-3"')) exclusions.push('AC3', 'AC-3')
+  if (!video.canPlayType('audio/mp4; codecs="dtsc"')) exclusions.push('DTS')
+  if (!video.canPlayType('audio/mp4; codecs="truehd"')) exclusions.push('TrueHD')
+  if (!('audioTracks' in HTMLVideoElement.prototype)) exclusions.push('DUAL')
 }
 video.remove()
 
