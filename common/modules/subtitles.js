@@ -143,17 +143,16 @@ export default class Subtitles {
     this.onHeader()
     this.tracks[index] = []
     const subtitles = Subtitles.convertSubText(await file.text(), type)
-    if (type === 'ass') {
-      this.headers[index].header = subtitles
-    } else {
-      this.headers[index].header += subtitles.join('\n')
-    }
-    if (!this.current) {
-      this.current = index
-      this.initSubtitleRenderer()
-      this.selectCaptions(this.current)
-      this.onHeader()
-    }
+    if (subtitles) {
+      if (type === 'ass') this.headers[index].header = subtitles
+      else this.headers[index].header += subtitles.join('\n')
+      if (!this.current) {
+        this.current = index
+        this.initSubtitleRenderer()
+        this.selectCaptions(this.current)
+        this.onHeader()
+      }
+    } else console.error(`Failed to load the file ${file.name} as it is not a subtitle file.`)
   }
 
   initSubtitleRenderer () {
