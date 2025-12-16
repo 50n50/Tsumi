@@ -22,7 +22,9 @@ contextBridge.exposeInMainWorld('version', {
 })
 contextBridge.exposeInMainWorld('bridge', {
   isMinimized: () => ipcRenderer.invoke('bridge:isMinimized'),
-  onWindowState: (callback) => ipcRenderer.on('bridge:windowState', (event, isMinimized) => callback(isMinimized))
+  isFullScreen: () => ipcRenderer.invoke('bridge:isFullScreen'),
+  onMinimize: (callback) => ipcRenderer.on('bridge:onMinimize', (event, isMinimized) => callback(isMinimized)),
+  onFullScreen: (callback) => ipcRenderer.on('bridge:onFullScreen', (event, isFullScreen) => callback(isFullScreen))
 })
 
 let _ports

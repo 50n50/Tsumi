@@ -447,7 +447,7 @@
     }
     window.bridge.isMinimized().then(isMinimized => {
       handleVisibility(!isMinimized)
-      window.bridge.onWindowState(handleVisibility)
+      window.bridge.onMinimize(handleVisibility)
     })
   }
   function tryPlayNext () {

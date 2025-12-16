@@ -27,6 +27,7 @@ export default class App {
   webtorrentWindow = this.makeWebTorrentWindow()
 
   isMinimized = false
+  isFullScreen = false
   windowState = getWindowState()
   mainWindow = new BrowserWindow({
     ...this.windowState.bounds,
@@ -80,15 +81,15 @@ export default class App {
       saveWindowState(this.mainWindow)
       this.mainWindow.webContents.send('isMaximized', false)
     })
-    const stateChange = (isMinimized) => {
+    const minimize = (isMinimized) => {
       this.isMinimized = isMinimized
-      this.mainWindow.webContents.send('bridge:windowState', !isMinimized)
+      this.mainWindow.webContents.send('bridge:onMinimize', !isMinimized)
     }
-    this.mainWindow.on('minimize', () => stateChange(true))
-    this.mainWindow.on('hide', () => stateChange(true))
-    this.mainWindow.on('restore', () => stateChange(false))
-    this.mainWindow.on('show', () => stateChange(false))
     ipcMain.handle('bridge:isMinimized', () => this.isMinimized)
+    this.mainWindow.on('minimize', () => minimize(true))
+    this.mainWindow.on('hide', () => minimize(true))
+    this.mainWindow.on('restore', () => minimize(false))
+    this.mainWindow.on('show', () => minimize(false))
     const debounceState = () => {
       clearTimeout(this.stateTimeout)
       this.stateTimeout = setTimeout(() => saveWindowState(this.mainWindow), 150)
@@ -96,10 +97,13 @@ export default class App {
     }
     this.mainWindow.on('resize', debounceState)
     this.mainWindow.on('move', debounceState)
-    if (process.platform === 'darwin') {
-      this.mainWindow.on('enter-full-screen', () => this.mainWindow.webContents.send('isFullscreen', true))
-      this.mainWindow.on('leave-full-screen', () => this.mainWindow.webContents.send('isFullscreen', false))
+    const fullScreen = (isFullScreen) => {
+      this.isFullScreen = isFullScreen
+      this.mainWindow.webContents.send('bridge:onFullScreen', isFullScreen)
     }
+    ipcMain.handle('bridge:isFullScreen', () => this.isFullScreen)
+    this.mainWindow.on('enter-full-screen', () => fullScreen(true))
+    this.mainWindow.on('leave-full-screen', () => fullScreen(false))
 
     this.setWebTorrentWindow()
     this.mainWindow.on('closed', () => this.destroy())
@@ -196,7 +200,6 @@ export default class App {
     })
 
     ipcMain.on('portRequest', async (event, settings) => {
-      if (process.platform === 'darwin') this.mainWindow.webContents.send('isFullscreen', this.mainWindow.isFullScreen())
       const { port1, port2 } = new MessageChannelMain()
       await this.torrentLoad
       ipcMain.once('webtorrent-heartbeat', () => {
