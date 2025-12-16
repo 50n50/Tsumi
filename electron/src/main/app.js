@@ -83,9 +83,9 @@ export default class App {
     })
     const minimize = (isMinimized) => {
       this.isMinimized = isMinimized
-      this.mainWindow.webContents.send('bridge:onMinimize', !isMinimized)
+      this.mainWindow.webContents.send('electron:onMinimize', !isMinimized)
     }
-    ipcMain.handle('bridge:isMinimized', () => this.isMinimized)
+    ipcMain.handle('electron:isMinimized', () => this.isMinimized)
     this.mainWindow.on('minimize', () => minimize(true))
     this.mainWindow.on('hide', () => minimize(true))
     this.mainWindow.on('restore', () => minimize(false))
@@ -99,9 +99,9 @@ export default class App {
     this.mainWindow.on('move', debounceState)
     const fullScreen = (isFullScreen) => {
       this.isFullScreen = isFullScreen
-      this.mainWindow.webContents.send('bridge:onFullScreen', isFullScreen)
+      this.mainWindow.webContents.send('electron:onFullScreen', isFullScreen)
     }
-    ipcMain.handle('bridge:isFullScreen', () => this.isFullScreen)
+    ipcMain.handle('electron:isFullScreen', () => this.isFullScreen)
     this.mainWindow.on('enter-full-screen', () => fullScreen(true))
     this.mainWindow.on('leave-full-screen', () => fullScreen(false))
 

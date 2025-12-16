@@ -1,7 +1,7 @@
 <script>
   import { click } from '@/modules/click.js'
   import { defaults } from '@/modules/util.js'
-  import IPC from '@/modules/ipc.js'
+  import { IPC } from '@/modules/bridge.js'
   import { toast } from 'svelte-sonner'
   import { Eraser } from 'lucide-svelte'
   import ClampedNumber from '@/components/inputs/ClampedNumber.svelte'

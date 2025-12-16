@@ -3,7 +3,7 @@
   import { SUPPORTS } from '@/modules/support.js'
   import { capitalize } from '@/modules/util.js'
   import { toast } from 'svelte-sonner'
-  import IPC from '@/modules/ipc.js'
+  import { IPC, ANDROID, VERSION } from '@/modules/bridge.js'
   import Debug from 'debug'
   const debug = Debug('ui:settings-view')
 
@@ -22,22 +22,28 @@
   export let version = '1.0.0'
   IPC.on('version', data => {
     version = data
-    debug(`v${version} ${platformMap[window.version.platform] || 'dev'} ${window.version.arch || 'dev'} ${capitalize(window.version.session) || ''}`, JSON.stringify(settings))
+    debug(`v${version} ${platformMap[VERSION.platform] || 'dev'} ${VERSION.arch || 'dev'} ${capitalize(VERSION.session) || ''}`, JSON.stringify(settings))
   })
   IPC.emit('version')
   IPC.emit('discord-rpc', settings.value.enableRPC)
   if (SUPPORTS.angle) settings.value.angle = await IPC.invoke('get:angle')
-  if (SUPPORTS.isAndroid) {
-    setTimeout(() => {
-      if (settings.value.torrentPathNew && settings.value.torrentPathNew !== '/tmp') IPC.emit('request-file-access')
-    }, 2500)
-    IPC.on('no-file-access', () => {
-      toast.warning('Missing File Access', {
-        description: 'To reliably use a different torrent download location, please enable All Files Access for this app in your device settings. Dismiss this toast to enable all file access.',
-        duration: Infinity,
-        onDismiss: () => IPC.emit('request-file-access')
-      })
-    })
+  if (SUPPORTS.isAndroid) setTimeout(() => requestFileAccess(), 2500).unref?.()
+  function requestFileAccess() {
+    if (settings.value.torrentPathNew && settings.value.torrentPathNew !== '/tmp') {
+      const requestAccess = () => {
+        ANDROID.requestFileAccess().then(success => {
+          if (!success) toastAccess()
+        })
+      }
+      const toastAccess = () => {
+        toast.warning('Missing File Access', {
+          description: 'To reliably use a different torrent download location, please enable All Files Access for this app in your device settings. Dismiss this toast to enable all file access.',
+          duration: Infinity,
+          onDismiss: () => requestAccess()
+        })
+      }
+      requestAccess()
+    }
   }
 </script>
 
@@ -103,7 +109,7 @@
   }
   function pathListener (data) {
     $settings.torrentPathNew = data
-    if (SUPPORTS.isAndroid && data && data !== '/tmp') setTimeout(() => IPC.emit('request-file-access'), 1000)
+    if (SUPPORTS.isAndroid) setTimeout(() => requestFileAccess(), 1_000).unref?.()
   }
 
   function playerListener (data) {
@@ -135,7 +141,7 @@
       <div class='d-none d-lg-block mt-auto'>
         <p class='text-muted px-20 py-10 m-0'>Restart may be required for some settings to take effect.</p>
         <p class='text-muted px-20 pb-10 m-0'>If you don't know what settings do what, use defaults.</p>
-        <p class='text-muted px-20 m-0 mb-lg-20'>{version ? `v${version}` : ``} {platformMap[window.version.platform] || 'dev'} {window.version.arch || 'dev'} {capitalize(window.version.session) || ''}</p>
+        <p class='text-muted px-20 m-0 mb-lg-20'>{version ? `v${version}` : ``} {platformMap[VERSION.platform] || 'dev'} {VERSION.arch || 'dev'} {capitalize(VERSION.session) || ''}</p>
       </div>
     </div>
     <div class='mt-75 mt-lg-0 w-full overflow-y-auto overflow-y-md-hidden'>

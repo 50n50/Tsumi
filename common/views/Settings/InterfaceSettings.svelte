@@ -2,7 +2,7 @@
   import { variables, setStyle, setScale } from '@/modules/themes.js'
   import { click } from '@/modules/click.js'
   import HomeSections from '@/views/Settings/HomeSectionsSettings.svelte'
-  import IPC from '@/modules/ipc.js'
+  import { IPC } from '@/modules/bridge.js'
   import SettingCard from '@/views/Settings/SettingCard.svelte'
   import { SUPPORTS } from '@/modules/support.js'
   import { Trash2, RotateCcw } from 'lucide-svelte'

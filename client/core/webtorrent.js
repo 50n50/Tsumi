@@ -566,15 +566,7 @@ export default class TorrentClient extends WebTorrent {
             const seconds = (Date.now() - startTime) / 1000
             this.dispatch('externalWatched', seconds)
           })
-        } else if (SUPPORTS.isAndroid) {
-          this.dispatch('open', `intent://localhost:${this.server.address().port}${encodeStreamURL(found.streamURL)}#Intent;type=video/any;scheme=http;end;`)
-          this.ipc.send('external-open')
-          this.ipc.once('external-close', () => {
-            if (this.destroyed) return
-            const seconds = (Date.now() - startTime) / 1000
-            this.dispatch('externalWatched', seconds)
-          })
-        }
+        } else if (SUPPORTS.isAndroid) this.dispatch('androidExternal', `intent://localhost:${this.server.address().port}${encodeStreamURL(found.streamURL)}#Intent;type=video/any;scheme=http;end;`)
         break
       } case 'torrent': {
         const hash = data.data && data.data.hash

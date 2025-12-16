@@ -23,7 +23,7 @@
   import Keybinds, { loadWithDefaults, condition } from 'svelte-keybinds'
   import { SUPPORTS } from '@/modules/support.js'
   import 'rvfc-polyfill'
-  import IPC from '@/modules/ipc.js'
+  import { IPC, ELECTRON, ANDROID } from '@/modules/bridge.js'
   import WPC from '@/modules/wpc.js'
   import { X, Minus, ArrowDown, ArrowUp, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Users, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
   import Debug from 'debug'
@@ -412,6 +412,7 @@
   }
 
   let watchedListener
+  let androidListener
   let externalPlaying = false
   function playPause () {
     if (hidden) return
@@ -420,12 +421,29 @@
       if (duration) {
         WPC.clear('externalWatched', watchedListener)
         watchedListener = (detail) => {
-          launchedExternal = false
           checkCompletionByTime(detail, duration * 60)
+          currentTime = detail
+          targetTime = detail
+          launchedExternal = false
         }
         WPC.listen('externalWatched', watchedListener)
       }
       externalPlaying = true
+      if (SUPPORTS.isAndroid) {
+        WPC.clear('androidExternal', androidListener)
+        androidListener = (url) => {
+          const startTime = Date.now()
+          const externalWatched = () => {
+            const watchTime = (Date.now() - startTime) / 1000
+            checkCompletionByTime(watchTime, duration * 60)
+            currentTime = watchTime
+            targetTime = watchTime
+            launchedExternal = false
+          }
+          ANDROID.launchExternal?.(url)?.then?.(() => externalWatched())
+        }
+        WPC.listen('androidExternal', androidListener)
+      }
       WPC.send('externalPlay', { current })
     } else paused = !paused
     resetImmerse()
@@ -433,23 +451,21 @@
   }
   let hidden = false
   let visibilityPaused = true
-  if (!SUPPORTS.isAndroid) {
-    const handleVisibility = visible => {
-      if ($settings.playerPause && !pip) {
-        hidden = !visible
-        if (!video?.ended) {
-          if (hidden) {
-            visibilityPaused = paused
-            paused = true
-          } else if (!visibilityPaused) paused = false
-        }
+  const handleVisibility = visible => {
+    if ($settings.playerPause && !pip) {
+      hidden = !visible
+      if (!video?.ended) {
+        if (hidden) {
+          visibilityPaused = paused
+          paused = true
+        } else if (!visibilityPaused) paused = false
       }
     }
-    window.bridge.isMinimized().then(isMinimized => {
-      handleVisibility(!isMinimized)
-      window.bridge.onMinimize(handleVisibility)
-    })
   }
+  ELECTRON.isMinimized().then(isMinimized => {
+    handleVisibility(!isMinimized)
+    ELECTRON.onMinimize(handleVisibility)
+  })
   function tryPlayNext () {
     currentSkippable = null
     if ($settings.playerAutoplay && !state.value) playNext()

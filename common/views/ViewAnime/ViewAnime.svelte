@@ -16,7 +16,7 @@
   import SmartImage from '@/components/visual/SmartImage.svelte'
   import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
   import Following from '@/views/ViewAnime/Following.svelte'
-  import IPC from '@/modules/ipc.js'
+  import { IPC } from '@/modules/bridge.js'
   import SmallCard from '@/components/cards/SmallCard.svelte'
   import SmallCardSk from '@/components/skeletons/SmallCardSk.svelte'
   import Helper from '@/modules/helper.js'

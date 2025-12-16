@@ -8,7 +8,7 @@ import { writable } from 'simple-store-svelte'
 import { toast } from 'svelte-sonner'
 import clipboard from '@/modules/clipboard.js'
 import { setHash } from '@/modules/anime/animehash.js'
-import IPC from '@/modules/ipc.js'
+import { IPC } from '@/modules/bridge.js'
 import WPC from '@/modules/wpc.js'
 import 'browser-event-target-emitter'
 import Debug from 'debug'
@@ -69,7 +69,6 @@ IPC.on('webtorrent-crashed', () => {
   client = new TorrentWorker()
   setupTorrentClient()
 })
-IPC.on('intent-end', () => client.dispatch('externalWatched'))
 window.addEventListener('torrent-unload', () => {
   files.value = []
   media.value = { ...media.value, display: true } // set display to true to allow the 'Last Watched' button to remain on the SideBar.
@@ -171,7 +170,7 @@ function setupTorrentClient() {
   }
   client.send('complete_all', cache.getEntry(caches.GENERAL, 'completedTorrents').filter(Boolean))
 
-  for (const event of ['magnet', 'stats', 'chapters', 'progress', 'externalReady', 'externalWatched', 'scrape_done', 'rescan_done']) client.on(event, ({ detail }) => WPC.send(event, detail))
+  for (const event of ['magnet', 'stats', 'chapters', 'progress', 'externalReady', 'externalWatched', 'androidExternal', 'scrape_done', 'rescan_done']) client.on(event, ({ detail }) => WPC.send(event, detail))
   for (const event of ['current', 'scrape', 'externalPlay', 'debug']) WPC.listen(event, (detail) => client.send(event, detail))
 
   // external player for android

@@ -8,7 +8,7 @@
   import ErrorCard from '@/components/cards/ErrorCard.svelte'
   import SoftModal from '@/components/SoftModal.svelte'
   import Helper from '@/modules/helper.js'
-  import IPC from '@/modules/ipc.js'
+  import { IPC } from '@/modules/bridge.js'
   import { cache, caches, mediaCache } from '@/modules/cache.js'
   import { SUPPORTS } from '@/modules/support.js'
   import { settings } from '@/modules/settings.js'

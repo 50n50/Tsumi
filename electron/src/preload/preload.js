@@ -20,11 +20,11 @@ contextBridge.exposeInMainWorld('version', {
   platform: process.platform,
   session: process.env.XDG_SESSION_TYPE || ''
 })
-contextBridge.exposeInMainWorld('bridge', {
-  isMinimized: () => ipcRenderer.invoke('bridge:isMinimized'),
-  isFullScreen: () => ipcRenderer.invoke('bridge:isFullScreen'),
-  onMinimize: (callback) => ipcRenderer.on('bridge:onMinimize', (event, isMinimized) => callback(isMinimized)),
-  onFullScreen: (callback) => ipcRenderer.on('bridge:onFullScreen', (event, isFullScreen) => callback(isFullScreen))
+contextBridge.exposeInMainWorld('electron', {
+  isMinimized: () => ipcRenderer.invoke('electron:isMinimized'),
+  isFullScreen: () => ipcRenderer.invoke('electron:isFullScreen'),
+  onMinimize: (callback) => ipcRenderer.on('electron:onMinimize', (event, isMinimized) => callback(isMinimized)),
+  onFullScreen: (callback) => ipcRenderer.on('electron:onFullScreen', (event, isFullScreen) => callback(isFullScreen))
 })
 
 let _ports

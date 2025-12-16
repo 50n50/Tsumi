@@ -3,20 +3,15 @@ import { StatusBar, Style } from '@capacitor/status-bar'
 import { SafeArea } from 'capacitor-plugin-safe-area'
 import { App } from '@capacitor/app'
 import { Browser } from '@capacitor/browser'
-import { IntentUri } from 'capacitor-intent-uri'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { Keyboard } from '@capacitor/keyboard'
 import { Device } from '@capacitor/device'
 import { FolderPicker } from 'capacitor-folder-picker'
 //import { Filesystem } from '@capacitor/filesystem'
 import { toast } from 'svelte-sonner'
-import IPC from './ipc.js'
+import { IPC } from '../preload/preload.js'
 
 IPC.on('open', url => Browser.open({ url }))
-IPC.on('intent', async url => {
-  await IntentUri.openUri({ url })
-  IPC.emit('intent-end')
-})
 
 let lastScrollY = null
 let scrollContainer = null

@@ -1,4 +1,3 @@
-import { indexedDB as fakeIndexedDB } from 'fake-indexeddb'
 import { channel } from 'bridge'
 import { statfs } from 'fs/promises'
 import { env } from 'node:process'
@@ -6,18 +5,6 @@ import { env } from 'node:process'
 async function storageQuota (directory) {
   const { bsize, bavail } = await statfs(directory)
   return bsize * bavail
-}
-
-if (typeof localStorage === 'undefined') {
-  const data = {}
-  globalThis.localStorage = {
-    setItem: (k, v) => { data[k] = v },
-    getItem: (k) => data[k] || null
-  }
-}
-
-if (typeof indexedDB === 'undefined') {
-  globalThis.indexedDB = fakeIndexedDB
 }
 
 let client

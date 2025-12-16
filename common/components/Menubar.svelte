@@ -1,19 +1,18 @@
 <script>
   import { persisted } from 'svelte-persisted-store'
   import { SUPPORTS } from '@/modules/support.js'
+  import { ELECTRON, VERSION } from '@/modules/bridge.js'
 
   let fullScreen = false
-  if (!SUPPORTS.isAndroid) {
-    window.bridge.isFullScreen().then(isFullScreen => {
-      fullScreen = isFullScreen
-      window.bridge.onFullScreen((isFullScreen) => fullScreen = isFullScreen)
-    })
-  }
+  ELECTRON.isFullScreen().then(isFullScreen => {
+    fullScreen = isFullScreen
+    ELECTRON.onFullScreen((isFullScreen) => fullScreen = isFullScreen)
+  })
   const debug = persisted('debug', '', { serializer: { parse: e => e, stringify: e => e } })
 </script>
 
-<div class='w-full z-101 navbar bg-transparent border-0 p-0 d-none draggable' class:d-flex={!SUPPORTS.isAndroid && !fullScreen} class:ml-sb={!SUPPORTS.isAndroid && (window.version?.platform !== 'darwin' || fullScreen)}>
-  <div class='controls-container d-none position-absolute top-0 {window.version?.platform !== `darwin` ? `right-0 ${window.version?.platform === `win32` ? `right-width-win` : `right-width-linux`}` : `left-0 left-width`} h-full' class:mr-sb={!SUPPORTS.isAndroid && window.version?.platform !== 'darwin'} class:d-flex={!SUPPORTS.isAndroid && !fullScreen}/>
+<div class='w-full z-101 navbar bg-transparent border-0 p-0 d-none draggable' class:d-flex={!SUPPORTS.isAndroid && !fullScreen} class:ml-sb={!SUPPORTS.isAndroid && (VERSION.platform !== 'darwin' || fullScreen)}>
+  <div class='controls-container d-none position-absolute top-0 {VERSION.platform !== `darwin` ? `right-0 ${VERSION.platform === `win32` ? `right-width-win` : `right-width-linux`}` : `left-0 left-width`} h-full' class:mr-sb={!SUPPORTS.isAndroid && VERSION.platform !== 'darwin'} class:d-flex={!SUPPORTS.isAndroid && !fullScreen}/>
 </div>
 <div class='z-100 ribbon text-center position-absolute font-size-16 font-weight-bold pointer-events-none right-0' class:d-none={!$debug}>Debug Mode</div>
 
