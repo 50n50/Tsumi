@@ -107,7 +107,7 @@
 
       if ((filterDelayed.findIndex((existing) => existing.id === notification.id && ((existing.episode === notification.episode && ((existing.season || 0) === (notification.season || 0))) || (existing.format === 'MOVIE' && notification.format === 'MOVIE')) && (existing.dub === notification.dub) && (existing.click_action === 'TORRENT'))) !== -1) return filterDelayed // Don't add notifications for an episode if a torrent notification already exists (prevents duplicate notifications)
       const filtered = filterDelayed.filter((existing) => (existing.id !== notification.id || existing.episode !== notification.episode || existing.dub !== notification.dub || existing.click_action === 'TORRENT'))
-      if (notification.episode && (mediaCache.value[notification?.id]?.mediaListEntry?.status === 'COMPLETED' || (mediaCache.value[notification?.id]?.mediaListEntry?.progress >= (!notification.season ? notification.episode : mediaCache.value[notification?.id].episodes)))) notification.read = true
+      if (!isNaN(notification.episode) && (mediaCache.value[notification?.id]?.mediaListEntry?.status === 'COMPLETED' || ((mediaCache.value[notification?.id]?.mediaListEntry?.progress || -1) >= (isNaN(notification.season) ? notification.episode : mediaCache.value[notification?.id].episodes)))) notification.read = true
       return sort([notification, ...filtered])
     })
   }
@@ -116,7 +116,7 @@
     return array.sort((a, b) => {
       const timestampDiff = b.timestamp - a.timestamp
       if (timestampDiff !== 0) return timestampDiff
-      if (a.id === b.id && a.episode && b.episode && !a.season && !b.season) return b.episode - a.episode
+      if (a.id === b.id && !isNaN(a.episode) && !isNaN(b.episode) && isNaN(a.season) && isNaN(b.season)) return b.episode - a.episode
       return 0
     }).sort((a, b) => {
       if (!a.read && b.read) return -1
@@ -132,7 +132,7 @@
   function markRead(media) {
     notifications.update((n) => {
       return n.map((existing) => {
-        if (existing.id === media.id && ((media.episode >= existing.episode) || (existing.season && (media.episode >= mediaCache.value[media?.id]?.episodes)))) existing.read = true
+        if (existing.id === media.id && ((media.episode >= existing.episode) || (!isNaN(existing.season) && (media.episode >= mediaCache.value[media?.id]?.episodes)))) existing.read = true
         return existing
       })
     })
@@ -195,8 +195,8 @@
         {@const delayed = notification.delayed}
         {@const announcement = notification.click_action === 'VIEW' && !delayed}
         {@const notWatching = !announcement && !delayed && ((!$mediaCache[notification?.id]?.mediaListEntry?.progress) || ($mediaCache[notification?.id]?.mediaListEntry?.progress === 0 && ($mediaCache[notification?.id]?.mediaListEntry?.status !== 'CURRENT' || $mediaCache[notification?.id]?.mediaListEntry?.status !== 'REPEATING' && $mediaCache[notification?.id]?.mediaListEntry?.status !== 'COMPLETED')))}
-        {@const behind = Helper.isAuthorized() && !announcement && !delayed && notification.episode && !Array.isArray(notification.episode) && (notification.episode - 1) >= 1 && ($mediaCache[notification?.id]?.mediaListEntry?.status !== 'COMPLETED' && (($mediaCache[notification?.id]?.mediaListEntry?.progress || -1) < ((!notification.season ? notification.episode : $mediaCache[notification?.id].episodes) - 1)))}
-        {@const watched = !announcement && !delayed && !notWatching && !behind && notification.episode && ($mediaCache[notification?.id]?.mediaListEntry?.status === 'COMPLETED' || ($mediaCache[notification?.id]?.mediaListEntry?.progress >= (!notification.season ? notification.episode : $mediaCache[notification?.id].episodes)))}
+        {@const behind = Helper.isAuthorized() && !announcement && !delayed && !isNaN(notification.episode) && !Array.isArray(notification.episode) && (notification.episode - 1) >= 1 && ($mediaCache[notification?.id]?.mediaListEntry?.status !== 'COMPLETED' && (($mediaCache[notification?.id]?.mediaListEntry?.progress || -1) < ((isNaN(notification.season) ? notification.episode : $mediaCache[notification?.id].episodes) - 1)))}
+        {@const watched = !announcement && !delayed && !notWatching && !behind && !isNaN(notification.episode) && ($mediaCache[notification?.id]?.mediaListEntry?.status === 'COMPLETED' || ($mediaCache[notification?.id]?.mediaListEntry?.progress >= (isNaN(notification.season) ? notification.episode : $mediaCache[notification?.id].episodes)))}
         {@const resolvedHash = getHash(notification.id, { episode: notification.episode, client: true }, false, true)}
         {#if watched && !notification.read}{(notification.read = true) && updateSort() && ''}{/if}
         <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' use:blurExit={ () => { if (notification.prompt) setTimeout(() => { notification.prompt = false; delete notification.prompt }) }} use:hoverExit={() => { if (notification.prompt) setTimeout(() => { notification.prompt = false; delete notification.prompt }) }} use:click={() => { if (!behind || notification.prompt) { notification.prompt = false; delete notification.prompt; notification.read = true; onclick(notification) } else { notification.prompt = true } } } on:contextmenu|preventDefault={() => { notification.read = true; onclick(notification, true); }} class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching} class:not-watching={notWatching} class:watched={watched} class:announcement={announcement}>
@@ -234,10 +234,10 @@
                   <span class='badge text-dark bg-duodenary mr-5'>Announcement</span>
                 {:else if notification.format === 'MOVIE'}
                   <span class='badge text-dark bg-undenary mr-5'>Movie</span>
-                {:else if !notification.season}
+                {:else if isNaN(notification.season)}
                   {#if delayed}<span class='badge text-dark bg-denary mr-5'>Delayed</span>{/if}
-                  <span class='badge text-dark bg-undenary mr-5'>{notification.episode ? `Episode ${Array.isArray(notification.episode) ? `${notification.episode[0]} ~ ${notification.episode[1]}` : notification.episode}` : `Batch`} </span>
-                {:else if notification.season}
+                  <span class='badge text-dark bg-undenary mr-5'>{!isNaN(notification.episode) ? `Episode ${Array.isArray(notification.episode) ? `${notification.episode[0]} ~ ${notification.episode[1]}` : notification.episode}` : `Batch`} </span>
+                {:else if !isNaN(notification.season)}
                   <span class='badge text-dark bg-undenary mr-5'>Season {notification.episode}</span>
                 {/if}
                 {#if notification.dub}

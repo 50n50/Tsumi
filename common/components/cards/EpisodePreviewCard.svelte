@@ -19,10 +19,11 @@
   export let data
   export let prompt
   export let element
+  export let zeroEpisode = false
   /** @type {import('@/modules/al.d.ts').Media | null} */
   const media = data.media && mediaCache.value[data.media.id]
   const episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
-  const lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || data?.episode
+  const lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (!isNaN(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
   const episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
   const watched = media?.mediaListEntry?.status === 'COMPLETED'
   const completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
@@ -67,7 +68,7 @@
       {#if media?.duration}
         {#if (data.episodeRange || data.parseObject?.episodeRange)}
           {media.duration * (((data.episodeRange || data.parseObject?.episodeRange).last - (data.episodeRange || data.parseObject?.episodeRange).first) + 1)}m
-        {:else if episodeRange && Number(episodeRange.first) && Number(episodeRange.last)}
+        {:else if episodeRange && !isNaN(episodeRange.first) && !isNaN(episodeRange.last)}
           {media.duration * ((episodeRange.first - episodeRange.last) + 1)}m
         {:else}
           {media.duration}m
@@ -112,11 +113,11 @@
         <div class='text-white font-weight-bold font-weight-very-bold'>
           {#if data.episodeRange || data.parseObject?.episodeRange}
             {`Episodes ${(data.episodeRange || data.parseObject.episodeRange).first} ~ ${(data.episodeRange || data.parseObject.episodeRange).last}`}
-          {:else if data.episode}
+          {:else if data.episode !== undefined}
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if !Array.isArray(data.episode)}
-              Episode {Number(data.episode) || data.episode?.replace(/\D/g, '')}
+              Episode {!isNaN(data.episode) ? Number(data.episode) : data.episode?.replace(/\D/g, '')}
             {/if}
           {:else if media?.format === 'MOVIE'}
             Movie
@@ -183,7 +184,7 @@
       {#if !media?.mediaListEntry?.progress}
         You Haven't Watched Any Episodes Yet!
       {:else}
-        Your Current Progress Is At <b>Episode {media?.mediaListEntry?.progress}</b>
+        Your Current Progress Is At <b>Episode {media?.mediaListEntry?.progress - (zeroEpisode ? 1 : 0)}</b>
       {/if}
     </p>
     <button class='cont-button btn btn-lg btn-secondary w-250 text-dark font-weight-bold shadow-none border-0 d-flex align-items-center justify-content-center mt-10' tabindex={!prompt ? '-1' : '0'} use:click={() => { data.onclick() || viewMedia() }}>

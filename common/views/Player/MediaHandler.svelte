@@ -75,7 +75,7 @@
   }
 
   const zeroEpisodes = new Map()
-  async function checkForZero(media) {
+  export async function checkForZero(media) {
     if (zeroEpisodes.has(`${media?.id}`)) {
         return zeroEpisodes.get(`${media?.id}`)
     }
@@ -453,9 +453,9 @@
           result.sort((a, b) => {
               const seasonA = a.media?.parseObject?.anime_season
               const seasonB = b.media?.parseObject?.anime_season
-              if (seasonA === undefined && seasonB === undefined) return 0
-              if (seasonA === undefined) return 1
-              if (seasonB === undefined) return -1
+              if (isNaN(seasonA) && isNaN(seasonB)) return 0
+              if (isNaN(seasonA)) return 1
+              if (isNaN(seasonB)) return -1
               return seasonA - seasonB
           })
       } else result.sort((a, b) => Number(a.media?.parseObject?.episode_number ?? 1) - Number(b.media?.parseObject?.episode_number ?? 1)).sort((a, b) => Number(b.media?.parseObject?.anime_season ?? 1) - Number(a.media?.parseObject?.anime_season ?? 1))

@@ -67,14 +67,14 @@ export function getWindowState() {
   defaultBounds = { width: Math.floor(screenWidth * 0.75), height: Math.floor(screenHeight * 0.75), x: undefined, y: undefined }
   let bounds = state.bounds || defaultBounds
   if (bounds.width > screenWidth || bounds.height > screenHeight) bounds = { ...defaultBounds }
-  if (bounds.x !== undefined && bounds.y !== undefined) {
+  if (!isNaN(bounds.x) && !isNaN(bounds.y)) {
     const { width, height, x, y } = screen.getDisplayNearestPoint({ x: bounds.x, y: bounds.y }).bounds
     if (bounds.x < x || bounds.y < y || bounds.x > x + width || bounds.y > y + height) {
       bounds.x = undefined
       bounds.y = undefined
     }
   }
-  if (bounds.x === undefined || bounds.y === undefined) {
+  if (isNaN(bounds.x) || isNaN(bounds.y)) {
     bounds.x = Math.floor((screenWidth - bounds.width) / 2)
     bounds.y = Math.floor((screenHeight - bounds.height) / 2)
   }

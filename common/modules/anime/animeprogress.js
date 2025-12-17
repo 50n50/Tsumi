@@ -35,7 +35,7 @@ export function liveAnimeProgress (mediaId) {
 export function liveAnimeEpisodeProgress (mediaId, episode, completed) {
   if (completed) return null
   return derived(animeProgressStore, (data) => {
-    if (!mediaId || !episode) return 0
+    if (!mediaId || isNaN(episode)) return 0
     const result = data.find(item => item.mediaId === mediaId && item.episode === episode)
     if (!result) return 0
     return Math.ceil(result.currentTime / result.safeduration * 100)
@@ -53,7 +53,7 @@ export function getAnimeProgress ({ name, mediaId, episode }) {
 
 // Set an individual episode's progress
 export function setAnimeProgress ({ name, mediaId, episode, currentTime, safeduration }) {
-  if ((!name && !mediaId) || (!name && !episode) || (!currentTime && currentTime !== 0) || !safeduration) return
+  if ((!name && !mediaId) || (!name && isNaN(episode)) || (!currentTime && currentTime !== 0) || !safeduration) return
   const data = read()
   // Update the existing entry or create a new one
   const existing = data.find(item => mediaId ? (item.mediaId === mediaId && item.episode === episode) : item.name === name)
