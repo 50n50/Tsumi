@@ -34,6 +34,7 @@ export default class TorrentClient extends WebTorrent {
     debug('Initializing TorrentClient with settings:', JSON.stringify(settings))
     super({
       dht: settings.dht,
+      utp: settings.torrentUTP,
       utPex: settings.torrentPeX,
       maxConns: settings.maxConns,
       downloadLimit: settings.downloadLimit,

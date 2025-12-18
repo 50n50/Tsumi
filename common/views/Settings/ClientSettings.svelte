@@ -86,6 +86,12 @@
     <label for='torrent-pex'>{settings.torrentPeX ? 'On' : 'Off'}</label>
   </div>
 </SettingCard>
+<SettingCard title='Disable µTP' description='Disables the µTP (UDP-based) peer connection protocol. May improve stability on some networks but can reduce the number of available peers.'>
+  <div class='custom-switch'>
+    <input type='checkbox' id='torrent-utp' bind:checked={settings.torrentUTP} />
+    <label for='torrent-utp'>{settings.torrentUTP ? 'On' : 'Off'}</label>
+  </div>
+</SettingCard>
 <SettingCard title='Disable Auto-Load' description='Disables loading the previously downloaded torrent on startup. Allowing the previous torrent to auto-load can increase your bandwidth usage, its recommended to keep this disabled on Android. All seeding and pre-downloading torrents will be marked as completed.'>
   <div class='custom-switch'>
     <input type='checkbox' id='disable-torrent-autoload' bind:checked={settings.disableStartupTorrent} />
