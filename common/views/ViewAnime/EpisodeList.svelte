@@ -191,6 +191,7 @@
     }
 
     if (zeroEpisode && episodeList.length === alEpisodes.length) episodeList = episodeList.slice(0, -1)
+    if (media?.bannerImage && episodeList?.some(episode => episode?.image)) episodeList = episodeList.map(episode => episode?.image ? episode : { ...episode, image: media?.bannerImage })
     currentEpisodes = episodeList?.slice(0, maxEpisodes)
     return episodeList && episodeList?.length > 0 ? episodeList : null
   }
@@ -278,7 +279,7 @@
                 <div class="unreleased-overlay position-absolute top-0 left-0 right-0 h-full pointer-events-none rounded-2" class:d-none={!unreleased}/>
                 {#if image}
                   <div class='d-flex'>
-                    <SmartImage class='img-cover {!SUPPORTS.isAndroid ? `h-150` : `h-165`} w-full w-sm-auto' images={[image, './404_episode.png']}/>
+                    <SmartImage class='img-cover {!SUPPORTS.isAndroid ? `h-150` : `h-165`} w-full w-sm-265' images={[image, './404_episode.png']}/>
                     {#if resolvedHash}
                       <div class='position-relative torrent-button-container'>
                         <div class='position-absolute top-0 right-0 text-danger icon-padding icon-shadow'>

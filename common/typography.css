@@ -100,6 +100,12 @@
   }
 }
 
+@media (min-width: 577px) {
+  .w-sm-265 {
+    width: 26.5rem !important;
+  }
+}
+
 @media (max-height: 530px) {
   .d-sm-h-none {
     display: none !important;
