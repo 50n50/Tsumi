@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 
 import { toXmlString } from 'powertoast'
+import { youtubeServer } from './youtube.js'
 import Jimp from 'jimp'
 import fs from 'fs'
 
@@ -327,6 +328,7 @@ export default class App {
     this.timeouts.clear()
     clearTimeout(this.stateTimeout)
     saveWindowState(this.mainWindow)
+    youtubeServer?.close?.()
     try {
       if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) { // WebTorrent shouldn't ever be destroyed before main, but it's better to be safe.
         this.webtorrentWindow.webContents?.closeDevTools?.()

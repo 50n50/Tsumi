@@ -9,7 +9,8 @@ const electronDefaults = {
   isMinimized: noopAsyncBool,
   isFullScreen: noopAsyncBool,
   onMinimize: noop,
-  onFullScreen: noop
+  onFullScreen: noop,
+  getYouTube: async () => 'https://www.youtube-nocookie.com'
 }
 
 export const IPC = window.IPC
