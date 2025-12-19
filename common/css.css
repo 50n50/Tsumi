@@ -21,7 +21,12 @@
   --highlight-color: #FFFFFF !important;
   --current-color: #3DB4F2 !important;
   --planning-color: #F79A63 !important;
-  --completed-color: #7BD555 !important;
+  --completed-color-hue: 110deg;
+  --completed-color-saturation: 60%;
+  --completed-hsl: var(--completed-color-hue), var(--completed-color-saturation), 58%;
+  --completed-color: hsl(var(--completed-hsl)) !important;
+  --completed-dim-hsl: var(--completed-color-hue), var(--completed-color-saturation), 42%;
+  --completed-color-dim: hsl(var(--completed-dim-hsl)) !important;
   --paused-color: #FA7A7A !important;
   --repeating-color: #3BAEEA !important;
   --dropped-color: #E85D75 !important;

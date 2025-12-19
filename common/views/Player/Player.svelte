@@ -13,6 +13,7 @@
   import { toTS, fastPrettyBytes, matchPhrase, videoRx } from '@/modules/util.js'
   import { toast } from 'svelte-sonner'
   import { getChaptersAniSkip } from '@/modules/anime/anime.js'
+  import { mediaCache } from '@/modules/cache.js'
   import Seekbar from 'perfect-seekbar'
   import { click } from '@/modules/click.js'
   import VideoDeband from 'video-deband'
@@ -1696,7 +1697,7 @@
   <div class='bottom d-flex z-40 flex-column px-20'>
     <div class='w-full d-flex align-items-center h-20 mb-5 seekbar' tabindex='-1' role='button' on:keydown={handleSeekbarKey}>
       <Seekbar
-        accentColor='var(--accent-color)'
+        accentColor='{completed || (media?.media && (($mediaCache[media.media.id] || media.media)?.mediaListEntry?.progress === (media.episodeRange ? media.episodeRange.last : media.episode))) ? `var(--completed-color-dim)` : `var(--accent-color)`}'
         class='font-size-20'
         length={safeduration}
         {buffer}
