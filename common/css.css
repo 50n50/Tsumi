@@ -564,6 +564,10 @@ a[href]:active, button:not([disabled], .not-reactive):active:not([data-sonner-to
   margin-top: 10rem;
 }
 
+.pt-28px {
+  padding-top: 28px;
+}
+
 .h-10 {
   height: 1rem !important;
 }

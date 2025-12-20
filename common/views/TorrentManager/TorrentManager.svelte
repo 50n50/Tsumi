@@ -29,8 +29,8 @@
   $: foundResults = !(searchText?.length && !filteredLoaded && !filteredStaging.length && !filteredSeeding.length && !filteredCompleted.length)
 </script>
 
-<div class='bg-dark h-full w-full root status-transition {$$restProps.class}' style={($$restProps.class && !$status.match(/offline/i) ? 'padding-top: var(--safe-area-top);' : '') + miniplayerPadding}>
-  <div class='w-full {$$restProps.class ? `pl-20 mt-20` : ``}'>
+<div class='bg-dark h-full w-full root status-transition {$$restProps.class}' class:pt-safe-area={$$restProps.class && !$status.match(/offline/i)} style={miniplayerPadding}>
+  <div class='w-full status-transition' class:pl-20={$$restProps.class} class:pt-28px={$$restProps.class && !$status.match(/offline/i)}>
     <h4 class='font-weight-bold m-0 mb-10'>Manage Torrents</h4>
     <div class='d-flex align-items-center'>
       <div class='input-group wm-600'>
@@ -85,3 +85,8 @@
     {/if}
   </div>
 </div>
+<style>
+  .pt-safe-area {
+    padding-top: var(--safe-area-top) !important;
+  }
+</style>

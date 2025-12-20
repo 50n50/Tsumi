@@ -15,6 +15,7 @@
   export let page = 'home'
   export let overlay = []
   export let playPage = false
+  export let statusTransition = false
 
   export let miniplayerPadding = getPadding()
   export let miniplayerActive = false
@@ -38,7 +39,7 @@
 </div>
 
 {#if page === 'settings'}
-  <Settings bind:playPage bind:overlay miniplayerPadding={miniplayerActive ? miniplayerPadding : ''} />
+  <Settings bind:playPage bind:overlay bind:statusTransition miniplayerPadding={miniplayerActive ? miniplayerPadding : ''} />
 {:else if page === 'home'}
   <Home />
 {:else if page === 'search'}
@@ -48,5 +49,5 @@
 {:else if page === 'watchtogether'}
   <WatchTogether />
 {:else if page === 'torrents'}
-  <ViewTorrent class='overflow-y-scroll overflow-x-hidden' miniplayerPadding={miniplayerActive && miniplayerPadding?.match(/bottom/i) ? miniplayerPadding : ''}/>
+  <ViewTorrent class='overflow-y-scroll overflow-x-hidden' miniplayerPadding={miniplayerActive ? miniplayerPadding : ''}/>
 {/if}

@@ -63,6 +63,7 @@
 
   export let overlay = []
   export let playPage = false
+  export let statusTransition = false
   export let miniplayerPadding = ''
 
   const groups = {
@@ -127,7 +128,7 @@
 </script>
 
 <Tabs>
-  <div class='d-flex w-full h-full position-relative settings root flex-md-row flex-column status-transition' style='padding-top: {!$status.match(/offline/i) ? `var(--safe-area-top)` : ``}'>
+  <div class='d-flex w-full h-full position-relative settings root flex-md-row flex-column' class:status-transition={statusTransition} class:pt-28px={!SUPPORTS.isAndroid && !$status.match(/offline/i)} class:pt-lg-28px={SUPPORTS.isAndroid && !$status.match(/offline/i)} class:pt-safe-area={SUPPORTS.isAndroid && !$status.match(/offline/i)}>
     <div class='d-flex flex-column h-lg-full bg-dark position-absolute position-lg-relative bb-10 w-full w-lg-300 z-10 flex-lg-shrink-0'>
       <div class='px-20 py-5 font-size-24 font-weight-semi-bold position-absolute d-none d-lg-block'>Settings</div>
       <div class='mt-lg-20 py-lg-20 py-10 d-flex flex-lg-column flex-row justify-content-center justify-content-lg-start align-items-center align-items-lg-start'>
@@ -222,6 +223,9 @@
   }
   .pb-100 {
     padding-bottom: 10rem;
+  }
+  .pt-safe-area {
+    padding-top: var(--safe-area-top) !important;
   }
   .settings :global(select.form-control:invalid) {
     color: var(--dm-input-placeholder-text-color);

@@ -161,4 +161,7 @@
     padding-left: 3rem !important;
     padding-right: 3rem !important;
   }
+  .pt-lg-28px {
+    padding-top: 28px;
+  }
 }
