@@ -680,6 +680,11 @@ export default class TorrentClient extends WebTorrent {
         this.dispatch('untrack', data.data)
         break
       } case 'networking': {
+        if (this.networking.match(/offline/i) && !data.data.match(/offline/i)) {
+          this.torrents.forEach(torrent => {
+            if (!this.destroyed && !torrent.destroyed) torrent.discovery?.tracker?.start()
+          })
+        }
         this.networking = data.data
         break
       } case 'debug': {
