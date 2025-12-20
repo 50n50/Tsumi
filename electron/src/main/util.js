@@ -88,3 +88,13 @@ export function saveWindowState(window) {
   else bounds = store.get('windowState')?.bounds || defaultBounds
   store.set('windowState', { bounds,  isMaximized: window.isMaximized(), isFullScreen: window.isFullScreen() })
 }
+
+export function getDefaultBounds() {
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+  return {
+    width: defaultBounds.width,
+    height: defaultBounds.height,
+    x: Math.floor((screenWidth - defaultBounds.width) / 2),
+    y: Math.floor((screenHeight - defaultBounds.height) / 2)
+  }
+}

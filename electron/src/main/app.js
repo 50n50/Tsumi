@@ -9,7 +9,7 @@ import fs from 'fs'
 import { BrowserWindow, MessageChannelMain, Notification, Tray, Menu, nativeImage, app, dialog, ipcMain, powerMonitor, shell, session } from 'electron'
 import electronShutdownHandler from '@paymoapp/electron-shutdown-handler'
 
-import { development, getWindowState, saveWindowState } from './util.js'
+import { development, getWindowState, saveWindowState, getDefaultBounds } from './util.js'
 import Discord from './discord.js'
 import Protocol from './protocol.js'
 import Updater from './updater.js'
@@ -402,16 +402,32 @@ export default class App {
       { label: 'Shiru', enabled: false },
       { type: 'separator' },
       { label: 'Show', click: () => this.showAndFocus() },
-      { label: 'Quit', click: () => { this.close = true; this.destroy() } }
+      { label: 'Restore', click: () => this.restoreWindow() },
+      { type: 'separator' },
+      { label: 'Quit', click: () => this.destroy() }
     ]))
     this.tray.on('click', () => this.showAndFocus())
+  }
+
+  restoreWindow() {
+    if (this.destroyed || this.mainWindow?.isDestroyed()) return
+    const defaultBounds = getDefaultBounds()
+    this.mainWindow.unmaximize()
+    this.mainWindow.setFullScreen(false)
+    this.mainWindow.setBounds(defaultBounds)
+    /** HACK: Electron doesn't handle DPI scaling differences between monitors very well so we have to set the bounds twice... */
+    setImmediate(() => {
+      this.mainWindow.setBounds(defaultBounds)
+      saveWindowState(this.mainWindow)
+      this.showAndFocus()
+    })
   }
 
   showAndFocus(ready = false) {
     if (!this.ready && !ready) return
     if (!this.ready) this.ready = true
     if (ready) {
-      if (this.windowState.bounds.x || this.windowState.bounds.y) this.mainWindow.setBounds(this.windowState.bounds)
+      if (this.windowState.bounds.x && this.windowState.bounds.y) this.mainWindow.setBounds(this.windowState.bounds)
       if (this.windowState.isMaximized) this.mainWindow.maximize()
       if (this.windowState.isFullScreen) this.mainWindow.setFullScreen(true)
     }
