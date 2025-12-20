@@ -135,12 +135,7 @@ export default class App {
       this.destroy()
     })
 
-    this.tray.setToolTip('Shiru')
-    this.tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Show', click: () => this.showAndFocus() },
-      { label: 'Quit', click: () => { this.close = true; this.destroy() } }
-    ]))
-    this.tray.on('click', () => this.showAndFocus())
+    this.createTray()
 
     fs.rmSync(this.imageDir, { recursive: true, force: true })
     ipcMain.on('notification-unread', async (e, notificationCount) => this.setTrayIcon(notificationCount))
@@ -323,7 +318,7 @@ export default class App {
     this.close = true
     this.mainWindow.hide()
     this.mainWindow.webContents?.closeDevTools?.()
-    this.tray.destroy()
+    this.tray?.destroy()
     for (const timeout of this.timeouts) clearTimeout(timeout)
     this.timeouts.clear()
     clearTimeout(this.stateTimeout)
@@ -386,6 +381,11 @@ export default class App {
 
   notificationCount = 0
   setTrayIcon(notificationCount, verify) {
+    if (this.destroyed) return
+    if (!this.tray || this.tray.isDestroyed()) {
+      this.tray = new Tray(this.trayIcon)
+      this.createTray()
+    }
     if (!verify) this.notificationCount = notificationCount
     if (this.notificationCount <= 0 || !this.notificationCount) {
       this.tray.setImage(this.trayIcon)
@@ -394,6 +394,17 @@ export default class App {
       this.mainWindow.setOverlayIcon(nativeImage.createFromPath(join(__dirname, `/icon_filled_notify_${this.notificationCount < 10 ? this.notificationCount : `filled`}.png`)), `${this.notificationCount} Unread Notifications`)
       this.tray.setImage(this.trayNotifyIcon)
     }
+  }
+  createTray() {
+    if (this.destroyed) return
+    this.tray.setToolTip('Shiru')
+    this.tray.setContextMenu(Menu.buildFromTemplate([
+      { label: 'Shiru', enabled: false },
+      { type: 'separator' },
+      { label: 'Show', click: () => this.showAndFocus() },
+      { label: 'Quit', click: () => { this.close = true; this.destroy() } }
+    ]))
+    this.tray.on('click', () => this.showAndFocus())
   }
 
   showAndFocus(ready = false) {
