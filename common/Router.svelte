@@ -33,7 +33,7 @@
   $: miniplayer = ($media && (Object.keys($media).length > 0)) && ((page !== 'player' && visible) || (overlay.includes('viewanime') && visible))
 </script>
 <div class='w-full h-full position-absolute overflow-hidden' class:invisible={!($media && (Object.keys($media).length > 0)) || (playPage && overlay.includes('viewanime')) || (!visible && (page !== 'player'))}>
-  <Miniplayer active={miniplayer} class='bg-dark-light rounded-10 z-100 miniplayer-border {(page === `player` && !overlay.includes(`viewanime`)) ? `h-full` : ``}' padding='2rem' bind:page>
+  <Miniplayer active={miniplayer} class='bg-dark-light rounded-10 z-100 miniplayer-border {(page === `player` && !overlay.includes(`viewanime`)) ? `h-full` : ``}' padding='2rem' bind:page bind:overlay>
     <MediaHandler {miniplayer} bind:page bind:overlay bind:playPage />
   </Miniplayer>
 </div>
