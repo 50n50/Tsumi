@@ -435,7 +435,7 @@
         androidListener = (url) => {
           const startTime = Date.now()
           const externalWatched = () => {
-            const watchTime = (Date.now() - startTime) / 1000
+            const watchTime = (Date.now() - startTime) / 1_000
             checkCompletionByTime(watchTime, duration * 60)
             currentTime = watchTime
             targetTime = watchTime
@@ -525,10 +525,10 @@
   function skip () {
     const current = findChapter(currentTime)
     if (current) {
-      if (!isChapterSkippable(current) && ((current.end - current.start) / 1000) > 100) {
+      if (!isChapterSkippable(current) && ((current.end - current.start) / 1_000) > 100) {
         currentTime = currentTime + 85
       } else {
-        const endtime = current.end / 1000
+        const endtime = current.end / 1_000
         if ((safeduration - endtime | 0) === 0 && hasNext && settings.value.playerAutoplay) return playNext()
         currentTime = endtime
         currentSkippable = null
@@ -958,14 +958,17 @@
       if (!paused || miniplayer) {
         immerseTimeout = setTimeout(() => {
           if (token === immerseToken) immersePlayer()
-        }, (paused ? 5 : 1.5) * 1000)
+        }, (paused ? 5 : 1.5) * 1_000)
       }
     })
   }
 
   function toggleImmerse () {
-    clearTimeout(immerseTimeout)
-    immersed = !immersed
+    if (immersed) resetImmerse()
+    else {
+      clearTimeout(immerseTimeout)
+      immersed = !immersed
+    }
   }
 
   let canPlay = !!src
@@ -1098,7 +1101,7 @@
     ['Recap', /recap/mi]
   ]
   function isChapterSkippable(chapter) {
-    if (((chapter.end - chapter.start) / 1000) > MAX_TOTAL_SKIP_TIME) return null // Anything longer than 180s (3m) is likely invalid, skipping this chapter would be a mistake!
+    if (((chapter.end - chapter.start) / 1_000) > MAX_TOTAL_SKIP_TIME) return null // Anything longer than 180s (3m) is likely invalid, skipping this chapter would be a mistake!
     for (const [name, regex] of skippableChaptersRx) {
       if (/** @type {RegExp} */ chapter.text && (regex).test(chapter.text.trim())) {
         return name
@@ -1109,13 +1112,13 @@
   function findChapter (time) {
     if (!chapters.length) return null
     for (const chapter of chapters) {
-      if (time < (chapter.end / 1000) && time >= (chapter.start / 1000)) return chapter
+      if (time < (chapter.end / 1_000) && time >= (chapter.start / 1_000)) return chapter
     }
   }
   function mergeMicroSkippable(_chapters) {
     const isSkippable = (chapter) => chapter.text && skippableChaptersRx.some(([_, rx]) => rx.test(chapter.text.trim()))
-    const isShort = (chapter) => ((chapter.end - chapter.start) / 1000) < 10 // anything shorter than 10 seconds is just fluff... probably a mistake.
-    const underMaxSkip = (chapter) => (chapter.end - chapter.start) / 1000 <= MAX_TOTAL_SKIP_TIME
+    const isShort = (chapter) => ((chapter.end - chapter.start) / 1_000) < 10 // anything shorter than 10 seconds is just fluff... probably a mistake.
+    const underMaxSkip = (chapter) => (chapter.end - chapter.start) / 1_000 <= MAX_TOTAL_SKIP_TIME
     for (let i = 0; i < _chapters.length - 1; i++) {
       const cur = _chapters[i]
       const next = _chapters[i + 1]
@@ -1158,11 +1161,11 @@
     _chapters = _chapters.map((chapter, index, arr) => {
       if (chapter.start === chapter.end) { // Fix chapters with incorrect start/end times which causes an invisible seekbar, this happens when the start and end time are identical
         const nextChapter = arr[index + 1] // We now assume each chapter is a bookmark and use the next chapters start time and the current chapters end time.
-        return { ...chapter, end: nextChapter ? nextChapter.start : safeduration * 1000 } // Use next chapter's start or ensure the entire safe duration of seekbar is visible.
+        return { ...chapter, end: nextChapter ? nextChapter.start : safeduration * 1_000 } // Use next chapter's start or ensure the entire safe duration of seekbar is visible.
       }
       return chapter
     })
-    _chapters[_chapters.length - 1].end = safeduration * 1000 // fix the final chapter so its duration actually reaches the end of the video...
+    _chapters[_chapters.length - 1].end = safeduration * 1_000 // fix the final chapter so its duration actually reaches the end of the video...
     _chapters[0].start = 0
 
     mergeMicroSkippable(_chapters)
@@ -1171,8 +1174,8 @@
     const sanitised = []
     let chapterCounter = 1
     for (let { start, end, text } of _chapters) {
-      if (start > safeduration * 1000) continue
-      if (end > safeduration * 1000) end = safeduration * 1000
+      if (start > safeduration * 1_000) continue
+      if (end > safeduration * 1_000) end = safeduration * 1_000
       if (text && /^[\d:.\s]+$/.test(text)) { // Replace numerical/timestamp-like chapter names
         text = `Chapter ${chapterCounter}`
         chapterCounter++
@@ -1221,7 +1224,7 @@
       debug('Detected a currently running thumbnail generation process, interrupting...')
       thumbnailProcess.videoDraw.remove()
       thumbnailProcess.running = false
-      await new Promise(resolve => setTimeout(resolve, 5 * 1000))
+      await new Promise(resolve => setTimeout(resolve, 5 * 1_000))
     }
     const t0 = performance.now()
     thumbnailProcess = { videoDraw: document.createElement('video'), running: true}
@@ -1241,7 +1244,7 @@
         let dynamicDuration = (buffer / 100) * videoDraw.duration
         if (!isFinite(dynamicDuration)) {
           debug('Video is still loading... waiting to generate thumbnails...')
-          setTimeout(() => captureThumbnail(), 1000)
+          setTimeout(() => captureThumbnail(), 1_000)
           return
         }
         while (thumbnailData.thumbnails[index]) index++
@@ -1257,12 +1260,12 @@
               debug('Detected a buffer change, continuing thumbnail generation...')
             }
             captureThumbnail()
-          }, 1000)
+          }, 1_000)
           return
         }
 
         if (currentTime >= videoDraw.duration) {
-          debug('Thumbnail generation has successfully completed, took:', (toTS((performance.now() - t0) / 1000)))
+          debug('Thumbnail generation has successfully completed, took:', (toTS((performance.now() - t0) / 1_000)))
           videoDraw.remove()
           return
         } else if (isFinite(currentTime) && currentTime >= 0 && currentTime <= dynamicDuration) {
@@ -1377,7 +1380,7 @@
           saveAnimeProgress(true)
           toast.error('Video Codec Unsupported', {
             description: 'The video could not be loaded, either because the server or network failed or because the format is not supported. Try a different release by disabling Autoplay Torrents in RSS settings.',
-            duration: 30000
+            duration: 30_000
           })
         }
         break
@@ -1427,8 +1430,8 @@
       const details = np.title || undefined
       const timeLeft = safeduration - targetTime
       const timestamps = !paused ? {
-        start: Date.now() - (targetTime > 0 ? targetTime * 1000 : 0),
-        end: Date.now() + timeLeft * 1000
+        start: Date.now() - (targetTime > 0 ? targetTime * 1_000 : 0),
+        end: Date.now() + timeLeft * 1_000
       } : undefined
        activity = {
         details,
