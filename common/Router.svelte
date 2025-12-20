@@ -27,7 +27,6 @@
     return (miniplayerTop ? 'padding-top: ' : 'padding-bottom: ') + `${pixelPadding}px !important`
   }
 
-  $: document.documentElement.style.setProperty('--safe-bar-top', !SUPPORTS.isAndroid && !$status.match(/offline/i) ? '18px' : '0px')
   $: miniplayerActive = !(playPage || !$media || !Object.keys($media).length || $media?.display)
   $: visible = !overlay.includes('torrent') && !overlay.includes('notifications') && !overlay.includes('profiles') && !overlay.includes('minimizetray') && !overlay.includes('trailer') && !playPage && !$media?.display
   $: miniplayer = ($media && (Object.keys($media).length > 0)) && ((page !== 'player' && visible) || (overlay.includes('viewanime') && visible))
