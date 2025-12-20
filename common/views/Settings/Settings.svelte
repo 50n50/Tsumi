@@ -224,9 +224,6 @@
   .pb-100 {
     padding-bottom: 10rem;
   }
-  .pt-safe-area {
-    padding-top: var(--safe-area-top) !important;
-  }
   .settings :global(select.form-control:invalid) {
     color: var(--dm-input-placeholder-text-color);
   }

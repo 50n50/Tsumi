@@ -568,6 +568,10 @@ a[href]:active, button:not([disabled], .not-reactive):active:not([data-sonner-to
   padding-top: 28px;
 }
 
+.pt-safe-area {
+  padding-top: var(--safe-area-top) !important;
+}
+
 .h-10 {
   height: 1rem !important;
 }

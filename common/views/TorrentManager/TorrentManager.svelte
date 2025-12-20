@@ -85,8 +85,3 @@
     {/if}
   </div>
 </div>
-<style>
-  .pt-safe-area {
-    padding-top: var(--safe-area-top) !important;
-  }
-</style>
