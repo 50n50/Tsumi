@@ -189,7 +189,7 @@
           {:else if data.episode}
             {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
             {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-              {@const kitsuMappings = episode && mappings?.data?.find(ep => ep?.attributes?.number === Number(episode) || episode)?.attributes}
+              {@const kitsuMappings = episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === !isNaN(episode) ? Number(episode) : episode)?.attributes}
               {kitsuMappings?.titles?.en_us || kitsuMappings?.titles?.en_jp || ''}
             {/await}
           {/if}
@@ -199,7 +199,7 @@
         <div class='text-white font-weight-bold'>
           {#if data.episodeRange || data.parseObject?.episodeRange}
             {`Episodes ${(data.episodeRange || data.parseObject.episodeRange).first} ~ ${(data.episodeRange || data.parseObject.episodeRange).last}`}
-          {:else if data.episode !== undefined}
+          {:else if data.episode !== null}
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if (!Array.isArray(data.episode))}
