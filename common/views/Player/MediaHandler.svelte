@@ -2,7 +2,7 @@
   import { writable } from 'simple-store-svelte'
   import AnimeResolver from '@/modules/anime/animeresolver.js'
   import { setHash, getHash, getId } from '@/modules/anime/animehash.js'
-  import { videoRx, matchPhrase } from '@/modules/util.js'
+  import { videoRx, matchPhrase, isValidNumber } from '@/modules/util.js'
   import { tick } from 'svelte'
   import { toast } from 'svelte-sonner'
   import { anilistClient } from '@/modules/anilist.js'
@@ -453,9 +453,9 @@
           result.sort((a, b) => {
               const seasonA = a.media?.parseObject?.anime_season
               const seasonB = b.media?.parseObject?.anime_season
-              if (isNaN(seasonA) && isNaN(seasonB)) return 0
-              if (isNaN(seasonA)) return 1
-              if (isNaN(seasonB)) return -1
+              if (!isValidNumber(seasonA) && !isValidNumber(seasonB)) return 0
+              if (!isValidNumber(seasonA)) return 1
+              if (!isValidNumber(seasonB)) return -1
               return seasonA - seasonB
           })
       } else result.sort((a, b) => Number(a.media?.parseObject?.episode_number ?? 1) - Number(b.media?.parseObject?.episode_number ?? 1)).sort((a, b) => Number(b.media?.parseObject?.anime_season ?? 1) - Number(a.media?.parseObject?.anime_season ?? 1))

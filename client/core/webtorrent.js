@@ -3,7 +3,7 @@ import HTTPTracker from 'http-tracker'
 import Client from 'bittorrent-tracker'
 import { hex2bin, arr2hex, text2arr } from 'uint8-util'
 import { makeHash, getInfoHash, hasIntegrity, getProgressAndSize, stringifyQuery, errorToString, encodeStreamURL, ANNOUNCE, TMP } from '@client/lib/util.js'
-import { fontRx, sleep, subRx, videoRx } from '@/modules/util.js'
+import { fontRx, sleep, subRx, videoRx, isValidNumber } from '@/modules/util.js'
 import { SUPPORTS } from '@/modules/support.js'
 import { spawn } from 'node:child_process'
 import Metadata from '@client/lib/metadata.js'
@@ -289,7 +289,7 @@ export default class TorrentClient extends WebTorrent {
     const timeout = setTimeout(() => {
       const seeders = torrent?.wires?.filter(wire => wire.isSeeder)?.length
       if (!this.destroyed && !torrent.destroyed && torrent.current && !torrent.progress && !torrent.ready && torrent.numPeers === 0 && this.networking !== 'offline') this.dispatchError('No peers found, try using a different torrent.')
-      else if (!this.destroyed && !torrent.destroyed && torrent.current && torrent.progress < .95 && !isNaN(seeders) && seeders.length < 5 && !isNaN(torrent.numPeers) && torrent.numPeers < 25 && this.networking !== 'offline') this.dispatch('info', 'Availability Warning! This release is poorly seeded and likely will have playback issues such as buffering!')
+      else if (!this.destroyed && !torrent.destroyed && torrent.current && torrent.progress < .95 && isValidNumber(seeders) && seeders.length < 5 && isValidNumber(torrent.numPeers) && torrent.numPeers < 25 && this.networking !== 'offline') this.dispatch('info', 'Availability Warning! This release is poorly seeded and likely will have playback issues such as buffering!')
     }, 30_000)
     this.timeouts.push(timeout)
     timeout.unref?.()

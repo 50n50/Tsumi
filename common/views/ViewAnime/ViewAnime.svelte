@@ -7,6 +7,7 @@
   import { mediaCache } from '@/modules/cache.js'
   import { add } from '@/modules/torrent.js'
   import { anilistClient } from '@/modules/anilist.js'
+  import { isValidNumber } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
   import Details from '@/views/ViewAnime/Details.svelte'
   import EpisodeList from '@/views/ViewAnime/EpisodeList.svelte'
@@ -83,7 +84,7 @@
   }
   function play (episode, force = false) {
     if (!media) return
-    if (!isNaN(episode)) return playAnime(media, episode, force)
+    if (isValidNumber(episode)) return playAnime(media, episode, force)
     if (media.status === 'NOT_YET_RELEASED') return
     playMedia(media)
   }
@@ -109,8 +110,8 @@
   function handlePlay(id, episode, torrentOnly) {
     const cachedMedia = mediaCache.value[id]
     if (!cachedMedia) return
-    const cachedEpisode = !isNaN(episode) ? episode : cachedMedia?.mediaListEntry?.progress
-    const desiredEpisode = (!isNaN(episode) ? episode : cachedEpisode && cachedEpisode !== 0 ? cachedEpisode + 1 : cachedEpisode)
+    const cachedEpisode = isValidNumber(episode) ? episode : cachedMedia?.mediaListEntry?.progress
+    const desiredEpisode = (isValidNumber(episode) ? episode : cachedEpisode && cachedEpisode !== 0 ? cachedEpisode + 1 : cachedEpisode)
     if (torrentOnly) {
       if (desiredEpisode) return playAnime(cachedMedia, desiredEpisode)
       if (cachedMedia?.status === 'NOT_YET_RELEASED') return

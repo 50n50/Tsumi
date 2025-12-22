@@ -2,7 +2,7 @@
   import { derived, writable } from 'simple-store-svelte'
   import { click, hoverExit, blurExit } from '@/modules/click.js'
   import { getHash } from '@/modules/anime/animehash.js'
-  import { createListener, matchPhrase, matchKeys, debounce, since } from '@/modules/util.js'
+  import { createListener, matchPhrase, matchKeys, debounce, since, isValidNumber } from '@/modules/util.js'
   import { Search, MailCheck, MailOpen, Play, X } from 'lucide-svelte'
   import TorrentButton, { playActive } from '@/components/TorrentButton.svelte'
   import ErrorCard from '@/components/cards/ErrorCard.svelte'
@@ -116,7 +116,7 @@
     return array.sort((a, b) => {
       const timestampDiff = b.timestamp - a.timestamp
       if (timestampDiff !== 0) return timestampDiff
-      if (a.id === b.id && !isNaN(a.episode) && !isNaN(b.episode) && isNaN(a.season) && isNaN(b.season)) return b.episode - a.episode
+      if (a.id === b.id && isValidNumber(a.episode) && isValidNumber(b.episode) && isValidNumber(a.season) && isValidNumber(b.season)) return b.episode - a.episode
       return 0
     }).sort((a, b) => {
       if (!a.read && b.read) return -1

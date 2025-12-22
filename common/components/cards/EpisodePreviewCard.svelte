@@ -10,7 +10,7 @@
   import { episodesList } from '@/modules/episodes.js'
   import { click } from '@/modules/click.js'
   import { getHash } from '@/modules/anime/animehash.js'
-  import { since, fadeIn, fadeOut } from '@/modules/util.js'
+  import { since, fadeIn, fadeOut, isValidNumber } from '@/modules/util.js'
   import { liveAnimeEpisodeProgress } from '@/modules/anime/animeprogress.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { settings } from '@/modules/settings.js'
@@ -23,7 +23,7 @@
   /** @type {import('@/modules/al.d.ts').Media | null} */
   const media = data.media && mediaCache.value[data.media.id]
   const episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
-  const lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (!isNaN(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
+  const lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (isValidNumber(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
   const episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
   const watched = media?.mediaListEntry?.status === 'COMPLETED'
   const completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
@@ -68,7 +68,7 @@
       {#if media?.duration}
         {#if (data.episodeRange || data.parseObject?.episodeRange)}
           {media.duration * (((data.episodeRange || data.parseObject?.episodeRange).last - (data.episodeRange || data.parseObject?.episodeRange).first) + 1)}m
-        {:else if episodeRange && !isNaN(episodeRange.first) && !isNaN(episodeRange.last)}
+        {:else if episodeRange && isValidNumber(episodeRange.first) && isValidNumber(episodeRange.last)}
           {media.duration * ((episodeRange.first - episodeRange.last) + 1)}m
         {:else}
           {media.duration}m
@@ -117,7 +117,7 @@
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if !Array.isArray(data.episode)}
-              Episode {!isNaN(data.episode) ? Number(data.episode) : data.episode?.replace(/\D/g, '')}
+              Episode {isValidNumber(data.episode) ? Number(data.episode) : data.episode?.replace(/\D/g, '')}
             {/if}
           {:else if media?.format === 'MOVIE'}
             Movie
@@ -159,7 +159,7 @@
       {:else if data.episode !== null}
         {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
         {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-          {@const kitsuMappings = data.episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === !isNaN(episode) ? Number(episode) : episode)?.attributes}
+          {@const kitsuMappings = data.episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
           {(kitsuMappings?.synopsis || kitsuMappings?.description || media?.description || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()}
         {/await}
       {:else}

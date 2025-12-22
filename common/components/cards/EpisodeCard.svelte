@@ -7,7 +7,7 @@
   import { writable } from 'simple-store-svelte'
   import { getContext } from 'svelte'
   import { playActive } from '@/components/TorrentButton.svelte'
-  import { createListener, since } from '@/modules/util.js'
+  import { createListener, since, isValidNumber } from '@/modules/util.js'
   const { reactive, init } = createListener(['torrent-button', 'cont-button', 'episode-safe-area'])
   init(true)
 </script>
@@ -37,7 +37,7 @@
   mediaCache.subscribe((value) => { if (value && (JSON.stringify(value[media?.id]) !== JSON.stringify(media))) media = value[media?.id] })
   $: checkForZero(media).then(_zeroEpisode => zeroEpisode = _zeroEpisode)
   $: episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
-  $: lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (!isNaN(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
+  $: lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (isValidNumber(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
   $: episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
   $: watched = media?.mediaListEntry?.status === 'COMPLETED'
   $: completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
@@ -49,17 +49,17 @@
     $view = media
   }
   function setClickState() {
-    const episode = !isNaN(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
-    if (!$prompt && !isNaN(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(true)
-    else !isNaN(episode) ? (media ? playActive(data.hash, { media, episode: episode }, data.link, !data.link) : data.onclick()) : viewMedia()
+    const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
+    if (!$prompt && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(true)
+    else isValidNumber(episode) ? (media ? playActive(data.hash, { media, episode: episode }, data.link, !data.link) : data.onclick()) : viewMedia()
     clicked.set(true)
     setTimeout(() => clicked.set(false)).unref?.()
   }
   function setHoverState (state, tapped) {
     const focused = document.activeElement
     if (container && focused?.offsetParent !== null && (container.contains(focused)) && (!previewCard || !previewCard.contains(focused))) ignoreFocus = true
-    const episode = !isNaN(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
-    if (!$prompt && !isNaN(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
+    const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
+    if (!$prompt && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
     if (!$prompt || !$clicked) {
       preview = state
       setTimeout(() => {
@@ -158,7 +158,7 @@
         {#if media?.duration}
           {#if (data.episodeRange || data.parseObject?.episodeRange)}
             {media.duration * (((data.episodeRange || data.parseObject?.episodeRange).last - (data.episodeRange || data.parseObject?.episodeRange).first) + 1)}m
-          {:else if episodeRange && !isNaN(episodeRange.first) && !isNaN(episodeRange.last)}
+          {:else if episodeRange && isValidNumber(episodeRange.first) && isValidNumber(episodeRange.last)}
             {media.duration * ((episodeRange.first - episodeRange.last) + 1)}m
           {:else}
             {media.duration}m
@@ -189,7 +189,7 @@
           {:else if data.episode}
             {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
             {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-              {@const kitsuMappings = episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === !isNaN(episode) ? Number(episode) : episode)?.attributes}
+              {@const kitsuMappings = episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
               {kitsuMappings?.titles?.en_us || kitsuMappings?.titles?.en_jp || ''}
             {/await}
           {/if}
@@ -203,7 +203,7 @@
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if (!Array.isArray(data.episode))}
-              Episode {!isNaN(data.episode) ? Number(data.episode) : data.episode?.replace(/\D/g, '')}
+              Episode {isValidNumber(data.episode) ? Number(data.episode) : data.episode?.replace(/\D/g, '')}
             {/if}
           {:else if media?.format === 'MOVIE'}
             Movie

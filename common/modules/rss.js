@@ -1,4 +1,4 @@
-import { getRandomInt, DOMPARSER, base32toHex } from '@/modules/util.js'
+import { getRandomInt, DOMPARSER, base32toHex, isValidNumber } from '@/modules/util.js'
 import { settings } from '@/modules/settings.js'
 import { status } from '@/modules/networking.js'
 import { cache, caches, mediaCache } from '@/modules/cache.js'
@@ -139,21 +139,21 @@ class RSSMediaManager {
       const notify = (!media?.mediaListEntry && settings.value.rssNotify?.includes('NOTONLIST')) || (media?.mediaListEntry && settings.value.rssNotify?.includes(media?.mediaListEntry?.status))
       const dubbed = await malDubs.isDubMedia(parseObject)
       if (notify && (!settings.value.preferDubs || (media?.status === 'FINISHED' && !['CURRENT', 'REPEATING']?.includes(media?.mediaListEntry?.status)) || dubbed || !(await malDubs.isDubMedia(media)) || await isSubbedProgress(media))) {
-        const highestEp = !isNaN(episode) ? Number(episode) : Number(episodesList.handleArray(episode, episode)?.last)
+        const highestEp = isValidNumber(episode) ? Number(episode) : Number(episodesList.handleArray(episode, episode)?.last)
         const progress = media?.mediaListEntry?.progress
         const behind = progress < (highestEp - 1)
         window.dispatchEvent(new CustomEvent('notification-app', {
           detail: {
             id: media?.id,
             title: anilistClient.title(media) || parseObject.anime_title,
-            message: `${media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1 ? `The Movie` : !isNaN(highestEp) ? `${media?.episodes === highestEp ? `The wait is over! ` : ``}Episode ${highestEp}` : parseObject?.anime_title?.match(/S(\d{2})/) ? `Season ${parseInt(parseObject.anime_title.match(/S(\d{2})/)[1], 10)}` : `Batch`} (${dubbed ? 'Dub' : 'Sub'}) ${!isNaN(highestEp) || media?.format === 'MOVIE' ? `is out${media?.format !== 'MOVIE' && media?.episodes === highestEp ? `, this season is now ready to binge` : ``}!` : `is now ready to binge!`}`,
+            message: `${media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1 ? `The Movie` : isValidNumber(highestEp) ? `${media?.episodes === highestEp ? `The wait is over! ` : ``}Episode ${highestEp}` : parseObject?.anime_title?.match(/S(\d{2})/) ? `Season ${parseInt(parseObject.anime_title.match(/S(\d{2})/)[1], 10)}` : `Batch`} (${dubbed ? 'Dub' : 'Sub'}) ${isValidNumber(highestEp) || media?.format === 'MOVIE' ? `is out${media?.format !== 'MOVIE' && media?.episodes === highestEp ? `, this season is now ready to binge` : ``}!` : `is now ready to binge!`}`,
             icon: media?.coverImage.medium,
             iconXL: media?.coverImage?.extraLarge,
             heroImg: media?.bannerImage || (media?.trailer?.id && `https://i.ytimg.com/vi/${media?.trailer?.id}/hqdefault.jpg`),
-            episode: !isNaN(highestEp) ? highestEp : (parseObject?.anime_title?.match(/S(\d{2})/) ? parseInt(parseObject.anime_title.match(/S(\d{2})/)[1], 10) : highestEp),
+            episode: isValidNumber(highestEp) ? highestEp : (parseObject?.anime_title?.match(/S(\d{2})/) ? parseInt(parseObject.anime_title.match(/S(\d{2})/)[1], 10) : highestEp),
             timestamp: Math.floor(new Date(date).getTime() / 1000),
             format: media?.format,
-            season: isNaN(highestEp) && parseObject.anime_title.match(/S(\d{2})/),
+            season: !isValidNumber(highestEp) && parseObject.anime_title.match(/S(\d{2})/),
             dub: dubbed,
             click_action: 'TORRENT',
             hash: hash,

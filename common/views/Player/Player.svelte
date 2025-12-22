@@ -10,7 +10,7 @@
   import { writable } from 'simple-store-svelte'
   import { getContext, createEventDispatcher } from 'svelte'
   import Subtitles from '@/modules/subtitles.js'
-  import { toTS, fastPrettyBytes, matchPhrase, videoRx } from '@/modules/util.js'
+  import { toTS, fastPrettyBytes, matchPhrase, videoRx, isValidNumber } from '@/modules/util.js'
   import { toast } from 'svelte-sonner'
   import { getChaptersAniSkip } from '@/modules/anime/anime.js'
   import { mediaCache } from '@/modules/cache.js'
@@ -42,7 +42,7 @@
   })
 
   export function playFile (file) {
-    if (!isNaN(file)) handleCurrent(videos?.[file])
+    if (isValidNumber(file)) handleCurrent(videos?.[file])
     else handleCurrent(file)
   }
 
@@ -308,7 +308,7 @@
 
   async function loadAnimeProgress () {
     let animeProgress
-    if (!current?.media?.media?.id || isNaN(current?.media?.episode) || current?.media?.failed || !media?.media?.id || isNaN(media?.episode)) animeProgress = await getAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name })
+    if (!current?.media?.media?.id || !isValidNumber(current?.media?.episode) || current?.media?.failed || !media?.media?.id || !isValidNumber(media?.episode)) animeProgress = await getAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name })
     else animeProgress = await getAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name, mediaId: current.media.media.id, episode: current.media.episode })
     if (!animeProgress) return
 
@@ -323,7 +323,7 @@
       targetTime = 0
       video.currentTime = targetTime
     }
-    if (!current?.media?.media?.id || isNaN(current?.media?.episode) || current?.media?.failed || !media?.media?.id || isNaN(media?.episode)) setAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name, currentTime: video.currentTime, safeduration })
+    if (!current?.media?.media?.id || !isValidNumber(current?.media?.episode) || current?.media?.failed || !media?.media?.id || !isValidNumber(media?.episode)) setAnimeProgress({ name: current?.media?.parseObject?.anime_title ? (current?.media?.parseObject?.anime_title + ((media?.season || current?.media?.parseObject?.anime_season ? ` S${media?.season || current?.media?.parseObject?.anime_season}` : '') + ((media?.episode || current?.media?.parseObject?.episode_number ? ` E${media?.episode || current?.media?.parseObject?.episode_number}` : '')))) : current?.name, currentTime: video.currentTime, safeduration })
     else setAnimeProgress({ mediaId: current.media.media.id, episode: current.media.episode, currentTime: video.currentTime, safeduration })
   }
   setInterval(() => {

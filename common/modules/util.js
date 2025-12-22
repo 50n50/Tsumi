@@ -33,6 +33,16 @@ export const codes = {
 }
 
 /**
+ * Checks whether a value is a valid finite number.
+ *
+ * @param {*} value - The value to check.
+ * @returns {boolean} True if the value is a finite number.
+ */
+export function isValidNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+/**
  * Gets the Hex Color of the String input.
  * @param {string} str
  * @returns {string} The full hex color of the string input.

@@ -3,7 +3,7 @@
     import { click, hoverExit, blurExit } from '@/modules/click.js'
     import { SquarePen, SquareCheckBig, Play } from 'lucide-svelte'
     import { SUPPORTS } from '@/modules/support.js'
-    import { createListener } from '@/modules/util.js'
+    import { createListener, isValidNumber } from '@/modules/util.js'
     import { setHash } from '@/modules/anime/animehash.js'
     import { anilistClient } from '@/modules/anilist.js'
     import Helper from '@/modules/helper.js'
@@ -41,18 +41,13 @@
             const currentEpisodeRange = file.media?.episodeRange
             let value = event.target.value.trim().replace(/\s+/g, '').replace(/-+/g, '~')
             if (value.includes('~')) {
-                const parts = value.split('~').map(Number).filter(n => !isNaN(n))
-                if (parts[1]) {
-                    file.media.episodeRange = {
-                        first: parts[0],
-                        last: parts[1]
-                    }
-                }
+                const parts = value.split('~').map(Number).filter(number => isValidNumber(number))
+                if (parts[1]) file.media.episodeRange = { first: parts[0], last: parts[1] }
                 episode = getEpisode()
             } else {
-                const num = Number(value)
+                const number = Number(value)
                 if (file.media?.episodeRange) delete file.media.episodeRange
-                file.media.episode = !isNaN(num) ? num : null
+                file.media.episode = isValidNumber(number) ? number : null
                 episode = getEpisode()
             }
             if (file.media?.episodeRange ? `${currentEpisodeRange.first}~${currentEpisodeRange.last}` !== episode : currentEpisode !== episode) {
