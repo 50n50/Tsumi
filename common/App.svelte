@@ -75,7 +75,7 @@
 </script>
 
 <UpdateModal bind:overlay={$overlay} />
-<div class='page-wrapper with-transitions bg-dark position-relative' data-sidebar-type='overlayed-all'>
+<div class='page-wrapper with-transitions bg-dark position-relative pl-safe-area' data-sidebar-type='overlayed-all'>
   <Status />
   <Menubar />
   <Sidebar bind:page={$page} bind:playPage={$playPage} />

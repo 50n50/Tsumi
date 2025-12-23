@@ -16,6 +16,9 @@ patchedDependencies:
   '@capacitor/local-notifications':
     hash: 92e9cb4b54ea8684b0027c29ec61d24c886b142730b548ae3199be718f58a638
     path: patches/@capacitor__local-notifications.patch
+  capacitor-plugin-safe-area:
+    hash: c6bdcf07cd874e0349bfe976a8154d5dbd3a84fc6058fb8699e9da3c19896175
+    path: patches/capacitor-plugin-safe-area.patch
   lucide-svelte@0.455.0:
     hash: 0609c957d625c84712d92a612c0fe92d6b06ae161e98c32f1b6b5694e5ff66ed
     path: patches/lucide-svelte@0.455.0.patch
@@ -114,7 +117,7 @@ importers:
         version: https://github.com/funniray/Capacitor-NodeJS/releases/download/nodejs-18/capacitor-nodejs-1.0.0-beta.6.tgz(@capacitor/core@6.2.1)
       capacitor-plugin-safe-area:
         specifier: ^3.0.4
-        version: 3.0.4(@capacitor/core@6.2.1)
+        version: 3.0.4(patch_hash=c6bdcf07cd874e0349bfe976a8154d5dbd3a84fc6058fb8699e9da3c19896175)(@capacitor/core@6.2.1)
       client:
         specifier: workspace:*
         version: link:../client
@@ -7845,7 +7848,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.1
 
-  capacitor-plugin-safe-area@3.0.4(@capacitor/core@6.2.1):
+  capacitor-plugin-safe-area@3.0.4(patch_hash=c6bdcf07cd874e0349bfe976a8154d5dbd3a84fc6058fb8699e9da3c19896175)(@capacitor/core@6.2.1):
     dependencies:
       '@capacitor/core': 6.2.1
 

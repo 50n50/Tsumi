@@ -309,12 +309,9 @@ SafeArea.addListener('safeAreaChanged', updateInsets)
 screen.orientation.addEventListener('change', updateInsets)
 
 async function updateInsets () {
-  const { insets } = await SafeArea.getSafeAreaInsets()
-  const { statusBarHeight } = await SafeArea.getStatusBarHeight()
+  const { insets } = await SafeArea.getDisplayCutoutInsets()
   for (const [key, value] of Object.entries(insets)) {
-    let adjustedValue = value
-    if (key === 'top') adjustedValue = value > statusBarHeight ? value - statusBarHeight : 0
-    document.documentElement.style.setProperty(`--safe-area-${key}`, `${adjustedValue}px`)
+    document.documentElement.style.setProperty(`--safe-area-${key}`, `${value}px`)
   }
 }
 updateInsets()
