@@ -1,7 +1,7 @@
 import { getRandomInt, DOMPARSER, base32toHex, isValidNumber } from '@/modules/util.js'
 import { settings } from '@/modules/settings.js'
 import { status } from '@/modules/networking.js'
-import { cache, caches, mediaCache } from '@/modules/cache.js'
+import { cache, caches } from '@/modules/cache.js'
 import { toast } from 'svelte-sonner'
 import { add } from '@/modules/torrent.js'
 import { getEpisodeMetadataForMedia, isSubbedProgress } from '@/modules/anime/anime.js'
@@ -183,7 +183,7 @@ class RSSMediaManager {
             fromId: true,
             original: item,
             ...idData,
-            media: mediaCache.value[idData.mediaId],
+            media: cache.getMedia(idData.mediaId),
             ...(!idData.parseObject && idData.files?.length ? { parseObject: idData.files[0].parseObject } : {}),
             ...(!idData.episodeRange && idData.files?.length === 1 ? { episodeRange: idData.files[0].episodeRange || idData.files[0].parseObject?.episodeRange } : {}),
             ...(!idData.episode && idData.files?.length === 1 ? { episode: idData.files[0].episode || idData.files[0].parseObject?.episode_number } : {}),

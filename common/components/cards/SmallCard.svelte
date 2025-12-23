@@ -91,7 +91,7 @@
   })
   onDestroy(() => {
     document.removeEventListener('pointerup', handleOutsideClick)
-    container.removeEventListener('focusout', handleBlur)
+    container?.removeEventListener?.('focusout', handleBlur)
     clearTimeouts()
     clearTimeout(airingInterval)
   })

@@ -3,7 +3,7 @@ import { writable } from 'simple-store-svelte'
 import { anilistClient } from '@/modules/anilist.js'
 import { malDubs } from '@/modules/anime/animedubs.js'
 import { settings } from '@/modules/settings.js'
-import { cache, caches, mediaCache } from '@/modules/cache.js'
+import { cache, caches } from '@/modules/cache.js'
 import { getEpisodeMetadataForMedia, isSubbedProgress } from '@/modules/anime/anime.js'
 import { hasNextPage } from '@/modules/sections.js'
 import { printError } from '@/modules/networking.js'
@@ -112,7 +112,7 @@ class AnimeSchedule {
         await anilistClient.searchAllIDS({id: delayedEpisodes.map(entry => entry?.media?.media.id)})
         for (const entry of delayedEpisodes) {
             const media = entry?.media?.media
-            const cachedMedia = mediaCache.value[media?.id]
+            const cachedMedia = await cache.requestMedia(media?.id)
             const notify = (cache.getEntry(caches.NOTIFICATIONS, `lastDub`) > 0) && ((!cachedMedia?.mediaListEntry && settings.value.releasesNotify?.includes('NOTONLIST')) || (cachedMedia?.mediaListEntry && settings.value.releasesNotify?.includes(cachedMedia?.mediaListEntry?.status)))
             if (notify && media.format !== 'MUSIC') {
                 window.dispatchEvent(new CustomEvent('notification-app', {
@@ -162,7 +162,7 @@ class AnimeSchedule {
             if (!newNotifications?.length) return
             await anilistClient.searchAllIDS({id: newNotifications.map(media => media.id)})
             for (const media of newNotifications) {
-                const cachedMedia = mediaCache.value[media?.id]
+                const cachedMedia = await cache.requestMedia(media?.id)
                 if (settings.value[key] !== 'none' && media?.id) {
                     const res = await Helper.getClient().userLists.value
                     const isFollowing = () => {
@@ -326,7 +326,7 @@ class AnimeSchedule {
         let res = (await this[`${type.toLowerCase()}AiredLists`].value) || []
         const section = settings.value.homeSections.find(s => s[0] === `${type}${type === `Hentai` ? `` : `bed`} Releases`)
         if (section && section[2].length > 0) res = res.filter(episode => section[2].includes(episode.format) && (section[2].includes('TV_SHORT') || !episode.duration || (episode.duration >= 12)))
-        const filteredRes = await Promise.all(res.map(async episode => !settings.value.preferDubs || (mediaCache.value[episode.id]?.status === 'FINISHED' && !['CURRENT', 'REPEATING']?.includes(mediaCache.value[episode.id]?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(episode)) || !mediaCache.value[episode.id] || (type === 'Dub' ? !(await isSubbedProgress(mediaCache.value[episode.id])) : (await isSubbedProgress(mediaCache.value[episode.id])))))
+        const filteredRes = await Promise.all(res.map(async episode => !settings.value.preferDubs || ((await cache.requestMedia(episode.id))?.status === 'FINISHED' && !['CURRENT', 'REPEATING']?.includes((await cache.requestMedia(episode.id))?.mediaListEntry?.status)) || !(await malDubs.isDubMedia(episode)) || !(await cache.requestMedia(episode.id))?.length || (type === 'Dub' ? !(await isSubbedProgress(await cache.requestMedia(episode.id))) : (await isSubbedProgress(await cache.requestMedia(episode.id))))))
         res = res.filter((_, index) => filteredRes[index])
         const cachedAiredLists = this[`${type.toLowerCase()}AiredListsCache`].value[`${page}-${perPage}`]
         const paginatedLists = res.slice((page - 1) * perPage, page * perPage) || []

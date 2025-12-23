@@ -1,5 +1,5 @@
 import { anilistClient } from '@/modules/anilist.js'
-import { mediaCache } from '@/modules/cache.js'
+import { cache } from '@/modules/cache.js'
 import { anitomyscript, hasZeroEpisode } from '@/modules/anime/anime.js'
 import { chunks, matchKeys } from '@/modules/util.js'
 //import levenshtein from 'js-levenshtein'
@@ -195,9 +195,9 @@ export default new class AnimeResolver {
    * @param {number} id
    */
   async getAnimeById (id) {
-    if (mediaCache.value[id]) return mediaCache.value[id]
+    const cachedMedia = cache.getMedia(id)
+    if (cachedMedia?.length) return cachedMedia
     const res = await anilistClient.searchIDSingle({ id })
-
     return res.data.Media
   }
 

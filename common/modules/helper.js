@@ -3,7 +3,7 @@ import { anilistClient } from '@/modules/anilist.js'
 import { malClient } from '@/modules/myanimelist.js'
 import { malDubs } from '@/modules/anime/animedubs.js'
 import { profiles } from '@/modules/settings.js'
-import { mediaCache, mapStatus } from '@/modules/cache.js'
+import { cache, mediaCache, mapStatus } from '@/modules/cache.js'
 import { getMediaMaxEp, hasZeroEpisode } from '@/modules/anime/anime.js'
 import { codes, matchKeys, isValidNumber } from '@/modules/util.js'
 import { toast } from 'svelte-sonner'
@@ -114,7 +114,8 @@ export default class Helper {
         window.dispatchEvent(new CustomEvent('notification-read', {
           detail: {
             id: media.id,
-            episode: res?.data?.SaveMediaListEntry?.progress
+            episode: res?.data?.SaveMediaListEntry?.progress,
+            episodes: media.episodes
           }
         }))
       }
@@ -147,7 +148,7 @@ export default class Helper {
     // check if values exist
     if (filemedia.media && this.isAuthorized()) {
       const { media, failed } = filemedia
-      const cachedMedia = mediaCache.value[media?.id] || media
+      const cachedMedia = await cache.requestMedia(media?.id)
       debug(`Checking entry for ${cachedMedia?.title?.userPreferred}`)
 
       debug(`Media viability: ${cachedMedia?.status}, is from failed resolve: ${failed}`)
@@ -208,7 +209,8 @@ export default class Helper {
           window.dispatchEvent(new CustomEvent('notification-read', {
             detail: {
               id: media.id,
-              episode: res?.data?.mediaListEntry?.progress || res?.data?.SaveMediaListEntry?.progress
+              episode: res?.data?.mediaListEntry?.progress || res?.data?.SaveMediaListEntry?.progress,
+              episodes: cachedMedia.episodes
             }
           }))
         }

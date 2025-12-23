@@ -9,7 +9,7 @@
 </script>
 <script>
     import { matchKeys, matchPhrase } from '@/modules/util.js'
-    import { mediaCache } from '@/modules/cache.js'
+    import { cache } from '@/modules/cache.js'
 
     export let overlay
 
@@ -31,7 +31,7 @@
     let searchText = ''
     function filterResults(files, searchText) {
         if (!searchText?.length) return files
-        return files.filter(({ name, media }) => matchPhrase(searchText, name, 0.4, false, true) || (media?.media?.id && matchKeys($mediaCache[media?.media?.id], searchText, ['title.userPreferred', 'title.english', 'title.romaji', 'title.native', 'synonyms'], 0.4))) || []
+        return files.filter(({ name, media }) => matchPhrase(searchText, name, 0.4, false, true) || (media?.media?.id && matchKeys(cache.getMedia(media?.media?.id), searchText, ['title.userPreferred', 'title.english', 'title.romaji', 'title.native', 'synonyms'], 0.4))) || []
     }
 
     let fileEdit

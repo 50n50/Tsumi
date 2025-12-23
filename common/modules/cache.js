@@ -340,6 +340,8 @@ class Cache {
   #pending = new Map()
   /** @type {import('svelte/store').Writable<string>} */
   status
+  /** @type {AnilistClient} */
+  anilistClient
 
   isReady
   subscribers = []
@@ -593,6 +595,34 @@ class Cache {
       }
       return current
     })
+  }
+
+  /**
+   * Returns media for the given ID, fetching it if missing.
+   *
+   * @param {number | string | null} id
+   * @returns {Promise<Object | null>}
+   */
+  async requestMedia(id) {
+    if (!id) return null
+    const media = mediaCache.value[id]
+    if (media) return media
+    if (!this.anilistClient) {
+      const { anilistClient } = await import('@/modules/anilist.js')
+      this.anilistClient = anilistClient
+    }
+    return this.anilistClient.requestMediaID(id)
+  }
+
+  /**
+   * Returns cached media for the given ID, no attempt is made to fetch the media if it's not found.
+   *
+   * @param {number | string | null} id
+   * @returns {Object | null}
+   */
+  getMedia(id) {
+    if (!id) return null
+    return mediaCache.value[id] ?? {}
   }
 
   /**
