@@ -104,7 +104,7 @@ class ExtensionManager {
       const sourcesNew = Object.keys(newSources)
       if ((!sourcesOld?.length && !sourcesNew?.length) || !(sourcesOld.length === sourcesNew.length && sourcesOld.every(key => sourcesNew.includes(key)))) {
         if (sourcesOld.length && !sourcesNew.length) { sources = structuredClone(newSources); return }
-        if (!sources && !sourcesNew.length) sources = {}
+        if (!sources && !sourcesNew.length) { this.whenReady.resolve(true); sources = {} }
         else if (sourcesNew.length) {
           sources = structuredClone(newSources)
           this.whenReady = createDeferred()
