@@ -396,7 +396,7 @@ class ExtensionManager {
     if (!extensionIds?.length) return false
     try {
       const latestManifests = await Promise.all([...new Set(Object.values(currentExtensions).map(ext => ext?.locale || ext?.update).filter(Boolean))].map(url => getManifest(url, true)))
-      const validManifests = latestManifests.filter(manifest => manifest !== null && Array.isArray(manifest))
+      const validManifests = latestManifests.filter(manifest => manifest != null && Array.isArray(manifest))
       if (validManifests.length === 0) {
         debug('No valid manifests retrieved during update check, skipping update')
         return false

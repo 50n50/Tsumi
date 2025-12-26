@@ -29,7 +29,7 @@
 <div role='button' tabindex='0' class='sidebar-link sidebar-link-with-icon pointer overflow-hidden flex-shrink-0 {css} {SUPPORTS.isAndroid ? `my-auto pl-12` : `my-sm-h-auto pl-14`}' title={text}
      on:mouseenter={() => { if (supportsHover) hovering = true }}
      on:mouseleave={() => { if (supportsHover) hovering = false }}
-     on:focus={(e) => { if (e.relatedTarget !== null) hovering = true }}
+     on:focus={(e) => { if (e.relatedTarget != null) hovering = true }}
      on:blur={() => { hovering = false }}
      on:pointerdown={() => { if (!supportsHover) hovering = false }}
      use:click={() => { handleOverlays(); _click() } }

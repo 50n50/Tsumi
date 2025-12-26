@@ -94,7 +94,7 @@ export default class Subtitles {
             if (!wantedTrack) wantedTrack = tracks.find(track => (track.name?.toLowerCase() ?? '').includes(settings.value.subtitleLanguage.toLowerCase()))
             if (wantedTrack) return this.selectCaptions(wantedTrack.number)
 
-            const englishTrack = tracks.find(({ language }) => language === null || language === 'eng')
+            const englishTrack = tracks.find(({ language }) => language == null || language === 'eng')
             if (englishTrack) return this.selectCaptions(englishTrack.number)
 
             this.selectCaptions(tracks[0].number)

@@ -269,7 +269,7 @@ function setup (env) {
       enumerable: true,
       configurable: false,
       get: () => {
-        if (enableOverride !== null) {
+        if (enableOverride != null) {
           return enableOverride
         }
         if (namespacesCache !== createDebug.namespaces) {

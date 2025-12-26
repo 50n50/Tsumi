@@ -129,7 +129,7 @@
   }
 
   function clampYCoordinate(y) {
-    if (distanceTopGrabbedVsPointer === null) return y
+    if (distanceTopGrabbedVsPointer == null) return y
     const bounds = getListBounds()
     if (!bounds) return y
     return Math.max(bounds.top, Math.min(bounds.bottom, y + distanceTopGrabbedVsPointer)) - distanceTopGrabbedVsPointer

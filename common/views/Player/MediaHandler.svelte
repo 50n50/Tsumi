@@ -469,7 +469,7 @@
       const result = arr.reduce((acc, el) => {
           const mapped = mapfn(el)
           acc.sums[mapped] = (acc.sums[mapped] || 0) + 1
-          acc.max = (acc.max !== undefined ? acc.sums[mapfn(acc.max)] : -1) > acc.sums[mapped] ? acc.max : el
+          acc.max = (acc.max != null ? acc.sums[mapfn(acc.max)] : -1) > acc.sums[mapped] ? acc.max : el
           return acc
       }, { sums: {} })
       const occurrences = Object.values(result.sums)

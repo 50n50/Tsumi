@@ -57,7 +57,7 @@
   }
   function setHoverState (state, tapped) {
     const focused = document.activeElement
-    if (container && focused?.offsetParent !== null && (container.contains(focused)) && (!previewCard || !previewCard.contains(focused))) ignoreFocus = true
+    if (container && focused?.offsetParent != null && (container.contains(focused)) && (!previewCard || !previewCard.contains(focused))) ignoreFocus = true
     const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
     if (!$prompt && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
     if (!$prompt || !$clicked) {
@@ -88,7 +88,7 @@
     clearTimeouts()
     blurTimeout = setTimeout(() => {
       const focused = document.activeElement
-      const lostFocus = container && focused?.offsetParent !== null && !container.contains(focused)
+      const lostFocus = container && focused?.offsetParent != null && !container.contains(focused)
       const lostPreviewFocus = previewCard && !previewCard.contains(focused)
       if (lostFocus && lostPreviewFocus) {
         preview = false
@@ -189,7 +189,7 @@
           {:else if data.episode}
             {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
             {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-              {@const kitsuMappings = episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
+              {@const kitsuMappings = episode != null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
               {kitsuMappings?.titles?.en_us || kitsuMappings?.titles?.en_jp || ''}
             {/await}
           {/if}
@@ -199,7 +199,7 @@
         <div class='text-white font-weight-bold'>
           {#if data.episodeRange || data.parseObject?.episodeRange}
             {`Episodes ${(data.episodeRange || data.parseObject.episodeRange).first} ~ ${(data.episodeRange || data.parseObject.episodeRange).last}`}
-          {:else if data.episode !== null}
+          {:else if data.episode != null}
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if (!Array.isArray(data.episode))}

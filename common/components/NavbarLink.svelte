@@ -24,7 +24,7 @@
 <div role='button' tabindex='0' class='navbar-link navbar-link-with-icon pointer overflow-hidden mx-auto flex-shrink-0 {css}' title={text}
      on:mouseenter={() => { if (supportsHover) hovering = true }}
      on:mouseleave={() => { if (supportsHover) hovering = false }}
-     on:focus={(e) => { if (e.relatedTarget !== null) hovering = true }}
+     on:focus={(e) => { if (e.relatedTarget != null) hovering = true }}
      on:blur={() => { hovering = false }}
      on:pointerdown={() => { if (!supportsHover) hovering = false }}
      use:click={() => { handleOverlays(); _click() } }

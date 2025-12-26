@@ -38,7 +38,7 @@ Keyboard.addListener('keyboardWillShow', info => {
 
 let hideTimeout = null
 Keyboard.addListener('keyboardWillHide', () => {
-  if (lastScrollY !== null && scrollContainer) {
+  if (lastScrollY != null && scrollContainer) {
     const scrollableContainer = getClosestScrollable(scrollContainer)
     if (scrollableContainer) scrollableContainer.scrollTo({ top: lastScrollY, behavior: 'smooth' })
     const _scrollContainer = scrollContainer

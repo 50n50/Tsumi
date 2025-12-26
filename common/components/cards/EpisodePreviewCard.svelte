@@ -98,10 +98,10 @@
           <div class='text-muted font-size-12 title overflow-hidden' title={data.episodeData?.title?.en || data.episodeData?.title?.['x-jat'] || data.episodeData?.title?.ja || data.episodeData?.title?.jp}>
             {data.episodeData?.title?.en || data.episodeData?.title?.['x-jat'] || data.episodeData?.title?.ja || data.episodeData?.title?.jp}
           </div>
-        {:else if data.episode !== null}
+        {:else if data.episode != null}
           {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
           {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-            {@const kitsuMappings = episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === Number(episode) || episode)?.attributes}
+            {@const kitsuMappings = episode != null && mappings?.data?.find(ep => ep?.attributes?.number === Number(episode) || episode)?.attributes}
             {@const ep_title =  kitsuMappings?.titles?.en_us || kitsuMappings?.titles?.en_jp || ''}
             <div class='text-muted font-size-12 title overflow-hidden' title={ep_title}>
               {ep_title}
@@ -113,7 +113,7 @@
         <div class='text-white font-weight-bold font-weight-very-bold'>
           {#if data.episodeRange || data.parseObject?.episodeRange}
             {`Episodes ${(data.episodeRange || data.parseObject.episodeRange).first} ~ ${(data.episodeRange || data.parseObject.episodeRange).last}`}
-          {:else if data.episode !== null}
+          {:else if data.episode != null}
             {#if episodeRange}
               Episodes {episodeRange.first} ~ {episodeRange.last}
             {:else if !Array.isArray(data.episode)}
@@ -156,10 +156,10 @@
     <div class='w-full text-muted description overflow-hidden pt-15'>
       {#if data.episodeData?.summary || data.episodeData?.overview}
         {(data.episodeData?.summary || data.episodeData?.overview).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()}
-      {:else if data.episode !== null}
+      {:else if data.episode != null}
         {@const episode = (data.episodeRange || data.parseObject?.episodeRange)?.first || episodeRange?.first || data.episode}
         {#await episodesList.getKitsuEpisodes(media?.id) then mappings}
-          {@const kitsuMappings = data.episode !== null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
+          {@const kitsuMappings = data.episode != null && mappings?.data?.find(ep => ep?.attributes?.number === isValidNumber(episode) ? Number(episode) : episode)?.attributes}
           {(kitsuMappings?.synopsis || kitsuMappings?.description || media?.description || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()}
         {/await}
       {:else}

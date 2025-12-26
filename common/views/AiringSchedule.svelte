@@ -23,7 +23,7 @@
     let ids = airingLists.map(entry => {
         const media = variables.hideSubs ? entry.media?.media : entry
         return media?.id ? { id: media.id, idMal: media.idMal ?? null } : null
-    }).filter(item => item !== null)
+    }).filter(item => item != null)
     // Hide My Anime / Show My Anime
     if ((variables.hideMyAnime || variables.showMyAnime) && Helper.isAuthorized()) {
       const userIds = await Helper.userLists(variables).then(res => {

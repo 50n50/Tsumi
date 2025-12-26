@@ -556,7 +556,7 @@
     seek(-settings.value.playerSeek)
   }
   function selectAudio (id) {
-    if (id !== undefined) {
+    if (id != null) {
       for (const track of video.audioTracks) {
         track.enabled = track.id === id
       }
@@ -564,7 +564,7 @@
     }
   }
   function selectVideo (id) {
-    if (id !== undefined) {
+    if (id != null) {
       for (const track of video.videoTracks) {
         track.selected = track.id === id
       }

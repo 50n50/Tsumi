@@ -238,7 +238,7 @@
                       <span class='badge text-dark bg-undenary mr-5'>Movie</span>
                     {:else if !isValidNumber(notification.season)}
                       {#if delayed}<span class='badge text-dark bg-denary mr-5'>Delayed</span>{/if}
-                      <span class='badge text-dark bg-undenary mr-5'>{notification.episode !== null ? `Episode ${Array.isArray(notification.episode) ? `${Number(notification.episode[0])} ~ ${Number(notification.episode[1])}` : Number(notification.episode)}` : `Batch`} </span>
+                      <span class='badge text-dark bg-undenary mr-5'>{notification.episode != null ? `Episode ${Array.isArray(notification.episode) ? `${Number(notification.episode[0])} ~ ${Number(notification.episode[1])}` : Number(notification.episode)}` : `Batch`} </span>
                     {:else if isValidNumber(notification.season)}
                       <span class='badge text-dark bg-undenary mr-5'>Season {notification.season}</span>
                     {/if}

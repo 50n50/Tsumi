@@ -262,7 +262,7 @@ class MALClient {
       token: variables.token,
       refresh_in: variables.refresh_in
     }
-    const padNumber = (num) => num !== undefined && num !== null ? String(num).padStart(2, '0') : null
+    const padNumber = (num) => num != null ? String(num).padStart(2, '0') : null
     const start_date = variables.startedAt?.year && variables.startedAt.month && variables.startedAt.day ? `${variables.startedAt.year}-${padNumber(variables.startedAt.month)}-${padNumber(variables.startedAt.day)}` : null
     const finish_date = variables.completedAt?.year && variables.completedAt.month && variables.completedAt.day ? `${variables.completedAt.year}-${padNumber(variables.completedAt.month)}-${padNumber(variables.completedAt.day)}` : null
     const updateData = {
