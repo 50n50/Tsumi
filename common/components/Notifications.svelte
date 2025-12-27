@@ -42,6 +42,7 @@
   }
   $: $notifyView && setOverlay()
   $: !$notifyView && close()
+  $: if ($notifyView) markWatchedAsRead()
   $: {
     if (!$notifyView) updateSort()
     else currentNotifications = filterResults($notifications, searchText).slice(0, notificationCount)
@@ -139,6 +140,27 @@
     })
   }
 
+  async function markWatchedAsRead() {
+    const updates = []
+    for (const { notification, media } of await Promise.all($notifications.filter(notification => !notification.read).map(notification => cache.requestMedia(notification.id).then(media => ({ notification, media }))))) {
+      const delayed = notification.delayed
+      const announcement = notification.click_action === 'VIEW' && !delayed
+      const notWatching = !announcement && !delayed && ((!media?.mediaListEntry?.progress) || (media?.mediaListEntry?.progress === 0 && (media?.mediaListEntry?.status !== 'CURRENT' || media?.mediaListEntry?.status !== 'REPEATING' && media?.mediaListEntry?.status !== 'COMPLETED')))
+      const behind = Helper.isAuthorized() && !announcement && !delayed && isValidNumber(notification.episode) && (notification.episode - 1) >= 1 && (media?.mediaListEntry?.status !== 'COMPLETED' && ((media?.mediaListEntry?.progress || -1) < ((!isValidNumber(notification.season) ? notification.episode : media?.episodes) - 1)))
+      const watched = !announcement && !delayed && !notWatching && !behind && isValidNumber(notification.episode) && (media?.mediaListEntry?.status === 'COMPLETED' || (media?.mediaListEntry?.progress >= (!isValidNumber(notification.season) ? notification.episode : media?.episodes)))
+      if (watched) updates.push(notification.id + '-' + notification.episode)
+    }
+    if (updates.length > 0) {
+      notifications.update((n) => {
+        return n.map((existing) => {
+          if (updates.includes(existing.id + '-' + existing.episode)) existing.read = true
+          return existing
+        })
+      })
+      updateSort()
+    }
+  }
+
   function onclick(notification, view) {
     close()
     if (view) {
@@ -148,7 +170,6 @@
 
   function updateSort() {
     notifications.update(notifications => sort([...notifications]))
-    return true
   }
 
   let container
@@ -161,12 +182,22 @@
   let notificationCountDefault = 25
   let notificationCount = notificationCountDefault
   let currentNotifications = []
+  let scrollLocked = false
   function handleScroll(event) {
+    if (scrollLocked) return
     const container = event.target
     if (currentNotifications.length !== $notifications.length && container.scrollTop + container.clientHeight + 10 >= container.scrollHeight) {
       const nextBatch = filterResults($notifications, searchText).slice(currentNotifications.length, currentNotifications.length + notificationCount)
       currentNotifications = [...new Set([...currentNotifications, ...nextBatch])]
     }
+  }
+  function preventScroll(position, cb) {
+    scrollLocked = true
+    cb()
+    requestAnimationFrame(() => {
+      if (container && $notifyView) container.scrollTop = position
+      scrollLocked = false
+    })
   }
   IPC.emit('notification-unread', hasUnreadNotifications.value)
 </script>
@@ -200,8 +231,14 @@
             {@const behind = Helper.isAuthorized() && !announcement && !delayed && isValidNumber(notification.episode) && (notification.episode - 1) >= 1 && (media?.mediaListEntry?.status !== 'COMPLETED' && ((media?.mediaListEntry?.progress || -1) < ((!isValidNumber(notification.season) ? notification.episode : media?.episodes) - 1)))}
             {@const watched = !announcement && !delayed && !notWatching && !behind && isValidNumber(notification.episode) && (media?.mediaListEntry?.status === 'COMPLETED' || (media?.mediaListEntry?.progress >= (!isValidNumber(notification.season) ? notification.episode : media?.episodes)))}
             {@const resolvedHash = getHash(notification.id, { episode: notification.episode, client: true }, false, true)}
-            {#if watched && !notification.read}{(notification.read = true) && updateSort() && ''}{/if}
-            <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' use:blurExit={ () => { if (notification.prompt) setTimeout(() => { notification.prompt = false; delete notification.prompt }) }} use:hoverExit={() => { if (notification.prompt) setTimeout(() => { notification.prompt = false; delete notification.prompt }) }} use:click={() => { if (!behind || notification.prompt) { notification.prompt = false; delete notification.prompt; notification.read = true; onclick(notification) } else { notification.prompt = true } } } on:contextmenu|preventDefault={() => { notification.read = true; onclick(notification, true); }} class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching} class:not-watching={notWatching} class:watched={watched} class:announcement={announcement}>
+            <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching} class:not-watching={notWatching} class:watched={watched} class:announcement={announcement}
+                 use:blurExit={ () => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
+                 use:hoverExit={() => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
+                 use:click={() => {
+                   if (!behind || notification.prompt) preventScroll(container.scrollTop, () => { notification.read = true; delete notification.prompt; onclick(notification) })
+                   else preventScroll(container.scrollTop, () => notification.prompt = true)
+                 }}
+                 on:contextmenu|preventDefault={() => { notification.read = true; onclick(notification, true) }}>
               {#if notification.heroImg}
                 <div class='position-absolute top-0 left-0 w-full h-full'>
                   <img src={notification.heroImg} alt='bannerImage' class='hero-img img-cover w-full h-full' />
@@ -219,7 +256,7 @@
                     {#if notification.hash || resolvedHash}
                       <TorrentButton class='btn btn-square mr-5 z-1' hash={[...(notification.hash && notification.hash !== resolvedHash ? [notification.hash] : []), ...(resolvedHash ? [resolvedHash] : [])]} torrentID={notification.magnet} search={{ media: { id: notification.id }, episode: notification.episode }}/>
                     {/if}
-                    <button type='button' class='read-button btn btn-square d-flex align-items-center justify-content-center z-1' class:not-allowed={watched} class:not-reactive={watched} use:click={() => { if (!watched) notification.prompt = false; delete notification.prompt; notification.read = !notification.read } }>
+                    <button type='button' class='read-button btn btn-square d-flex align-items-center justify-content-center z-1' class:not-allowed={watched} class:not-reactive={watched} use:click={() => { preventScroll(container.scrollTop, () => { notification.read = !notification.read; delete notification.prompt }) }}>
                       {#if notification.read}
                         <MailOpen size='1.7rem' strokeWidth='3'/>
                       {:else}
@@ -238,7 +275,7 @@
                       <span class='badge text-dark bg-undenary mr-5'>Movie</span>
                     {:else if !isValidNumber(notification.season)}
                       {#if delayed}<span class='badge text-dark bg-denary mr-5'>Delayed</span>{/if}
-                      <span class='badge text-dark bg-undenary mr-5'>{notification.episode != null ? `Episode ${Array.isArray(notification.episode) ? `${Number(notification.episode[0])} ~ ${Number(notification.episode[1])}` : Number(notification.episode)}` : `Batch`} </span>
+                      <span class='badge text-dark bg-undenary mr-5'>{notification.episode != null && (Array.isArray(notification.episode) || isValidNumber(notification.episode)) ? `Episode ${Array.isArray(notification.episode) ? `${Number(notification.episode[0])} ~ ${Number(notification.episode[1])}` : Number(notification.episode)}` : `Batch`} </span>
                     {:else if isValidNumber(notification.season)}
                       <span class='badge text-dark bg-undenary mr-5'>Season {notification.season}</span>
                     {/if}
@@ -259,7 +296,7 @@
                     Your Current Progress Is At <b>Episode {media?.mediaListEntry?.progress}</b>
                   {/if}
                 </p>
-                <button type='button' class='continue-button btn btn-lg btn-secondary w-230 h-33 text-dark font-scale-16 font-weight-bold shadow-none border-0 d-flex align-items-center mt-10 mb-auto' use:click={() => { notification.prompt = false; delete notification.prompt; notification.read = true; onclick(notification) } }>
+                <button type='button' class='continue-button btn btn-lg btn-secondary w-230 h-33 text-dark font-scale-16 font-weight-bold shadow-none border-0 d-flex align-items-center mt-10 mb-auto' use:click={() => { delete notification.prompt; notification.read = true; onclick(notification) } }>
                   <Play class='mr-10' fill='currentColor' size='1.4rem' />
                   Continue Anyway?
                 </button>
@@ -270,7 +307,7 @@
     </div>
     <div class='d-flex flex-column justify-content-between align-items-center'>
       {#if $notifications?.length}
-        <button type='button' class='read-button btn text-light font-weight-bold shadow-none border-0 d-flex align-items-center mt-20' disabled={searchText?.length} on:click={() => markAll($hasUnreadNotifications && $hasUnreadNotifications > 0)}>
+        <button type='button' class='read-button btn text-light font-weight-bold shadow-none border-0 d-flex align-items-center mt-20' disabled={!!searchText?.length} on:click={() => { container.scrollTo({top: 0}); markAll($hasUnreadNotifications && $hasUnreadNotifications > 0) }}>
           {#if $hasUnreadNotifications && $hasUnreadNotifications > 0}
             <MailCheck strokeWidth='3' class='mr-10' size='1.7rem' />
             Mark All As Read
