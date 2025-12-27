@@ -78,7 +78,7 @@
 
   let unsubscribeDebug
   unsubscribeDebug = debugStore.subscribe(value => {
-    if (value && debugPrev === '') setTimeout(() => debug('Current Settings: ', JSON.stringify(settings.value)));
+    if (value && debugPrev === '') setTimeout(() => debug('Current Settings: ', JSON.stringify(settings)))
     debugPrev = value
   })
 
