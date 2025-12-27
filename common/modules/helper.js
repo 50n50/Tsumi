@@ -316,7 +316,7 @@ export default class Helper {
             // api does not provide airing episode or tags, additionally genres are inaccurate and tags do not exist.
             return true
           }
-        }).map(({ node }) => node.id)
+        }).map(({ node }) => node.id).filter(Boolean)
       if (!ids.length) return {}
       if (this.isUserSort(variables)) {
         debug(`Handling page media list with user specific sorting ${variables.sort}`)

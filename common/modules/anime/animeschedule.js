@@ -109,7 +109,7 @@ class AnimeSchedule {
         const delayedEpisodes = (await this.dubAiringLists.value)?.filter(entry => new Date(entry.delayedFrom) <= new Date() && new Date(entry.delayedUntil) > new Date()).flatMap(entry => Array.from({ length: entry.episodeNumber - (entry.subtractedEpisodeNumber || entry.episodeNumber) + 1 }, (_, i) => (entry.subtractedEpisodeNumber || entry.episodeNumber) + i)?.filter(episode => !cache.getEntry(caches.NOTIFICATIONS, 'delayedDubs').includes(`${entry?.media?.media?.id}:${episode}:${entry.delayedUntil}`))?.map(episode => ({ ...entry, episodeNumber: episode, subtractedEpisodeNumber: undefined })))
         debug(`Found ${delayedEpisodes?.length} new delayed episodes${delayedEpisodes?.length ? '.. notifying!' : ''}`)
         if (!delayedEpisodes?.length) return
-        await anilistClient.searchAllIDS({id: delayedEpisodes.map(entry => entry?.media?.media.id)})
+        await anilistClient.searchAllIDS({ id: delayedEpisodes.map(entry => entry?.media?.media.id).filter(Boolean) })
         for (const entry of delayedEpisodes) {
             const media = entry?.media?.media
             const cachedMedia = await cache.requestMedia(media?.id)
@@ -160,7 +160,7 @@ class AnimeSchedule {
             const newNotifications = (await this[airingListKey].value)?.filter(entry => (entry?.unaired && ((type !== 'Hentai' && !(entry?.media?.media?.genres || entry?.genres)?.includes('Hentai')) || (type === 'Hentai' && (entry?.media?.media?.genres || entry?.genres)?.includes('Hentai'))) && !cache.getEntry(caches.NOTIFICATIONS, notifyKey).includes(entry?.media?.media?.id || entry?.id))).map(entry => entry?.media?.media || entry)
             debug(`Found ${newNotifications?.length} new ${type} notifications`)
             if (!newNotifications?.length) return
-            await anilistClient.searchAllIDS({id: newNotifications.map(media => media.id)})
+            await anilistClient.searchAllIDS({ id: newNotifications.map(media => media.id).filter(Boolean) })
             for (const media of newNotifications) {
                 const cachedMedia = await cache.requestMedia(media?.id)
                 if (settings.value[key] !== 'none' && media?.id) {
@@ -330,7 +330,7 @@ class AnimeSchedule {
         res = res.filter((_, index) => filteredRes[index])
         const cachedAiredLists = this[`${type.toLowerCase()}AiredListsCache`].value[`${page}-${perPage}`]
         const paginatedLists = res.slice((page - 1) * perPage, page * perPage) || []
-        const ids = paginatedLists.map(({ id }) => id)
+        const ids = paginatedLists.map(({ id }) => id).filter(Boolean)
 
         hasNextPage.value = ids?.length === perPage
         if (!ids.length) return {}
@@ -338,7 +338,7 @@ class AnimeSchedule {
         if (cachedAiredLists && JSON.stringify(cachedAiredLists.airedLists) === JSON.stringify(res)) return cachedAiredLists.results
         debug(`Episode Feed (${type}) has changed, updating`)
 
-        const missedIDS = res.filter(media => cache.getEntry(caches.NOTIFICATIONS, `last${type}`) > 0 && ((Math.floor(new Date(media.episode.airedAt).getTime() / 1000) >= cache.getEntry(caches.NOTIFICATIONS, `last${type}`)) || (Math.floor(new Date(media.episode.addedAt).getTime() / 1000) >= cache.getEntry(caches.NOTIFICATIONS, `last${type}`)))).filter(media => !ids.includes(media.id)).sort((a, b) => new Date(b.episode.addedAt) - new Date(a.episode.addedAt)).slice(0, 300).map(media => media.id)
+        const missedIDS = res.filter(media => cache.getEntry(caches.NOTIFICATIONS, `last${type}`) > 0 && ((Math.floor(new Date(media.episode.airedAt).getTime() / 1000) >= cache.getEntry(caches.NOTIFICATIONS, `last${type}`)) || (Math.floor(new Date(media.episode.addedAt).getTime() / 1000) >= cache.getEntry(caches.NOTIFICATIONS, `last${type}`)))).filter(media => !ids.includes(media.id)).sort((a, b) => new Date(b.episode.addedAt) - new Date(a.episode.addedAt)).slice(0, 300).map(media => media.id).filter(Boolean)
         const medias = await anilistClient.searchAllIDS({ id: Array.from(new Set([...ids, ...missedIDS])) })
         if (!medias?.data && medias?.errors) throw medias.errors[0]
 

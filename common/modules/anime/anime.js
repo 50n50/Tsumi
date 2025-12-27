@@ -67,7 +67,7 @@ export async function traceAnime (image) { // WAIT lookup logic
   const { result } = await res.json()
 
   if (result?.length) {
-    const ids = result.map(({ anilist }) => anilist)
+    const ids = result.map(({ anilist }) => anilist).filter(Boolean)
     search.value = {
       clearNow: true,
       clearNext: true,
