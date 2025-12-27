@@ -117,20 +117,6 @@ settings.subscribe((value) => debounceUpdate(value))
 function createSections () {
   const sectionFormat = (title) => (settings.value.homeSections.find(([t]) => t === title)?.[2] || [])
   const createSection = (section, variables = {}, staticSort) => ({ ...section, ...(section.sort && staticSort ? { sort: 'N/A' } : {}), variables: { ...variables, sort: settings.value.homeSections.find(([t]) => !staticSort && t === section.title)?.[1] ?? section.sort, ...(Array.isArray(sectionFormat(section.title)) && sectionFormat(section.title).length > 0 ? { format : sectionFormat(section.title) } : {}) } })
-
-  const rssmap = {
-    SubsPlease: 'aHR0cHM6Ly9mZWVkLmFuaW1ldG9zaG8ub3JnL3JzczI/cXg9MSZxPSJbU3Vic1BsZWFzZV0gIg==',
-    'Erai-raws [Multi-Sub]': 'aHR0cHM6Ly9mZWVkLmFuaW1ldG9zaG8ub3JnL3JzczI/cXg9MSZxPSJbRXJhaS1yYXdzXSAi',
-    'Yameii [Dubbed]': 'aHR0cHM6Ly9mZWVkLmFuaW1ldG9zaG8ub3JnL3JzczI/cXg9MSZxPSJbWWFtZWlpXSAi',
-    'Judas [Small Size]': 'aHR0cHM6Ly9mZWVkLmFuaW1ldG9zaG8ub3JnL3JzczI/cXg9MSZxPSJbSnVkYXNdICI='
-  }
-
-  settings.value.rssFeedsNew = settings.value.rssFeedsNew.map(([title, url]) => {
-    const rssUrl = rssmap[url]
-    if (rssUrl) return [title, `${atob(rssUrl)}${settings.value.rssQuality ? `${settings.value.rssQuality}p|${settings.value.rssQuality}` : ''}`]
-    return [title, url]
-  })
-  
   return [
     // RSS feeds
     ...settings.value.rssFeedsNew.filter(([title, url]) => url).map(([title, url]) => {

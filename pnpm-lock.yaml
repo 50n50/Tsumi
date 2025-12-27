@@ -65,8 +65,8 @@ importers:
         version: 5.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.104.1)
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20251220.0
-        version: 4.20251220.0
+        specifier: ^4.20251225.0
+        version: 4.20251225.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -174,8 +174,8 @@ importers:
         specifier: ^11.2.2
         version: 11.2.2
       matroska-metadata:
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^1.0.8
+        version: 1.0.8
       parse-torrent:
         specifier: ^11.0.19
         version: 11.0.19
@@ -216,8 +216,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       jassub:
-        specifier: ^1.8.6
-        version: 1.8.6
+        specifier: ^1.8.8
+        version: 1.8.8
       js-levenshtein:
         specifier: ^1.1.6
         version: 1.1.6
@@ -396,8 +396,8 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
-  '@cloudflare/workers-types@4.20251220.0':
-    resolution: {integrity: sha512-TiWnrGblN9IOa0Hg8+D0EOkYTjMVcz3E+NhZnXCHLWh+JGNjx4Dp4mgBEVj1Cyu4rg9mzfEpKE0WG4gDawH55A==}
+  '@cloudflare/workers-types@4.20251225.0':
+    resolution: {integrity: sha512-ZZl0cNLFcsBRFKtMftKWOsfAybUYSeiTMzpQV1NlTVlByHAs1rGQt45Jw/qz8LrfHoq9PGTieSj9W350Gi4Pvg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -3426,8 +3426,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  jassub@1.8.6:
-    resolution: {integrity: sha512-56ZTtjM7LfdKsi7boUN/seNOQSOclLuDWEXxnHO55xNakj95SlBrv36hLyNDw0NmoOtLVeqzbpBU1VxT+ubFpg==}
+  jassub@1.8.8:
+    resolution: {integrity: sha512-Vtw27Z0/hN2Tm2Qs4HAR+eONwwSD5ULo/hisPvmiaW9Ya6aFCt7esvWQSZy6nvBASbRyKmpghgeioIPqXGHA0Q==}
 
   jest-worker@27.5.1:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
@@ -3692,8 +3692,8 @@ packages:
     resolution: {integrity: sha512-OkeDaAZ/bQCxeFAozM55PKcKU0yJMPGifLwV4Qgjitu+5MoAfSQN4lsLJeXZ1b8w0x+/Emda6MZgXS1jvsapng==}
     engines: {node: '>=10'}
 
-  matroska-metadata@1.0.7:
-    resolution: {integrity: sha512-wu2AUyUwOnRuWoQ2y9ytRPTiZeVyoANsbEnAwCmgzH0mmpp2dgfztpzVCqP7/5EUuHchbkIghSuAB1KijLhLZw==}
+  matroska-metadata@1.0.8:
+    resolution: {integrity: sha512-ua3vM2UTRhBC7lxP9gw7VRm4aq25DmXIPnESLSpXr/xWrhKB2yZh5XDaFuggI9Nu1z9iCijNJX0FpCTCEUdAcg==}
 
   mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
@@ -5995,7 +5995,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.1
 
-  '@cloudflare/workers-types@4.20251220.0': {}
+  '@cloudflare/workers-types@4.20251225.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -9820,7 +9820,7 @@ snapshots:
       filelist: 1.0.4
       minimatch: 3.1.2
 
-  jassub@1.8.6:
+  jassub@1.8.8:
     dependencies:
       rvfc-polyfill: 1.0.7
 
@@ -10111,7 +10111,7 @@ snapshots:
       escape-string-regexp: 4.0.0
     optional: true
 
-  matroska-metadata@1.0.7:
+  matroska-metadata@1.0.8:
     dependencies:
       ebml-iterator: 1.0.5
       fast-readable-async-iterator: 1.1.2
