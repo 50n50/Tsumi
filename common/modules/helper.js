@@ -53,14 +53,18 @@ export default class Helper {
 
   static getFuzzyDate(media, status) {
     const updatedDate = new Date()
-    const fuzzyDate = {
-      year: updatedDate.getFullYear(),
-      month: updatedDate.getMonth() + 1,
-      day: updatedDate.getDate()
+    const fuzzyDate = { year: updatedDate.getFullYear(), month: updatedDate.getMonth() + 1, day: updatedDate.getDate() }
+    let startedAt = media.mediaListEntry?.startedAt?.year && media.mediaListEntry?.startedAt?.month && media.mediaListEntry?.startedAt?.day ? media.mediaListEntry.startedAt : (['CURRENT', 'REPEATING'].includes(status) ? fuzzyDate : undefined)
+    let completedAt = media.mediaListEntry?.completedAt?.year && media.mediaListEntry?.completedAt?.month && media.mediaListEntry?.completedAt?.day ? media.mediaListEntry.completedAt : (status === 'COMPLETED' ? fuzzyDate : undefined)
+    if (startedAt && completedAt) {
+      if (`${startedAt.year}-${String(startedAt.month).padStart(2, '0')}-${String(startedAt.day).padStart(2, '0')}` > `${completedAt.year}-${String(completedAt.month).padStart(2, '0')}-${String(completedAt.day).padStart(2, '0')}`) {
+        const yesterday = new Date(updatedDate)
+        yesterday.setDate(updatedDate.getDate() - 1)
+        completedAt = fuzzyDate
+        startedAt = { year: yesterday.getFullYear(), month: yesterday.getMonth() + 1, day: yesterday.getDate() }
+      }
     }
-    const startedAt =  media.mediaListEntry?.startedAt?.year && media.mediaListEntry?.startedAt?.month && media.mediaListEntry?.startedAt?.day ? media.mediaListEntry.startedAt : (['CURRENT', 'REPEATING'].includes(status) ? fuzzyDate : undefined)
-    const completedAt = media.mediaListEntry?.completedAt?.year && media.mediaListEntry?.completedAt?.month && media.mediaListEntry?.completedAt?.day ? media.mediaListEntry.completedAt : (status === 'COMPLETED' ? fuzzyDate : undefined)
-    return {startedAt, completedAt}
+    return { startedAt, completedAt }
   }
 
   static sanitiseObject (object = {}) {
