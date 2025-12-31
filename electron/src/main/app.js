@@ -398,15 +398,22 @@ export default class App {
   createTray() {
     if (this.destroyed) return
     this.tray.setToolTip('Shiru')
+    this.setTrayMenu()
+    this.tray.on('click', () => this.showAndFocus())
+  }
+  setTrayMenu() {
+    if (this.destroyed || !this.tray || this.tray.isDestroyed()) return
     this.tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Shiru', enabled: false },
-      { type: 'separator' },
-      { label: 'Show', click: () => this.showAndFocus() },
-      { label: 'Restore', click: () => this.restoreWindow() },
+      ...(this.ready ? [
+          { type: 'separator' },
+          { label: 'Show', click: () => this.showAndFocus() },
+          { label: 'Restore', click: () => this.restoreWindow() }
+        ]
+        : []),
       { type: 'separator' },
       { label: 'Quit', click: () => this.destroy() }
     ]))
-    this.tray.on('click', () => this.showAndFocus())
   }
 
   restoreWindow() {
@@ -425,7 +432,10 @@ export default class App {
 
   showAndFocus(ready = false) {
     if (!this.ready && !ready) return
-    if (!this.ready) this.ready = true
+    if (!this.ready) {
+      this.ready = true
+      this.setTrayMenu()
+    }
     if (ready) {
       if (this.windowState.bounds.x && this.windowState.bounds.y) this.mainWindow.setBounds(this.windowState.bounds)
       if (this.windowState.isMaximized) this.mainWindow.maximize()
