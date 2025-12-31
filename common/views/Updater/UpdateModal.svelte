@@ -77,7 +77,7 @@
   function close(ignored = false) {
     if (androidUpdating) return
     if (ignored) $updateState = 'ignored'
-    if (overlay.includes('updateRequest')) overlay = overlay.filter(item => item !== 'updateRequest')
+    setTimeout(() => { if (overlay.includes('updateRequest')) overlay = overlay.filter(item => item !== 'updateRequest') })
   }
   function confirm() {
     if (androidUpdating) return

@@ -16,7 +16,7 @@
   let trailer = writable(false)
 
   function close () {
-    if (overlay.includes('trailer')) overlay = overlay.filter(item => item !== 'trailer')
+    setTimeout(() => { if (overlay.includes('trailer')) overlay = overlay.filter(item => item !== 'trailer') })
     trailer.set(false)
   }
 

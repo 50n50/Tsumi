@@ -27,9 +27,7 @@
   const view = getContext('view')
   function close () {
     $view = null
-    setTimeout(() => {
-      if (overlay.includes('viewanime') && !$view) overlay = overlay.filter(item => item !== 'viewanime')
-    })
+    setTimeout(() => { if (overlay.includes('viewanime') && !$view) overlay = overlay.filter(item => item !== 'viewanime') })
   }
 
   let modal

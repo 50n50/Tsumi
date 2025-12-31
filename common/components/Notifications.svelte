@@ -37,7 +37,7 @@
   export let overlay
   function close () {
     $notifyView = false
-    if (overlay.includes('notifications')) overlay = overlay.filter(item => item !== 'notifications')
+    setTimeout(() => { if (overlay.includes('notifications')) overlay = overlay.filter(item => item !== 'notifications') })
     updateSort()
   }
   $: $notifyView && setOverlay()

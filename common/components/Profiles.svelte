@@ -70,7 +70,7 @@
   function close () {
     $profileView = false
     $profileAdd = false
-    if (overlay.includes('profiles')) overlay = overlay.filter(item => item !== 'profiles')
+    setTimeout(() => { if (overlay.includes('profiles')) overlay = overlay.filter(item => item !== 'profiles') })
   }
 
   $: if ($profileView && !overlay.includes('profiles')) overlay = [...overlay, 'profiles']

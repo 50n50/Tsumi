@@ -15,7 +15,7 @@
   function close () {
     $actionPrompt = false
     rememberChoice = false
-    if (overlay.includes('minimizetray')) overlay = overlay.filter(item => item !== 'minimizetray')
+    setTimeout(() => { if (overlay.includes('minimizetray')) overlay = overlay.filter(item => item !== 'minimizetray') })
   }
   function checkClose ({ keyCode }) {
     if (keyCode === 27) close()

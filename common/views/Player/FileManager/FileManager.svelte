@@ -15,7 +15,7 @@
 
     function close () {
         $managerView = false
-        if (overlay.includes('fileDetails')) overlay = overlay.filter(item => item !== 'fileDetails')
+        setTimeout(() => { if (overlay.includes('fileDetails')) overlay = overlay.filter(item => item !== 'fileDetails') })
     }
     $: $managerView && setOverlay()
     $: !$managerView && close()
