@@ -5,12 +5,13 @@ import { SafeArea } from 'capacitor-plugin-safe-area'
 import { Keyboard } from '@capacitor/keyboard'
 import { NodeJS } from 'capacitor-nodejs'
 
-import { cache, caches } from '@/modules/cache.js'
-import { IPC } from '../preload/preload.js'
-import Protocol from './protocol.js'
 import Debugger from './debugger.js'
+import Protocol from './protocol.js'
 import Updater from './updater.js'
 import Dialog from './dialog.js'
+
+import { cache, caches } from '@/modules/cache.js'
+import { IPC } from '../preload/preload.js'
 
 export default class App {
   protocol = new Protocol()

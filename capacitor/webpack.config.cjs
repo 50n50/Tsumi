@@ -58,4 +58,4 @@ const capacitorConfig = {
   ]
 }
 
-module.exports = [capacitorConfig, merge(commonConfig(__dirname, alias, 'browser', 'index'), { entry: [join(__dirname, 'src', 'main', 'main.js')] })]
+module.exports = [capacitorConfig, merge({ entry: [join(__dirname, 'src', 'main', 'main.js')] }, commonConfig(__dirname, alias, 'browser', 'index'))]

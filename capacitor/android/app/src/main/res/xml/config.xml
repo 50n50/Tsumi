@@ -14,8 +14,17 @@
     <param name="android-package" value="cordova.plugin.pip.PictureInPicture"/>
   </feature>
 
+  <feature name="SaveDialog">
+    <param name="android-package" value="io.github.amphiluke.SaveDialog"/>
+  </feature>
+
   <feature name="CDVOrientation">
     <param name="android-package" value="cordova.plugins.screenorientation.CDVOrientation"/>
+  </feature>
+
+  <feature name="SecureLoggerPlugin">
+    <param name="android-package" value="com.obsidize.secure.logger.SecureLoggerPlugin"/>
+    <param name="onload" value="true"/>
   </feature>
 
   

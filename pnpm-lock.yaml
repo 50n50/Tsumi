@@ -133,9 +133,15 @@ importers:
       cordova-plugin-pip:
         specifier: ^0.0.2
         version: 0.0.2
+      cordova-plugin-save-dialog:
+        specifier: ^2.0.1
+        version: 2.0.1
       cordova-plugin-screen-orientation:
         specifier: ^3.0.4
         version: 3.0.4
+      cordova-plugin-secure-logger:
+        specifier: ^1.4.17
+        version: 1.4.17
       es6-promise-plugin:
         specifier: ^4.2.2
         version: 4.2.2
@@ -163,7 +169,7 @@ importers:
         version: 4.1.5
       webpack-cli:
         specifier: ^6.0.1
-        version: 6.0.1(webpack-dev-server@5.1.0)(webpack@5.104.1)
+        version: 6.0.1(webpack@5.104.1)
       webpack-merge:
         specifier: ^6.0.1
         version: 6.0.1
@@ -870,6 +876,9 @@ packages:
     resolution: {integrity: sha512-mJd2Z5TjYWq/ttPLLGqArdtnC74J6bOzg4rMDnN+p1xTacZ2yPRCk2y0oSWQtygLR9YVQXgOcONrwtnk3JupxQ==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     deprecated: This functionality has been moved to @npmcli/fs
+
+  '@obsidize/rx-console@6.2.1':
+    resolution: {integrity: sha512-UXa8S8pNoDmyZ9x2UjU/GJmqEhJ/LGmAI/2V/3njNBQRIxmDFCIPJIavsRv6x+JueNZ4mU1wHE0gU7paT5iWrA==}
 
   '@paymoapp/electron-shutdown-handler@1.1.2':
     resolution: {integrity: sha512-/MIC+wdRlVw1Sm56qJcT17O/KBpQARP2tOcAgg1OKB4W83B9IyBBtIoLXkRlpCOEJnGEleuv5HiSBryUgwbFvQ==}
@@ -1976,9 +1985,15 @@ packages:
   cordova-plugin-pip@0.0.2:
     resolution: {integrity: sha512-Wy9aK7rQX3kif6+kUl7RwTG/+arixvW5Sphyr0bPxsVrkVIliseW/S/JhO7BVX25/HGU0lGMvQe8a134yvI9iQ==}
 
+  cordova-plugin-save-dialog@2.0.1:
+    resolution: {integrity: sha512-scjJa+Y6JnOAtB9vmPMgC1BujEu1ic6yZ4ysVZ6sXCpwDwzDCD1swc5R/SNqBSzpKqLbNa/RDZigF4wjBFvmww==}
+
   cordova-plugin-screen-orientation@3.0.4:
     resolution: {integrity: sha512-AswRuUKJ8J3HycUilTJsIB50aa9TLrwndPNBFG+wfAPhHEqIBF0HaD0q3HbAK7ypgmaj0cvbzk84qP51IcTfrQ==}
     engines: {cordovaDependencies: {4.0.0: {cordova: '>100'}}}
+
+  cordova-plugin-secure-logger@1.4.17:
+    resolution: {integrity: sha512-cjArBr+Uo7gtOTHIZnUTWuTHu21OZE22GMeQUvQNtgbVb91F0GqQnTHjFM8bS5uZd9uUKLxO2AK2v41agjhvHA==}
 
   cordova-res@0.15.4:
     resolution: {integrity: sha512-TjFZhjUtK8qq4DVrgR+KI7tKcUL704cnkTPRhHbKlCPzefHoz1tBOX93wc76dOMmOWKTsbJz83DIm6mqdp5Pmg==}
@@ -6707,6 +6722,8 @@ snapshots:
       mkdirp: 1.0.4
       rimraf: 3.0.2
 
+  '@obsidize/rx-console@6.2.1': {}
+
   '@paymoapp/electron-shutdown-handler@1.1.2':
     dependencies:
       node-addon-api: 5.1.0
@@ -7103,12 +7120,12 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
     dependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.1.0)(webpack@5.104.1)
+      webpack-cli: 6.0.1(webpack@5.104.1)
 
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
     dependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@5.1.0)(webpack@5.104.1)
+      webpack-cli: 6.0.1(webpack@5.104.1)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.1.0)(webpack@5.104.1)':
     dependencies:
@@ -7116,6 +7133,11 @@ snapshots:
       webpack-cli: 6.0.1(webpack-dev-server@5.1.0)(webpack@5.104.1)
     optionalDependencies:
       webpack-dev-server: 5.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.104.1)
+
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
+    dependencies:
+      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack@5.104.1)
 
   '@webtorrent/http-node@1.3.0':
     dependencies:
@@ -8189,7 +8211,13 @@ snapshots:
 
   cordova-plugin-pip@0.0.2: {}
 
+  cordova-plugin-save-dialog@2.0.1: {}
+
   cordova-plugin-screen-orientation@3.0.4: {}
+
+  cordova-plugin-secure-logger@1.4.17:
+    dependencies:
+      '@obsidize/rx-console': 6.2.1
 
   cordova-res@0.15.4:
     dependencies:
@@ -11674,7 +11702,7 @@ snapshots:
       type-fest: 0.16.0
       unique-string: 2.0.0
 
-  terser-webpack-plugin@5.3.16(webpack@5.104.1(webpack-cli@6.0.1)):
+  terser-webpack-plugin@5.3.16(webpack@5.104.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -12040,6 +12068,23 @@ snapshots:
     optionalDependencies:
       webpack-dev-server: 5.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.104.1)
 
+  webpack-cli@6.0.1(webpack@5.104.1):
+    dependencies:
+      '@discoveryjs/json-ext': 0.6.3
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)
+      colorette: 2.0.20
+      commander: 12.1.0
+      cross-spawn: 7.0.3
+      envinfo: 7.14.0
+      fastest-levenshtein: 1.0.16
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack-merge: 6.0.1
+
   webpack-dev-middleware@7.4.2(webpack@5.104.1):
     dependencies:
       colorette: 2.0.20
@@ -12122,11 +12167,11 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(webpack@5.104.1(webpack-cli@6.0.1))
+      terser-webpack-plugin: 5.3.16(webpack@5.104.1)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-dev-server@5.1.0)(webpack@5.104.1)
+      webpack-cli: 6.0.1(webpack@5.104.1)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild

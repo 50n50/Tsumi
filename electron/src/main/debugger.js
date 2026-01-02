@@ -6,7 +6,7 @@ import { autoUpdater } from 'electron-updater'
 
 log.initialize({ spyRendererConsole: true })
 log.transports.file.level = 'debug'
-log.transports.file.maxSize = 10485760 // 10MB
+log.transports.file.maxSize = 10_000_000 // 10MB
 autoUpdater.logger = log
 
 export default class Debug {
