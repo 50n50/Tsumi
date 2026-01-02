@@ -1,10 +1,7 @@
 import { App } from '@capacitor/app'
-import { NodeJS } from 'capacitor-nodejs'
 import { IntentUri } from 'capacitor-intent-uri'
 import { ForegroundService, Importance, ServiceType } from '@capawesome-team/capacitor-android-foreground-service'
 import { indexedDB as fakeIndexedDB } from 'fake-indexeddb'
-import { cache, caches } from '@/modules/cache.js'
-import Updater from '../main/updater.js'
 import EventEmitter from 'events'
 
 if (typeof localStorage === 'undefined') {
@@ -19,8 +16,22 @@ if (typeof indexedDB === 'undefined') {
   globalThis.indexedDB = fakeIndexedDB
 }
 
+// cordova screen orientation plugin is also used, and it patches global screen.orientation.lock
+
+// hook into pip request, and use our own pip implementation, then instantly report exit pip
+// this is more like DOM PiP, rather than video PiP
+HTMLVideoElement.prototype.requestPictureInPicture = function () {
+  PictureInPicture.enter(this.videoWidth, this.videoHeight, success => {
+    this.dispatchEvent(new Event('leavepictureinpicture'))
+    if (success) document.querySelector('.content-wrapper').requestFullscreen()
+  }, error => {
+    this.dispatchEvent(new Event('leavepictureinpicture'))
+    console.error(error)
+  })
+  return Promise.resolve({})
+}
+
 export const IPC = new EventEmitter()
-const ready = NodeJS.whenReady()
 const STREAMING_FG_ID = 1001
 ForegroundService.createNotificationChannel({
   id: 'external-playback',
@@ -77,41 +88,3 @@ window.android = {
     })
   }
 }
-
-IPC.on('portRequest', async () => {
-  window.port = {
-    onmessage: cb => {
-      NodeJS.addListener('ipc', ({ args }) => cb(args[0]))
-    },
-    postMessage: (data, b) => {
-      NodeJS.send({ eventName: 'ipc', args: [{ data }] })
-    }
-  }
-  await ready
-  await cache.isReady
-  NodeJS.send({ eventName: 'port-init', args: [] })
-  let stethoscope = true
-  NodeJS.addListener('webtorrent-heartbeat', () => {
-    if (stethoscope) {
-      stethoscope = false
-      NodeJS.send({ eventName: 'main-heartbeat', args: [{ ...cache.getEntry(caches.GENERAL, 'settings'), userID: cache.cacheID }] })
-      NodeJS.addListener('torrentRequest', () => {
-        NodeJS.send({ eventName: 'torrentPort', args: [] })
-        IPC.emit('port')
-      })
-    }
-  })
-})
-
-IPC.on('webtorrent-reload', () => NodeJS.send({eventName: 'webtorrent-reload', args: []}))
-
-IPC.once('version', async () => {
-  const { version } = await App.getInfo()
-  IPC.emit('version', version)
-})
-
-const autoUpdater = new Updater(IPC, 'https://github.com/RockinChaos/Shiru/releases/latest/download/latest-android.yml', 'https://api.github.com/repos/RockinChaos/Shiru/releases/latest')
-IPC.on('update', () => autoUpdater.checkForUpdates())
-IPC.on('quit-and-install', () => {
-  if (autoUpdater.updateAvailable) autoUpdater.install(true)
-})

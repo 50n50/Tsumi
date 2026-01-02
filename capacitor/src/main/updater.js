@@ -1,8 +1,9 @@
-import { App } from '@capacitor/app'
 import ApkUpdater from 'cordova-plugin-apkupdater'
+import { IPC } from '../preload/preload.js'
+import { development } from './util.js'
+import { App } from '@capacitor/app'
 import YAML from 'yaml'
 
-const development = process.env.NODE_ENV?.trim() === 'development'
 const versionCodes = { 'arm64-v8a': 1, 'armeabi-v7a': 2, 'x86': 3, 'universal': 4 }
 const sanitizeVersion = (version) => ((version || '').match(/[\d.]+/g)?.join('') || '')
 export default class Updater {
@@ -12,16 +13,15 @@ export default class Updater {
 
   updateURL
   assetURL
-  IPC
   build
   currentVersion
   versionCode
   latestRelease
-  constructor(IPC, updateURL, assetURL) {
-    this.IPC = IPC
+  constructor(updateURL, assetURL) {
     this.updateURL = updateURL
     this.assetURL = assetURL
     this.getInfo()
+    IPC.on('update', () => this.checkForUpdates())
   }
 
   async getInfo() {
@@ -51,7 +51,7 @@ export default class Updater {
           if (!this.updateAvailable && !this.hasUpdate) {
             this.updateAvailable = true
             this.availableInterval = setInterval(() => {
-              if (!this.hasUpdate) this.IPC.emit('update-available', sanitizeVersion(this.latestRelease))
+              if (!this.hasUpdate) IPC.emit('update-available', sanitizeVersion(this.latestRelease))
             }, 1000)
             this.availableInterval.unref?.()
           }
