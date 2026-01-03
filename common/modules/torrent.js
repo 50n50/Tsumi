@@ -84,16 +84,18 @@ clipboard.on('text', ({ detail }) => {
     }
   }
 })
-clipboard.on('files', async ({ detail }) => { // doesn't work on Capacitor....
-  for (const file of detail) {
-    if (file.name.endsWith('.torrent')) {
-      media.value = { torrent: true }
-      add(new Uint8Array(await file.arrayBuffer()))
+if (!SUPPORTS.isAndroid) {
+  clipboard.on('files', async ({detail}) => {
+    for (const file of detail) {
+      if (file.name.endsWith('.torrent')) {
+        media.value = {torrent: true}
+        add(new Uint8Array(await file.arrayBuffer()))
+      }
     }
-  }
-})
+  })
+}
 
-export async function add(torrentID, search, hash, magnet) {
+export async function add(torrentID, search, hash, magnet, base64 = false) {
   if (torrentID) {
     debug('Adding torrent', JSON.stringify({ torrentID, search, hash, magnet }))
     files.set([])
@@ -102,7 +104,7 @@ export async function add(torrentID, search, hash, magnet) {
     if (hash && search) setHash(hash, { mediaId: search.media?.id, episode: search.episode, client: true })
     window.dispatchEvent(new Event('overlay-check'))
     if (SUPPORTS.isAndroid && !settings.value.enableExternal) document.querySelector('.content-wrapper').requestFullscreen() // this WILL not work with auto-select torrents due to permissions check.
-    client.send('torrent', { id: torrentID, hash: (hash === torrentID && torrentID) || false, magnet })
+    client.send('torrent', { id: torrentID, hash: (hash === torrentID && torrentID) || false, magnet, base64 })
   }
 }
 export async function stage(torrentID, search, hash) {

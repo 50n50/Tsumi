@@ -12,6 +12,7 @@ import Dialog from './dialog.js'
 
 import { cache, caches } from '@/modules/cache.js'
 import { IPC } from '../preload/preload.js'
+import { loadingClient } from './util.js'
 
 export default class App {
   protocol = new Protocol()
@@ -71,6 +72,7 @@ export default class App {
       }
       await this.ready
       await cache.isReady
+      this.handleNotify = true
       NodeJS.send({ eventName: 'port-init', args: [] })
       let stethoscope = true
       NodeJS.addListener('webtorrent-heartbeat', () => {
@@ -81,6 +83,7 @@ export default class App {
             NodeJS.send({ eventName: 'torrentPort', args: [] })
             IPC.emit('port')
           })
+          loadingClient.resolve()
         }
       })
     })
@@ -146,7 +149,6 @@ export default class App {
         }, 50)
       }
     })
-    IPC.on('portRequest', () => this.handleNotify = true)
     IPC.on('notification', opts => {
       if (!this.canNotify) return
       LocalNotifications.schedule({

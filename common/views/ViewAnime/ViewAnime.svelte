@@ -133,12 +133,12 @@
   })
 
   window.addEventListener('play-torrent', (event) => {
-    add(event.detail.magnet)
+    add(event.detail.magnet, null, null, null, event.detail.base64)
     IPC.emit('overlay-check')
   })
 
-  IPC.on('play-torrent', magnet => {
-    add(magnet)
+  IPC.on('play-torrent', (detail) => {
+    add(detail.magnet, null, null, null, detail.base64)
     IPC.emit('overlay-check')
   })
 

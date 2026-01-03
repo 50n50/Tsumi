@@ -1,6 +1,7 @@
-//import { Filesystem } from '@capacitor/filesystem'
+import { Filesystem } from '@capacitor/filesystem'
 import { Browser } from '@capacitor/browser'
 import { IPC } from '../preload/preload.js'
+import { loadingClient } from './util.js'
 import { App } from '@capacitor/app'
 
 export default class Protocol {
@@ -27,28 +28,31 @@ export default class Protocol {
       if (location.hash !== '#skipAlLogin') {
         location.hash = '#skipAlLogin'
         if (res) this.handleProtocol(res.url)
-      } else {
-        location.hash = ''
-      }
+      } else location.hash = ''
     })
-    App.addListener('appUrlOpen', ({ url }) => {
-      // if (url.startsWith('content://')) handleTorrentFile(url)
-      this.handleProtocol(url)
+    App.addListener('appUrlOpen', async ({ url }) => {
+      console.error("awaiting ready state")
+      await loadingClient.promise
+      console.error("ready! Handling torrent.")
+      if ((!url.startsWith('magnet:') && url.endsWith('.torrent')) || url.startsWith('content://') || url.startsWith('file://')) this.handleTorrentFile(url)
+      else this.handleProtocol(url)
     })
   }
 
   /**
-   * Handles opening a `.torrent` file and sends it as a `Uint8Array`
-   * @param {string} fileUri - The path to the .torrent file
+   * Handles opening a `.torrent` file and sends it as `Base64`
+   *
+   * Note: We pass the raw base64 string instead of converting to Uint8Array as it gets corrupted
+   * when crossing the Capacitor bridge from the webview to the Node.js background process.
+   *
+   * @param {string} fileUri - The URI to the .torrent file (supports file:// and content:// schemes)
    */
-// async handleTorrentFile(fileUri) {
-//   const fileContents = await Filesystem.readFile({ path: fileUri })
-//   const binaryString = atob(fileContents.data)
-//   const uint8Array = new Uint8Array(binaryString.length)
-//   for (let i = 0; i < binaryString.length; i++) uint8Array[i] = binaryString.charCodeAt(i)
-//   if (uint8Array.length === 0) throw new Error('Empty file or conversion failed')
-//   this.add(uint8Array)
-// }
+  async handleTorrentFile(fileUri) {
+    let path = fileUri
+    if (path.startsWith('file://')) path = path.replace('file://', '')
+    const file = await Filesystem.readFile({ path })
+    this.add(file.data, true)
+  }
 
   /**
    * @param {string} line
@@ -85,9 +89,10 @@ export default class Protocol {
 
   /**
    * @param {string} magnet - The magnet link.
+   * @param {boolean} base64 - If the data needs to be converted from `Base64` to `Uint8Array`
    */
-  add(magnet) {
-    IPC.emit('play-torrent', magnet)
+  add(magnet, base64 = false) {
+    IPC.emit('play-torrent', { magnet, base64 })
     IPC.emit('window-show')
   }
 

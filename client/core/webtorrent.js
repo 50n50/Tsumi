@@ -571,7 +571,8 @@ export default class TorrentClient extends WebTorrent {
         break
       } case 'torrent': {
         const hash = data.data && data.data.hash
-        const torrentID = data.data && data.data.id
+        const dataID = data.data && data.data.id
+        const torrentID = data.data.base64 ? new Uint8Array(Buffer.from(dataID, 'base64')) : dataID
         const cache = await this.torrentCache.get(hash || (await getInfoHash(torrentID)))
         if (!cache?.infoHash && data.data.magnet) this.dispatch('info', 'A Magnet Link has been detected and is being processed. Files will be loaded shortly...')
         this.addTorrent(torrentID, cache, true)

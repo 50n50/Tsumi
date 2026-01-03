@@ -141,7 +141,7 @@ export default class Protocol {
    * @param {string} magnet - The magnet link.
    */
   add(magnet) {
-    this.window.webContents.send('play-torrent', magnet)
+    this.window.webContents.send('play-torrent', { magnet })
     ipcMain.emit('window-show')
   }
 
