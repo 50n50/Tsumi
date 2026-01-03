@@ -1,5 +1,6 @@
 import { App } from '@capacitor/app'
 import { IntentUri } from 'capacitor-intent-uri'
+import { Filesystem } from '@capacitor/filesystem'
 import { ForegroundService, Importance, ServiceType } from '@capawesome-team/capacitor-android-foreground-service'
 import { indexedDB as fakeIndexedDB } from 'fake-indexeddb'
 import EventEmitter from 'events'
@@ -47,19 +48,20 @@ window.version = {
 }
 window.android = {
   /**
-   * Requests "All Files" access permission when needed, resolves `true` if access is granted, or `false` if denied.
+   * Requests "All Files" access permission when needed, resolves with granted `true` if access is granted, or `false` if denied.
    *
-   * @returns {Promise<boolean>} Resolves with `true` when access is granted, otherwise `false`.
+   * @returns {Promise<{ granted: boolean, error?: string | null }>} Resolves with granted `true` when access is granted, otherwise `false`.
    */
   requestFileAccess: async () => {
-    if (window.NativeBridge?.hasAllFilesAccess()) return true
+    if ((await Filesystem.requestPermissions()).publicStorage !== 'granted') return { granted: false, error: 'You are missing permissions to read and write to the selected download folder. Please enable storage access for this app in your device settings. Dismiss this toast to enable storage access.' }
+    else if (window.NativeBridge?.hasAllFilesAccess()) return { granted: true }
     window.NativeBridge?.requestAllFilesAccess()
     return new Promise((resolve) => {
       const listener = App.addListener('appStateChange', (state) => {
         if (state.isActive) {
           listener.remove()
-          if (window.NativeBridge?.hasAllFilesAccess()) resolve(true)
-          else resolve(false)
+          if (window.NativeBridge?.hasAllFilesAccess()) resolve({ granted: true })
+          else resolve({ granted: false, error: 'To reliably use a different torrent download location, please enable All Files Access for this app in your device settings. Dismiss this toast to enable all file access.' })
         }
       })
     })

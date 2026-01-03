@@ -27,17 +27,18 @@
   IPC.emit('version')
   IPC.emit('discord-rpc', settings.value.enableRPC)
   if (SUPPORTS.angle) settings.value.angle = await IPC.invoke('get:angle')
-  if (SUPPORTS.isAndroid) setTimeout(() => requestFileAccess(), 2500).unref?.()
-  function requestFileAccess() {
-    if (settings.value.torrentPathNew && settings.value.torrentPathNew !== '/tmp') {
+  if (SUPPORTS.isAndroid) setTimeout(() => requestFileAccess(settings.value.torrentPathNew), 2_500).unref?.()
+  function requestFileAccess(path, cb) {
+    if (path && path !== '/tmp') {
       const requestAccess = () => {
-        ANDROID.requestFileAccess().then(success => {
-          if (!success) toastAccess()
+        ANDROID.requestFileAccess().then(access => {
+          if (!access?.granted) toastAccess(access.error)
+          else cb?.()
         })
       }
-      const toastAccess = () => {
+      const toastAccess = (error) => {
         toast.warning('Missing File Access', {
-          description: 'To reliably use a different torrent download location, please enable All Files Access for this app in your device settings. Dismiss this toast to enable all file access.',
+          description: error,
           duration: Infinity,
           onDismiss: () => requestAccess()
         })
@@ -110,8 +111,8 @@
     }
   }
   function pathListener (data) {
-    $settings.torrentPathNew = data
-    if (SUPPORTS.isAndroid) setTimeout(() => requestFileAccess(), 1_000).unref?.()
+    if (SUPPORTS.isAndroid) requestFileAccess(data, () => $settings.torrentPathNew = data)
+    else $settings.torrentPathNew = data
   }
 
   function playerListener (data) {

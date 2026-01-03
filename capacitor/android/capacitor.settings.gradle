@@ -14,6 +14,9 @@ project(':capacitor-browser').projectDir = new File('../../node_modules/.pnpm/@c
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../../node_modules/.pnpm/@capacitor+device@6.0.3_@capacitor+core@6.2.1/node_modules/@capacitor/device/android')
 
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../../node_modules/.pnpm/@capacitor+filesystem@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/filesystem/android')
+
 include ':capacitor-keyboard'
 project(':capacitor-keyboard').projectDir = new File('../../node_modules/.pnpm/@capacitor+keyboard@6.0.4_@capacitor+core@6.2.1/node_modules/@capacitor/keyboard/android')
 
