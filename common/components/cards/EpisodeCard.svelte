@@ -1,11 +1,10 @@
 <script context='module'>
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
+  import AudioLabel from '@/components/AudioLabel.svelte'
   import EpisodePreviewCard from '@/components/cards/EpisodePreviewCard.svelte'
   import { Play, RefreshCwOff } from 'lucide-svelte'
   import { onDestroy, onMount } from 'svelte'
   import { writable } from 'simple-store-svelte'
-  import { getContext } from 'svelte'
   import { playActive } from '@/components/TorrentButton.svelte'
   import { createListener, since, isValidNumber } from '@/modules/util.js'
   const { reactive, init } = createListener(['torrent-button', 'cont-button', 'episode-safe-area'])
@@ -19,7 +18,8 @@
   import { anilistClient } from '@/modules/anilist.js'
   import { settings } from '@/modules/settings.js'
   import { mediaCache } from '@/modules/cache.js'
-  import { checkForZero } from '@/views/Player/MediaHandler.svelte'
+  import { checkForZero } from '@/components/MediaHandler.svelte'
+  import { modal } from '@/modules/navigation.js'
   export let data
   export let section = false
 
@@ -44,9 +44,8 @@
   $: progress = liveAnimeEpisodeProgress(media?.id, data?.episode, completed)
   let hide = true
 
-  const view = getContext('view')
   function viewMedia () {
-    $view = media
+    modal.open(modal.ANIME_DETAILS, media)
   }
   function setClickState() {
     const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)

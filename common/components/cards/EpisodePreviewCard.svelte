@@ -1,8 +1,7 @@
 <script context='module'>
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
+  import AudioLabel from '@/components/AudioLabel.svelte'
   import TorrentButton from '@/components/TorrentButton.svelte'
-  import { getContext } from 'svelte'
   import { CalendarDays, Play, Tv, RefreshCwOff } from 'lucide-svelte'
 </script>
 <script>
@@ -15,6 +14,7 @@
   import { anilistClient } from '@/modules/anilist.js'
   import { settings } from '@/modules/settings.js'
   import { mediaCache } from '@/modules/cache.js'
+  import { modal } from '@/modules/navigation.js'
 
   export let data
   export let prompt
@@ -29,11 +29,6 @@
   const completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
   const progress = liveAnimeEpisodeProgress(media?.id, data?.episode, completed)
   let hide = true
-
-  const view = getContext('view')
-  function viewMedia () {
-    $view = media
-  }
 
   $: resolvedHash = media?.id && !data.failed && getHash(media.id, { episode: data?.episode, client: true, batchGuess: true }, false, true)
 </script>
@@ -187,7 +182,7 @@
         Your Current Progress Is At <b>Episode {media?.mediaListEntry?.progress - (zeroEpisode ? 1 : 0)}</b>
       {/if}
     </p>
-    <button class='cont-button btn btn-lg btn-secondary w-250 text-dark font-weight-bold shadow-none border-0 d-flex align-items-center justify-content-center mt-10' tabindex={!prompt ? '-1' : '0'} use:click={() => { data.onclick() || viewMedia() }}>
+    <button class='cont-button btn btn-lg btn-secondary w-250 text-dark font-weight-bold shadow-none border-0 d-flex align-items-center justify-content-center mt-10' tabindex={!prompt ? '-1' : '0'} use:click={() => { data.onclick() || modal.open(modal.ANIME_DETAILS, media) }}>
       <Play class='mr-10' fill='currentColor' size='1.6rem' />
       Continue Anyway?
     </button>

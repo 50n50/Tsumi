@@ -1,5 +1,5 @@
-import { files, nowPlaying as media } from '@/views/Player/MediaHandler.svelte'
-import { page } from '@/App.svelte'
+import { files, nowPlaying as media } from '@/components/MediaHandler.svelte'
+import { page } from '@/modules/navigation.js'
 import { settings } from '@/modules/settings.js'
 import { cache, caches } from '@/modules/cache.js'
 import { SUPPORTS } from '@/modules/support.js'
@@ -78,7 +78,7 @@ window.addEventListener('add', (event) => add(event.detail.resolvedHash, event.d
 window.addEventListener('rescan', () => client.send('rescan'))
 clipboard.on('text', ({ detail }) => {
   for (const { text } of detail) {
-    if (page?.value !== 'watchtogether' && torrentRx.exec(text)) {
+    if (page.value !== page.WATCH_TOGETHER && torrentRx.exec(text)) {
       media.value = { torrent: true }
       add(text, null, null, true)
     }
@@ -99,10 +99,9 @@ export async function add(torrentID, search, hash, magnet, base64 = false) {
   if (torrentID) {
     debug('Adding torrent', JSON.stringify({ torrentID, search, hash, magnet }))
     files.set([])
-    page.set('player')
+    page.navigateTo(page.PLAYER)
     media.value = search ? { media: (search.media || media.value?.media), episode: (search.episode || media.value?.episode), ...(media.value?.torrent ? { torrent: true } : { feed: true }) } : { torrent: true }
     if (hash && search) setHash(hash, { mediaId: search.media?.id, episode: search.episode, client: true })
-    window.dispatchEvent(new Event('overlay-check'))
     if (SUPPORTS.isAndroid && !settings.value.enableExternal) document.querySelector('.content-wrapper').requestFullscreen() // this WILL not work with auto-select torrents due to permissions check.
     client.send('torrent', { id: torrentID, hash: (hash === torrentID && torrentID) || false, magnet, base64 })
   }

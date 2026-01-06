@@ -1,15 +1,15 @@
 <script>
-  import { getContext } from 'svelte'
   import { onMount, onDestroy } from 'svelte'
   import PreviewCard from '@/components/cards/PreviewCard.svelte'
   import { airingAt, getAiringInfo, getKitsuMappings, formatMap, statusColorMap } from '@/modules/anime/anime.js'
   import { createListener } from '@/modules/util.js'
   import { hoverClick } from '@/modules/click.js'
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
+  import AudioLabel from '@/components/AudioLabel.svelte'
   import { anilistClient, currentYear } from '@/modules/anilist.js'
   import { settings } from '@/modules/settings.js'
   import { mediaCache } from '@/modules/cache.js'
+  import { modal } from '@/modules/navigation.js'
   import { CalendarDays, Tv, ThumbsUp, ThumbsDown } from 'lucide-svelte'
 
   /** @type {import('@/modules/al.d.ts').Media} */
@@ -21,10 +21,9 @@
   let media
   $: if (data && !media) media = mediaCache.value[data?.id]
   mediaCache.subscribe((value) => { if (value && (JSON.stringify(value[media?.id]) !== JSON.stringify(media))) media = value[media?.id] })
-  const view = getContext('view')
   function viewMedia() {
     if (_variables?.fileEdit) _variables.fileEdit(media)
-    else $view = media
+    else modal.open(modal.ANIME_DETAILS, media)
   }
 
   let preview = false

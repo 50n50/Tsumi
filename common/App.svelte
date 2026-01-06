@@ -1,48 +1,38 @@
 <script context='module'>
   import { IPC } from '@/modules/bridge.js'
-  import { setContext } from 'svelte'
   import { writable } from 'simple-store-svelte'
   import { anilistClient } from '@/modules/anilist.js'
-  import { enableHistory, destroyHistory } from '@/modules/history.js'
-  import { settings } from '@/modules/settings.js'
-  export const page = writable('home')
-  export const overlay = writable([])
+  import { page, modal, destroyHistory, enableHistory } from '@/modules/navigation.js'
+
   export const statusTransition = writable(false)
-  export const playPage = writable(settings.value.disableMiniplayer || false)
-  export const view = writable(null)
+
   export async function handleAnime (detail) {
     IPC.emit('window-show')
-    view.set(null)
-    view.set((await anilistClient.searchIDSingle(!detail.mal ? { id: detail.id } : { idMal: detail.id })).data.Media)
+    modal.close(modal.ANIME_DETAILS)
+    const foundMedia = (await anilistClient.searchIDSingle(!detail.mal ? { id: detail.id } : { idMal: detail.id })).data.Media
+    if (foundMedia) modal.open(modal.ANIME_DETAILS, foundMedia)
   }
   IPC.on('open-anime', handleAnime)
   window.addEventListener('open-anime', (event) => handleAnime(event.detail))
-  IPC.on('schedule', () => page.set('schedule'))
-  window.addEventListener('player', () => page.set('player'))
-  playPage.subscribe((value) => {
-    const currentSettings = settings.value
-    currentSettings.disableMiniplayer = value
-    settings.value = currentSettings
-  })
+  IPC.on('schedule', () => page.navigateTo(page.SCHEDULE))
 </script>
 
 <script>
-  import Sidebar from '@/components/Sidebar.svelte'
-  import Router from '@/Router.svelte'
-  import ViewAnime from '@/views/ViewAnime/ViewAnime.svelte'
-  import TorrentModal from '@/views/TorrentSearch/TorrentModal.svelte'
+  import Sidebar from '@/components/navigation/Sidebar.svelte'
+  import Router from '@/routes/Router.svelte'
+  import DetailsModal from '@/modals/details/DetailsModal.svelte'
+  import TorrentModal from '@/modals/torrent/TorrentModal.svelte'
   import Menubar from '@/components/Menubar.svelte'
-  import UpdateModal from '@/views/Updater/UpdateModal.svelte'
+  import UpdateModal from '@/modals/UpdateModal.svelte'
   import Profiles from '@/components/Profiles.svelte'
-  import Notifications from '@/components/Notifications.svelte'
-  import MinimizeTray from '@/components/MinimizeTray.svelte'
-  import Navbar from '@/components/Navbar.svelte'
+  import NotificationsModal from '@/modals/NotificationsModal.svelte'
+  import MinimizeModal from '@/modals/MinimizeModal.svelte'
+  import Navbar from '@/components/navigation/Navbar.svelte'
   import Status from '@/components/Status.svelte'
   import { status } from '@/modules/networking.js'
   import { Toaster } from 'svelte-sonner'
   import { onMount, onDestroy } from 'svelte'
 
-  setContext('view', view)
   IPC.emit('main-ready')
 
   let currentStatus = status.value
@@ -74,20 +64,20 @@
   })
 </script>
 
-<UpdateModal bind:overlay={$overlay} />
+<UpdateModal />
 <div class='page-wrapper with-transitions bg-dark position-relative pl-safe-area' data-sidebar-type='overlayed-all'>
   <Status />
   <Menubar />
-  <Sidebar bind:page={$page} bind:playPage={$playPage} />
-  <Navbar bind:page={$page} bind:playPage={$playPage} />
+  <Sidebar />
+  <Navbar />
   <div class='overflow-hidden content-wrapper h-full' class:status-transition={$statusTransition}>
-    <Toaster visibleToasts={2} position='top-right' theme='dark' richColors duration={10_000} closeButton toastOptions={{class: `${$page === 'settings' ? 'mt-70 mt-lg-0' : ''} ${isFullscreen && !$overlay?.length ? 'd-none' : ''}`}} />
-    <ViewAnime bind:overlay={$overlay} />
-    <TorrentModal bind:overlay={$overlay} />
-    <Notifications bind:overlay={$overlay} />
-    <Profiles bind:overlay={$overlay} />
-    <MinimizeTray bind:overlay={$overlay} />
-    <Router bind:page={$page} bind:overlay={$overlay} bind:playPage={$playPage} bind:statusTransition={$statusTransition} />
+    <Toaster visibleToasts={2} position='top-right' theme='dark' richColors duration={10_000} closeButton toastOptions={{class: `${$page === page.SETTINGS ? 'mt-70 mt-lg-0' : ''} ${isFullscreen && (!$modal || !modal.length) ? 'd-none' : ''}`}} />
+    <DetailsModal />
+    <TorrentModal />
+    <NotificationsModal />
+    <Profiles />
+    <MinimizeModal />
+    <Router bind:statusTransition={$statusTransition} />
   </div>
 </div>
 

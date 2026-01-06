@@ -4,9 +4,9 @@ import { anilistClient } from '@/modules/anilist.js'
 import _anitomyscript from 'anitomyscript'
 import { toast } from 'svelte-sonner'
 import SectionsManager, { search, key } from '@/modules/sections.js'
-import { page } from '@/App.svelte'
+import { page } from '@/modules/navigation.js'
 import clipboard from '@/modules/clipboard.js'
-import { playAnime } from '@/views/TorrentSearch/TorrentModal.svelte'
+import { playAnime } from '@/modals/torrent/TorrentModal.svelte'
 import { animeSchedule } from '@/modules/anime/animeschedule.js'
 import { episodesList } from '@/modules/episodes.js'
 import { settings } from '@/modules/settings.js'
@@ -94,7 +94,7 @@ export async function traceAnime (image) { // WAIT lookup logic
       }
     }
     key.value = {}
-    page.value = 'search'
+    page.navigateTo(page.SEARCH)
   } else {
     throw new Error('Search Failed \n Couldn\'t find anime for specified image! Try to remove black bars, or use a more detailed image.')
   }

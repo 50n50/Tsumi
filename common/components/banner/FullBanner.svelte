@@ -6,23 +6,18 @@
   import { SUPPORTS } from '@/modules/support.js'
   import { click, drag } from '@/modules/click.js'
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
-  import Scoring from '@/views/ViewAnime/Scoring.svelte'
+  import AudioLabel from '@/components/AudioLabel.svelte'
+  import Scoring from '@/components/Scoring.svelte'
   import { VERSION } from '@/modules/bridge.js'
   import Helper from '@/modules/helper.js'
   import { Play, Heart } from 'lucide-svelte'
-  import { getContext } from 'svelte'
+  import { modal } from '@/modules/navigation.js'
 
   export let mediaList
 
   let currentStatic = mediaList[0]
   $: current = mediaList[0]
   mediaCache.subscribe((value) => { if (current?.id && value && value[current?.id]?.id && (JSON.stringify(value[current?.id]) !== JSON.stringify(current))) { current = value[current?.id]; currentStatic = current } })
-
-  const view = getContext('view')
-  function viewMedia () {
-    $view = current
-  }
 
   function toggleFavourite () {
     current.isFavourite = anilistClient.favourite({ id: current.id })
@@ -119,7 +114,7 @@
       <Play class='mr-10' size='1.7rem' />
       <span>{current.mediaListEntry?.progress ? current.mediaListEntry?.status === 'COMPLETED' ? 'Rewatch Now' : 'Continue Now' : 'Watch Now'}</span>
     </button>
-    <button class='btn bg-dark-light ml-10 px-20 shadow-none border-0 d-flex align-items-center justify-content-center' title='View Details' use:click={viewMedia}>
+    <button class='btn bg-dark-light ml-10 px-20 shadow-none border-0 d-flex align-items-center justify-content-center' title='View Details' use:click={() => modal.open(modal.ANIME_DETAILS, current)}>
       <span>View Details</span>
     </button>
     {#if Helper.isAuthorized()}

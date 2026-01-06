@@ -1,12 +1,12 @@
 <script>
-  import { getContext } from 'svelte'
   import { onMount, onDestroy } from 'svelte'
   import { airingAt, getAiringInfo, formatMap, getKitsuMappings, getMediaMaxEp, statusColorMap } from '@/modules/anime/anime.js'
   import { click } from '@/modules/click.js'
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import AudioLabel from '@/views/ViewAnime/AudioLabel.svelte'
+  import AudioLabel from '@/components/AudioLabel.svelte'
   import { anilistClient, seasons } from '@/modules/anilist.js'
   import { mediaCache } from '@/modules/cache.js'
+  import { modal } from '@/modules/navigation.js'
 
   /** @type {import('@/modules/al.d.ts').Media} */
   export let data
@@ -18,10 +18,9 @@
   mediaCache.subscribe((value) => { if (value && (JSON.stringify(value[media?.id]) !== JSON.stringify(media))) media = value[media?.id] })
   $: maxEp = getMediaMaxEp(media)
 
-  const view = getContext('view')
   function viewMedia () {
     if (_variables?.fileEdit) _variables.fileEdit(media)
-    else $view = media
+    else modal.open(modal.ANIME_DETAILS, media)
   }
 
   let airingInterval

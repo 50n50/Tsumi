@@ -5,7 +5,7 @@
   import { fadeIn, fadeOut } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
   import SmartImage from '@/components/visual/SmartImage.svelte'
-  import Scoring from '@/views/ViewAnime/Scoring.svelte'
+  import Scoring from '@/components/Scoring.svelte'
   import Helper from '@/modules/helper.js'
   import { Heart, Play, VolumeX, Volume2, ThumbsUp, ThumbsDown } from 'lucide-svelte'
   import { ELECTRON } from '@/modules/bridge.js'

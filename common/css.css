@@ -477,7 +477,10 @@ a[href]:active, button:not([disabled], .not-reactive):active:not([data-sonner-to
   z-index: 102;
 }
 .z-105 {
-    z-index: 105 !important;
+  z-index: 105 !important;
+}
+.z-110 {
+  z-index: 110 !important;
 }
 
 .text-dark-light {
