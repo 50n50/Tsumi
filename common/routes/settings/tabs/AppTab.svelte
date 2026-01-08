@@ -111,12 +111,12 @@
   </div>
 </SettingCard>
 {#if !SUPPORTS.isAndroid}
-  <SettingCard title='Close Action' description='Choose the functionality of the close button for the app. You can choose to receive a Prompt to Minimize or Close, default to Minimize, or default to Closing the app.'>
+  <SettingCard title='Exit Action' description='Choose the functionality of the close button for the app. You can choose to receive a Prompt to Minimize or Exit, default to Minimize, or default to Exiting the app.'>
     <div>
       <select class='form-control bg-dark mw-150 w-150 text-truncate' bind:value={settings.closeAction}>
         <option value='Prompt'>Prompt</option>
         <option value='Minimize'>Minimize</option>
-        <option value='Close'>Close</option>
+        <option value='Close'>Exit</option>
       </select>
     </div>
   </SettingCard>

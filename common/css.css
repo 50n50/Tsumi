@@ -208,6 +208,9 @@
 .w-120 {
   width: 12rem;
 }
+.w-130 {
+  width: 13rem;
+}
 .w-160 {
   width: 16rem;
 }
@@ -754,6 +757,10 @@ img[src=''], img[src=' '] {
   box-shadow: inset 0 0 0 1.5px var(--black-color) !important;
 }
 
+.modal-soft-ellipse {
+  background: radial-gradient(ellipse at center, transparent 0%, hsla(var(--black-color-hsl), 0.85) 100%), hsla(var(--black-color-hsl), 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+}
 .modal:focus-visible {
   box-shadow: none !important;
 }
@@ -887,6 +894,9 @@ img[src=''], img[src=' '] {
 }
 .pr-30 {
   padding-right: 3rem;
+}
+.pl-30 {
+  padding-left: 3rem;
 }
 .pl-40 {
   padding-left: 4rem;

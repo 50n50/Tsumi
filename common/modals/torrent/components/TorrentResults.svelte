@@ -517,9 +517,6 @@
     max-width: 100%;
     text-shadow: 2px 2px 4px hsla(var(--black-color-hsl), 1);
   }
-  .pr-30 {
-    padding-right: 3rem;
-  }
   .mt-80 {
     margin-top: 8rem;
   }

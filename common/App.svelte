@@ -64,6 +64,7 @@
   })
 </script>
 
+<MinimizeModal />
 <UpdateModal />
 <div class='page-wrapper with-transitions bg-dark position-relative pl-safe-area' data-sidebar-type='overlayed-all'>
   <Status />
@@ -76,7 +77,6 @@
     <TorrentModal />
     <NotificationsModal />
     <Profiles />
-    <MinimizeModal />
     <Router bind:statusTransition={$statusTransition} />
   </div>
 </div>
