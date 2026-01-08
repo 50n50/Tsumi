@@ -672,6 +672,7 @@ export default class TorrentClient extends WebTorrent {
         const untrack = this.torrents.find(torrent => torrent.infoHash === data.data)
         if (untrack) {
           untrack._removal = true
+          if (untrack.current) this.dispatch('loaded', {})
           await this.torrentCache.delete(untrack.infoHash)
           await this.remove(untrack, { destroyStore: true })
         } else if (this.completed?.find(torrent => torrent.infoHash === data.data)) {

@@ -105,13 +105,13 @@
     <div class='p-5 w-150 d-none d-md-block'>{completed ? '—' : data.numLeechers || 0}<span class='text-muted text-nowrap' class:d-none={completed}>{` (${data.numPeers || 0})`}</span></div>
     <div class='p-5 w-115 d-none d-md-block'>{data.eta > 0 && data.progress < 1 ? eta(new Date(Date.now() + data.eta)) : '∞'}</div>
   </div>
-  <div class='dropdown react-{infoHash} with-arrow right-0 mr-5 mr-md-20 w-40 h-auto' class:invisible={current} use:click={toggleDropdown}>
+  <div class='dropdown react-{infoHash} with-arrow right-0 mr-5 mr-md-20 w-40 h-auto' use:click={toggleDropdown}>
     <span bind:this={options} class='btn btn-square h-full bg-transparent shadow-none border-0 options d-flex align-items-center muted justify-content-center flex-shrink-0 h-full w-40' title='Options'><EllipsisVertical size='2rem' /></span>
     <div class='dropdown-menu dropdown-menu-right pt-5 pb-5 ml-10 text-capitalize w-auto hm-400 text-nowrap'>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={!current} aria-label='Play Torrent' title='Play Torrent' use:click={() => { add(infoHash, search, infoHash); toggleDropdown() }}>
         Play
       </div>
-      <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={!current} aria-label='Untrack Torrent' title='Untrack Torrent' use:click={() => { untrack(infoHash); toggleDropdown() }}>
+      <div role='button' class='pointer d-flex align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' aria-label='Untrack Torrent' title='Untrack Torrent' use:click={() => { untrack(infoHash); toggleDropdown() }}>
         Untrack
       </div>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={resolvedId && $mediaCache[resolvedId]} aria-label='View Media' title='View Media' use:click={() => { viewMedia(); toggleDropdown() }}>
@@ -119,6 +119,9 @@
       </div>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={data.magnetURI} aria-label='Copy Magnet Link' title='Copy Magnet Link' use:click={() => { copyToClipboard(data.magnetURI, 'magnet URL'); toggleDropdown() }}>
         Copy Magnet
+      </div>
+      <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={current} aria-label='Stop Playing' title='Stop Playing' use:click={() => { unload(infoHash, true); toggleDropdown() }}>
+        Stop Playing
       </div>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={!completed && !current && data.progress === 1 && settings.value.torrentPersist} aria-label='Stop Seeding' title='Stop Seeding' use:click={() => { complete(infoHash); toggleDropdown() }}>
         Stop Seeding
