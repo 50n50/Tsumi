@@ -57,8 +57,8 @@
 </script>
 <script>
   $: $updateState === 'ready' && getChangeLogs() && modal.open(modal.UPDATE_PROMPT)
-  $: ($updateState === 'up-to-date' || $updateState === 'ignored' || $updateState === 'downloading') && close()
-  $: androidUpdating = false
+  $: ($updateState === 'up-to-date' || $updateState === 'downloading') && close()
+  $: updating = false
   const defaultLogs = [{ version: '0.0.1', date: new Date().getTime(), body: '', url: 'https://github.com/RockinChaos/Shiru/releases/latest' }, { version: '0.0.1' }]
   let changeLogs = defaultLogs
   async function getChangeLogs() {
@@ -70,13 +70,13 @@
   }
 
   function close(ignored = false) {
-    if (androidUpdating) return
+    if (updating) return
     if (ignored) $updateState = 'ignored'
     modal.close(modal.UPDATE_PROMPT)
   }
   function confirm() {
-    if (androidUpdating) return
-    if (SUPPORTS.isAndroid) androidUpdating = true
+    if (updating) return
+    updating = true
     IPC.emit('quit-and-install')
   }
   function compareVersions(currentVersion, previousVersion) {
@@ -89,6 +89,12 @@
       if (numA < numB) return -1
     }
     return 0
+  }
+  if (SUPPORTS.isAndroid) {
+    IPC.on('update-aborted', () => {
+      updating = false
+      $updateState = 'aborted'
+    })
   }
 </script>
 
@@ -124,8 +130,8 @@
   </p>
   <div class='mt-auto border-top px-40'>
     <div class='d-flex my-20 flex-column-reverse flex-md-row font-enlarge-14'>
-      <button class='btn btn-close mr-5 font-weight-bold rounded-2 w-full mt-10 mt-md-0 py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={androidUpdating} on:click={() => close(true)}>Not now</button>
-      <button class='btn btn-secondary text-dark font-weight-bold ml-md-auto rounded-2 w-full py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={androidUpdating} on:click={confirm}>{SUPPORTS.isAndroid ? (!androidUpdating ? 'Download' : 'Downloading...') : 'Update'}</button>
+      <button class='btn btn-close mr-5 font-weight-bold rounded-2 w-full mt-10 mt-md-0 py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={updating} on:click={() => close(true)}>Not now</button>
+      <button class='btn btn-secondary text-dark font-weight-bold ml-md-auto rounded-2 w-full py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={updating} on:click={confirm}>{SUPPORTS.isAndroid && $updateState !== 'aborted' ? (!updating ? 'Download' : 'Downloading...') : (!updating ? 'Update' : 'Updating...')}</button>
     </div>
   </div>
 </SoftModal>

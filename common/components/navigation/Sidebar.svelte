@@ -99,7 +99,7 @@
       <SidebarLink click={() => { toast('Update is downloading...', { description: 'This may take a moment, the update will be ready shortly.' }) }} icon='download' text='Update Downloading...' css='{!$settings.donate && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``} d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
         <CloudDownload size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1' strokeWidth='2.5' color='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--tertiary-color-light)`}' />
       </SidebarLink>
-    {:else if $updateState === 'ready' || $updateState === 'ignored'}
+    {:else if $updateState === 'ready' || $updateState === 'ignored' || $updateState === 'aborted'}
       <SidebarLink click={() => { $updateState = 'ready' }} icon='download' text='Update Available!' css='{!$settings.donate && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``} d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
         <CloudDownload size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1' strokeWidth='2.5' color='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--success-color-light)`}' />
       </SidebarLink>

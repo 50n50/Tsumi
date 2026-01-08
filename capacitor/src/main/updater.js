@@ -48,13 +48,7 @@ export default class Updater {
       try {
         this.latestRelease = YAML.parse(await (await fetch(this.updateURL)).text()).version
         if (this.isOutdated()) {
-          if (!this.updateAvailable && !this.hasUpdate) {
-            this.updateAvailable = true
-            this.availableInterval = setInterval(() => {
-              if (!this.hasUpdate) IPC.emit('update-available', sanitizeVersion(this.latestRelease))
-            }, 1000)
-            this.availableInterval.unref?.()
-          }
+          if (!this.updateAvailable && !this.hasUpdate) this.startUpdatePolling()
         }
       } catch (error) {
         console.error('Error checking for update:', error)
@@ -74,6 +68,14 @@ export default class Updater {
     return false
   }
 
+  startUpdatePolling() {
+    this.updateAvailable = true
+    this.availableInterval = setInterval(() => {
+      if (!this.hasUpdate) IPC.emit('update-available', sanitizeVersion(this.latestRelease))
+    }, 1_000)
+    this.availableInterval.unref?.()
+  }
+
   async install(forceRequestInstall = false) {
     if (!this.hasUpdate && forceRequestInstall) {
       try {
@@ -88,7 +90,19 @@ export default class Updater {
           this.hasUpdate = false
           return
         }
-        await ApkUpdater.download(asset.browser_download_url, { onDownloadProgress: console.debug }, () => ApkUpdater.install(console.error, console.error), (error) => console.error('Updater failed to download update', error))
+        await ApkUpdater.download(asset.browser_download_url, { onDownloadProgress: console.debug }, () => {
+          const listener = App.addListener('appStateChange', (state) => {
+            if (state.isActive) {
+              listener.remove()
+              setTimeout(() => {
+                this.hasUpdate = false
+                this.startUpdatePolling()
+                IPC.emit('update-aborted')
+              }, 1_500).unref?.()
+            }
+          })
+          ApkUpdater.install(console.error, console.error)
+        }, (error) => console.error('Updater failed to download update', error))
         return true
       } catch (error) {
         clearInterval(this.availableInterval)

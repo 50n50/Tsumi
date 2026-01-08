@@ -24,7 +24,7 @@ export default class Updater {
         this.downloading = true
         this.availableInterval = setInterval(() => {
           if (!this.hasUpdate) this.window.webContents.send('update-available', info.version)
-        }, 1000)
+        }, 1_000)
         this.availableInterval.unref?.()
       }
     })
@@ -34,7 +34,7 @@ export default class Updater {
         clearInterval(this.availableInterval)
         this.downloadedInterval = setInterval(() => {
           if (this.hasUpdate) this.window.webContents.send('update-downloaded', info.version)
-        }, 1000)
+        }, 1_000)
         this.downloadedInterval.unref?.()
       }
     })
