@@ -178,8 +178,8 @@
               <div class='d-flex flex-wrap align-items-end'>
                 <span class='badge border-0 bg-light pl-10 pr-10 mt-10 font-scale-16'>{extension?.version}</span>
                 {#if extension?.type}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16'>{capitalize(extension?.type)}</span>{/if}
-                {#if extension?.speed}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16'>{capitalize(extension?.speed)}</span>{/if}
-                {#if extension?.accuracy}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16'>{capitalize(extension?.accuracy)}</span>{/if}
+                {#if extension?.speed}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16' data-toggle='tooltip' data-placement='top' data-title='How quickly query results are received'>{capitalize(extension?.speed)}</span>{/if}
+                {#if extension?.accuracy}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16'  data-toggle='tooltip' data-placement='top' data-title='How accurate the query results are'>{capitalize(extension?.accuracy)} Accuracy</span>{/if}
                 {#if extension?.nsfw} <div class='d-flex align-items-center' title='Query results include adult content'><Adult class='ml-10 mt-10' size='2.2rem' /></div>{/if}
                 {#each extension?.regions || [] as region}<span class='ml-10 font-twemoji font-size-28 h-31' title='Location: {region}'>{toFlags(region)}</span>{/each}
               </div>

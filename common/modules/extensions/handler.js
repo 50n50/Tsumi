@@ -9,8 +9,8 @@ import AnimeResolver from '@/modules/anime/animeresolver.js'
 import Debug from 'debug'
 const debug = Debug('ui:extensions')
 
-/** @typedef {import('extensions/index.d.ts').TorrentQuery} Options */
-/** @typedef {import('extensions/index.d.ts').TorrentResult} Result */
+/** @typedef {import('../../../extensions').TorrentQuery} Options */
+/** @typedef {import('../../../extensions').TorrentResult} Result */
 
 const exclusions = []
 const isDev = location.hostname === 'localhost'

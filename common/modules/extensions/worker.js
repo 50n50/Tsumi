@@ -1,8 +1,8 @@
 import { expose, proxy } from 'comlink'
 
-/** @typedef {import('extensions/index.d.ts').TorrentQuery} Options */
-/** @typedef {import('extensions/index.d.ts').TorrentResult} Result */
-/** @typedef {import('/extensions/example.js').default} AbstractSource */
+/** @typedef {import('../../../extensions').TorrentQuery} Options */
+/** @typedef {import('../../../extensions').TorrentResult} Result */
+/** @typedef {import('../../../extensions/sources/abstract.js').default} AbstractSource */
 
 class Worker {
   id
