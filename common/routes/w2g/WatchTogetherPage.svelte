@@ -2,6 +2,7 @@
   import { copyToClipboard } from '@/modules/clipboard.js'
   import { EventEmitter } from 'events'
   import { writable } from 'simple-store-svelte'
+  import { status } from '@/modules/networking.js'
   import { SUPPORTS } from '@/modules/support.js'
   import { page } from '@/modules/navigation.js'
   import { IPC } from '@/modules/bridge.js'
@@ -61,7 +62,7 @@
   $: checkInvite(joinText)
 </script>
 
-<div class='d-flex h-full align-items-center flex-column px-md-20 overflow-y-auto scroll-container'>
+<div class='d-flex h-full align-items-center flex-column px-md-20 overflow-y-auto scroll-container' class:pt-safe-area={!$status.match(/offline/i)}>
   {#if !$state}
     <div class='font-scale-50 font-weight-bold pt-20 mt-20 root'>Watch Together</div>
     <div class='d-flex flex-row flex-wrap justify-content-center align-items-center h-auto mb-20 pb-20 root position-relative w-full' class:h-full={!SUPPORTS.isAndroid}>

@@ -2,6 +2,7 @@
   import SearchBar, { searchCleanup } from '@/routes/search/components/SearchBar.svelte'
   import Card from '@/components/cards/Card.svelte'
   import { hasNextPage } from '@/modules/sections.js'
+  import { status } from '@/modules/networking.js'
   import { debounce } from '@/modules/util.js'
   import { onDestroy, onMount } from 'svelte'
   import { writable } from 'simple-store-svelte'
@@ -104,7 +105,7 @@
   })
 </script>
 
-<div class='bg-dark h-full w-full overflow-y-scroll d-flex flex-wrap flex-row root overflow-x-hidden justify-content-center align-content-start' class:bg-very-dark={$search.fileEdit} bind:this={container} on:scroll={infiniteScroll} on:resize={updateRowMarkers}>
+<div class='bg-dark h-full w-full overflow-y-scroll d-flex flex-wrap flex-row root overflow-x-hidden justify-content-center align-content-start' class:pt-safe-area={!$search.fileEdit && !$status.match(/offline/i)} class:bg-very-dark={$search.fileEdit} bind:this={container} on:scroll={infiniteScroll} on:resize={updateRowMarkers}>
   <SearchBar bind:search={$search} clearNow={$clearNow} on:input={update} />
   <div class='w-full d-grid d-md-flex flex-wrap flex-row px-40 justify-content-center align-content-start'>
     {#key $key}
