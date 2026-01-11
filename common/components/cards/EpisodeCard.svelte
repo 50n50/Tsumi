@@ -38,18 +38,17 @@
   $: checkForZero(media).then(_zeroEpisode => zeroEpisode = _zeroEpisode)
   $: episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
   $: lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (isValidNumber(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
-  $: episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
+  $: episodeThumbnail = ((data.similarity|| (!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode))) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
   $: watched = media?.mediaListEntry?.status === 'COMPLETED'
   $: completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
   $: progress = liveAnimeEpisodeProgress(media?.id, data?.episode, completed)
-  let hide = true
 
   function viewMedia () {
     modal.open(modal.ANIME_DETAILS, media)
   }
   function setClickState() {
     const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
-    if (!$prompt && !data.episodeData?.video && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(true)
+    if (!$prompt && !data.similarity && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(true)
     else isValidNumber(episode) ? (media ? playActive(data.hash, { media, episode: episode }, data.link, !data.link) : data.onclick()) : viewMedia()
     clicked.set(true)
     setTimeout(() => clicked.set(false)).unref?.()
@@ -58,7 +57,7 @@
     const focused = document.activeElement
     if (container && focused?.offsetParent != null && (container.contains(focused)) && (!previewCard || !previewCard.contains(focused))) ignoreFocus = true
     const episode = isValidNumber(data.episode) ? data.episode : (media?.episodes === 1 && media?.episodes)
-    if (!$prompt && !data.episodeData?.video && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
+    if (!$prompt && !data.similarity && isValidNumber(episode) && !Array.isArray(episode) && (episode - 1) >= 1 && media?.mediaListEntry?.status !== 'COMPLETED' && (media?.mediaListEntry?.progress || -1) < (episode - 1)) prompt.set(!!tapped)
     if (!$prompt || !$clicked) {
       preview = state
       setTimeout(() => {
@@ -138,15 +137,6 @@
   <div class='item load-in d-flex flex-column h-full pointer content-visibility-auto' class:opacity-half={completed}>
     <div class='image h-200 w-full position-relative rounded overflow-hidden d-flex justify-content-between align-items-end text-white'>
       <SmartImage class='cover-img cover-color w-full h-full position-absolute {!(data.episodeData?.image || media?.bannerImage) && media?.genres?.includes(`Hentai`) ? `cover-rotated cr-380` : ``}' color={media?.coverImage?.color || 'var(--tertiary-color)'} images={[episodeThumbnail, './404_episode.png']}/>
-      {#if data.episodeData?.video}
-        <video src={data.episodeData.video}
-          class='w-full position-absolute left-0'
-          class:d-none={hide}
-          playsinline
-          preload='metadata'
-          muted
-          on:loadeddata={() => { hide = false }} />
-      {/if}
       {#if data.failed}
         <div class='pl-10 pt-10 z-10 position-absolute top-0 left-0 text-danger icon-shadow' title='Failed to resolve media'>
           <RefreshCwOff size='3rem' />
@@ -208,7 +198,7 @@
             Movie
           {:else if data.parseObject?.anime_title?.match(/S(\d{2})/)}
             Season {parseInt(data.parseObject.anime_title.match(/S(\d{2})/)[1], 10)}
-          {:else if (!data.episodeData?.video)}
+          {:else if (!data.similarity)}
             Batch
           {/if}
         </div>

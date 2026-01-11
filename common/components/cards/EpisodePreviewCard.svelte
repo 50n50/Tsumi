@@ -24,22 +24,23 @@
   const media = data.media && mediaCache.value[data.media.id]
   const episodeRange = episodesList.handleArray(data?.episode, data?.parseObject?.file_name)
   const lastEpisode = (data?.episodeRange || data?.parseObject?.episodeRange)?.last || episodeRange?.last || (isValidNumber(data?.episode) && (data?.episode + (zeroEpisode ? 1 : 0))) || (media?.episodes === 1 && media?.episodes)
-  const episodeThumbnail = ((!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode)) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
+  const episodeThumbnail = ((data.similarity || (!media?.mediaListEntry?.status || !(['CURRENT', 'REPEATING', 'PAUSED', 'PLANNING'].includes(media.mediaListEntry.status) && media.mediaListEntry.progress < lastEpisode))) && data.episodeData?.image) || media?.bannerImage || media?.coverImage.extraLarge || ' '
   const watched = media?.mediaListEntry?.status === 'COMPLETED'
   const completed = !watched && media?.mediaListEntry?.progress >= lastEpisode
   const progress = liveAnimeEpisodeProgress(media?.id, data?.episode, completed)
   let hide = true
+  let animating = true
 
   $: resolvedHash = media?.id && !data.failed && getHash(media.id, { episode: data?.episode, client: true, batchGuess: true }, false, true)
 </script>
 
-<div class='position-absolute w-400 mh-400 absolute-container top-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer d-flex flex-column fade-change' in:fadeIn out:fadeOut bind:this={element}>
+<div class='position-absolute w-400 mh-400 absolute-container top-0 m-auto bg-dark-light z-30 rounded overflow-hidden pointer d-flex flex-column fade-change' in:fadeIn out:fadeOut on:introend={() => animating = false} on:outrostart={() => animating = true} bind:this={element}>
   <div class='image h-200 w-full position-relative d-flex justify-content-between align-items-end text-white'>
     <SmartImage class='img-cover w-full h-full position-absolute rounded p-0 m-0 {!(data.episodeData?.image || media?.bannerImage) && media?.genres?.includes(`Hentai`) ? `cover-rotated cr-400` : ``}' color={media?.coverImage.color || 'var(--tertiary-color)'} images={[episodeThumbnail, './404_episode.png']}/>
-    {#if data.episodeData?.video}
+    {#if data.episodeData?.video && !animating}
       <video src={data.episodeData.video}
-        class='w-full position-absolute left-0'
-        class:d-none={hide}
+        class='img-cover w-full h-full position-absolute'
+        style='opacity: {hide ? 0 : 1}; transition: opacity .3s ease'
         playsinline
         preload='none'
         loop
@@ -118,7 +119,7 @@
             Movie
           {:else if data.parseObject?.anime_title?.match(/S(\d{2})/)}
             Season {parseInt(data.parseObject.anime_title.match(/S(\d{2})/)[1], 10)}
-          {:else if (!data.episodeData?.video)}
+          {:else if (!data.similarity)}
             Batch
           {/if}
         </div>
@@ -212,8 +213,10 @@
   .image:after {
     content: '';
     position: absolute;
-    left: 0 ; bottom: 0;
-    width: 100%; height: 100%;
+    left: 0;
+    width: 100%;
+    bottom: -1px; /* Extend 1px below to cover gap */
+    height: calc(100% + 1px); /* Slightly taller */
     background: var(--episode-preview-card-gradient);
   }
   .list-status-circle {

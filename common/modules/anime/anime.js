@@ -76,14 +76,15 @@ export async function traceAnime (image) { // WAIT lookup logic
           for (const index in res.data?.Page?.media) {
             const media = res.data.Page.media[index]
             const counterpart = result.find(({ anilist }) => anilist === media.id)
+            const metadata = (await getEpisodeMetadataForMedia(media))?.[counterpart.episode] || {}
             res.data.Page.media[index] = {
               media,
               episode: counterpart.episode,
               similarity: counterpart.similarity,
               episodeData: {
-                image: counterpart.image,
-                video: counterpart.video,
-                ...(await getEpisodeMetadataForMedia(media))?.[counterpart.episode]
+                ...metadata,
+                ...(counterpart.image && { image: counterpart.image }),
+                ...(counterpart.video && { video: counterpart.video })
               }
             }
           }
