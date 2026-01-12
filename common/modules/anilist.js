@@ -42,6 +42,11 @@ title {
   userPreferred
 },
 description(asHtml: false),
+endDate {
+  year,
+  month,
+  day
+},
 startDate {
   year,
   month,
@@ -384,7 +389,7 @@ class AnilistClient {
   /** @returns {Promise<import('./al.d.ts').Query<{ MediaListCollection: import('./al.d.ts').MediaListCollection }>>} */
   async getUserLists(variables = {}, ignoreExpiry) {
     debug('Getting user lists')
-    variables.id = variables.userID || this.userID?.viewer?.data?.Viewer.id
+    variables.id = variables.userID || this.userID?.viewer?.data?.Viewer?.id
     const userSort = variables.sort || 'UPDATED_TIME_DESC'
     if (!variables.sort || Helper.isUserSort(variables)) variables.sort = 'UPDATED_TIME_DESC'
     const cachedEntry = this.sortListEntries(userSort, await cache.cachedEntry(caches.USER_LISTS, JSON.stringify(variables), ignoreExpiry || status.value.match(/offline/i)))
@@ -521,7 +526,7 @@ class AnilistClient {
         }
       }
     })
-    cache.cacheEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id }), { sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id }, res, (await cache.cachedEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id })))?.expiry || (Date.now() + 14 * 60 * 1000))
+    cache.cacheEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id }), { sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id }, res, (await cache.cachedEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id })))?.expiry || (Date.now() + 14 * 60 * 1000))
     this.userLists.value = res
   }
 
@@ -536,7 +541,7 @@ class AnilistClient {
         }
       }
     })
-    cache.cacheEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id }), { sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id }, res, (await cache.cachedEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer.id })))?.expiry || (Date.now() + 14 * 60 * 1000))
+    cache.cacheEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id }), { sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id }, res, (await cache.cachedEntry(caches.USER_LISTS, JSON.stringify({ sort: 'UPDATED_TIME_DESC', id: this.userID?.viewer?.data?.Viewer?.id })))?.expiry || (Date.now() + 14 * 60 * 1000))
     this.userLists.value = res
   }
 
@@ -1074,7 +1079,7 @@ class AnilistClient {
 
   // /** @returns {Promise<import('./al.d.ts').Query<{ MediaList: { status: string, progress: number, repeat: number }}>>} */
   // async searchIDStatus(variables = {}) {
-  //   variables.id = this.userID?.viewer?.data?.Viewer.id
+  //   variables.id = this.userID?.viewer?.data?.Viewer?.id
   //   variables.sort = variables.sort || 'OMIT'
   //   debug(`Searching for ID status: ${variables.id}`)
   //   const query = /* js */`

@@ -31,7 +31,7 @@
 
   function dropProfile (profile) {
     profiles.update(profiles => {
-      return profiles.filter(p => p.viewer.data.Viewer.id !== profile.viewer?.data?.Viewer.id)
+      return profiles.filter(p => p.viewer.data.Viewer.id !== profile.viewer?.data?.Viewer?.id)
     })
   }
 

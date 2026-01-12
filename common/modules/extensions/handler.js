@@ -164,7 +164,7 @@ function getRelation (list, type) {
  * @param {{episodes: any, episodeCount: number, specialCount: number}} param1
  **/
 async function ALtoAniDBEpisode ({ media, episode }, { episodes, episodeCount, specialCount }) {
-  debug(`Fetching AniDB episode for ${media?.id}:${media?.title?.userPreferred} ${episode}`)
+  debug(`Fetching AniDB episode for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
   if (!episode || !Object.values(episodes).length) return
   // if media has no specials or their episode counts don't match
   if (!specialCount || (media.episodes && media.episodes === episodeCount && episodes[Number(episode)])) {
@@ -172,11 +172,50 @@ async function ALtoAniDBEpisode ({ media, episode }, { episodes, episodeCount, s
     return episodes[Number(episode)]
   }
   debug(`Episode count mismatch between AL and AniDB for ${media?.id}:${media?.title?.userPreferred}`)
-  const res = await anilistClient.episodeDate({ id: media.id, ep: episode })
-  // TODO: if media only has one episode, and airdate doesn't exist use start/release/end dates
-  const alDate = new Date((res.data.AiringSchedule?.airingAt || 0) * 1000)
-  debug(`AL Airdate: ${alDate}`)
+  let alDate
 
+  // Cached media generally contains the full airing schedule including already aired episodes... best to check this first to reduce the number of anilist queries.
+  const scheduleNode = media?.airingSchedule?.nodes?.find(node => node.episode === episode)
+  if (scheduleNode?.airingAt) {
+    debug(`Found airdate in cached media for episode ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+    alDate = new Date(scheduleNode.airingAt * 1000)
+  } else {
+    debug(`No airdate in cached media, querying episodeDate for episode ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+    let res
+    try {
+      res = await anilistClient.episodeDate({ id: media.id, ep: episode })
+    } catch (e) {
+      debug(`Failed to get episode (network status: ${status.value}) for ${media?.id}:${media?.title?.userPreferred}`)
+    }
+
+    const airingAt = res?.data?.AiringSchedule?.airingAt
+    if (airingAt) {
+      alDate = new Date(airingAt * 1000)
+    } else {
+      debug(`No airing date found for episode ${episode}`)
+      // if media only has one episode or , and airdate doesn't exist use start/end dates
+      const oneEpisode = media.episodes === 1 || (!media.episodes && (media.format === 'MOVIE' || media.format === 'OVA' || media.format === 'SPECIAL'))
+      if (oneEpisode || episode <= 1) {
+        const endDate = media.endDate
+        const startDate = media.startDate
+        if (startDate?.year && startDate?.month && startDate?.day) { // We can use the start date for 'episode 0 or episode 1' with a series.
+          alDate = new Date(startDate.year, startDate.month - 1, startDate.day)
+          debug(`Using start date as fallback: ${alDate} for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+        } else if ((oneEpisode && episode <= 1) && endDate?.year && endDate?.month && endDate?.day) { // We can't reliably use the series end date if the number of episodes is not specified, and we are expecting more than one episode.
+          alDate = new Date(endDate.year, endDate.month - 1, endDate.day)
+          debug(`Using end date as fallback: ${alDate} for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+        } else {
+          debug(`No date information available for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+          return episodes[Number(episode)] // Best guess fallback
+        }
+      } else {
+        // For multi-episode shows without airdate, we can't reliably match
+        return episodes[Number(episode)]
+      }
+    }
+  }
+
+  debug(`AL Airdate: ${alDate} for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
   return episodeByAirDate(alDate, episodes, episode)
 }
 
@@ -188,10 +227,10 @@ async function ALtoAniDBEpisode ({ media, episode }, { episodes, episodeCount, s
 export function episodeByAirDate (alDate, episodes, episode) {
   // TODO handle special cases where anilist reports that 3 episodes aired at the same time because of pre-releases
   if (!+alDate) return episodes[Number(episode)] || episodes[1] // what the fuck, are you braindead anilist?, the source episode number to play is from an array created from AL ep count, so how come it's missing?
-  // 1 is key for episod 1, not index
+  // 1 is key for episode 1, not index
 
-  // find closest episodes by air date, multiple episodes can have the same air date distance
-  // ineffcient but reliable
+  // find the closest episodes by air date, multiple episodes can have the same air date distance
+  // inefficient but reliable
   const closestEpisodes = Object.values(episodes).reduce((prev, curr) => {
     if (!prev[0]) return [curr]
     const prevDate = Math.abs(+new Date(prev[0]?.airdate) - +alDate)

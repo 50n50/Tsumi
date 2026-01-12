@@ -88,7 +88,7 @@ export async function traceAnime (image) { // WAIT lookup logic
               }
             }
           }
-          res.data?.Page?.media.sort((a, b) => b.similarity - a.similarity)
+          res.data?.Page?.media?.sort((a, b) => b.similarity - a.similarity)
           return res
         })
         return SectionsManager.wrapResponse(res, result.length, 'episode')
