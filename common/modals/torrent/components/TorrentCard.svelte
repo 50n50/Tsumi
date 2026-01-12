@@ -106,6 +106,7 @@
   termMapping['EN DUB'] = termMapping.ENGLISHAUDIO
   termMapping['DUAL'] = termMapping.DUALAUDIO
   termMapping['DUB'] = termMapping.ENGLISHAUDIO
+  termMapping.RAW = { text: 'Raw', color: 'var(--octonary-color)' }
 
   /**
    * @param {Object} search
