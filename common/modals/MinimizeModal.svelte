@@ -29,7 +29,7 @@
   }
 </script>
 
-<SoftModal class='m-0 w-600 mw-0 mh-full d-flex flex-column rounded bg-very-dark pt-0 py-30 pl-30 pr-30 mx-20 scrollbar-none' css='z-110 m-0 p-0 modal-soft-ellipse' innerCss='m-0 p-0' showModal={$modal[modal.MINIMIZE_PROMPT]} {close} id='minimizeModal'>
+<SoftModal class='m-0 w-600 mw-0 mh-full d-flex flex-column rounded bg-very-dark pt-0 py-30 pl-30 pr-30 mx-20 scrollbar-none' css='z-110 m-0 p-0 modal-soft-ellipse' innerCss='m-0 p-0' showModal={$modal[modal.MINIMIZE_PROMPT]} {close} id={modal.MINIMIZE_PROMPT}>
   <button type='button' class='btn btn-square ml-auto d-flex align-items-center justify-content-center rounded-2 flex-shrink-0 mt-30' use:click={close}><X size='1.7rem' strokeWidth='3'/></button>
   <p class='my-0 text-center text-white font-scale-24 font-weight-semi-bold'>Minimize or Exit?</p>
   <p class='mt-1 text-center text-wrap'>Minimizing keeps Shiru running in the {VERSION.platform !== 'darwin' ? 'system tray' : 'dock and menu bar'} to continue receiving notifications and seeding torrents.</p>

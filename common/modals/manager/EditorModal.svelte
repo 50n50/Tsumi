@@ -52,7 +52,7 @@
     modal.open(modal.FILE_EDITOR, writable(search))
   }
 </script>
-<SoftModal class='vwh-90 rounded scrollbar-none bg-very-dark' bind:showModal={$modal[modal.FILE_EDITOR]} {close} id='fileEditorModal'>
+<SoftModal class='vwh-90 rounded scrollbar-none bg-very-dark' bind:showModal={$modal[modal.FILE_EDITOR]} {close} id={modal.FILE_EDITOR}>
   <div class='d-flex mt-10'>
     <div>
       <h3 class='mb-0 font-weight-bold text-white title font-size-24 ml-20'>Select a Series</h3>

@@ -1,4 +1,6 @@
 <script>
+  import { modal } from '@/modules/navigation.js'
+
   export let id
   export let showModal
   export let shouldRender = false
@@ -6,16 +8,20 @@
   export let css = ''
   export let innerCss = ''
 
-  function checkClose ({ keyCode }) {
-    if (keyCode === 27) close()
+  function handleKeydown(event) {
+    if (!showModal || event.key !== 'Escape' || !modal.focused || modal.focused !== id) return
+    const target = event.target
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      target.blur()
+      event.preventDefault()
+    } else close()
   }
-
-  let modal
-  $: showModal && requestAnimationFrame(() => requestAnimationFrame(() => modal?.focus()))
 </script>
 
-<div class='modal-soft position-absolute d-flex align-items-center justify-content-center z-50 w-full h-full {css}' class:hide={!showModal} class:show={showModal} id={id}>
-  <div class='modal-soft-dialog d-flex align-items-center justify-content-center pt-40 {innerCss}' class:hide={!showModal} class:show={showModal} on:pointerdown|self={close} on:keydown={checkClose} tabindex='-1' role='button' bind:this={modal}>
+<svelte:window on:keydown={handleKeydown} />
+
+<div class='modal-soft position-absolute d-flex align-items-center justify-content-center z-50 w-full h-full {css}' class:hide={!showModal} class:show={showModal} id={`${id}_modal`}>
+  <div class='modal-soft-dialog d-flex align-items-center justify-content-center pt-40 {innerCss}' tabindex='-1' role='button' class:hide={!showModal} class:show={showModal} on:pointerdown|self={close}>
     <div class='overflow-hidden d-flex flex-column overflow-y-scroll scroll-container {$$restProps.class}'>
       {#if showModal || shouldRender}
         <slot />
