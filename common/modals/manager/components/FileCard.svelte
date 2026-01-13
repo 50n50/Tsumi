@@ -117,16 +117,19 @@
                         pattern='[0-9 ~\-]*'
                         bind:value={episode}
                         use:click|stopPropagation
-                        on:input={(event) => {
-                            const targetValue = event.target.value.replace(/[^0-9~\-]/g, '')
-                            const value = targetValue?.length ? targetValue : getEpisode()
-                            event.target.value = value || null
-                        }}
-                        on:change={(event) => {
+                        on:blur={(event) => {
                             const targetValue = event.target.value.replace(/[^0-9~\-]/g, '')
                             const value = targetValue?.length ? targetValue : getEpisode()
                             event.target.value = value || null
                             updateEpisode(file, event)
+                        }}
+                        on:keydown={(event) => {
+                          if (event.key === 'Enter') {
+                            const targetValue = event.target.value.replace(/[^0-9~\-]/g, '')
+                            const value = targetValue?.length ? targetValue : getEpisode()
+                            event.target.value = value || null
+                            updateEpisode(file, event)
+                          }
                         }}
                         class='episode-input input form-control h-20 text-left text-dark text-truncate font-weight-semi-bold font-size-12 justify-content-center z-1'
                         style='background-color: {failed && !episode && episode !== 0 && file?.media?.media?.episodes > 1 ? `var(--danger-color-dim)` : `var(--undenary-color-dim)`}; width: calc(1.8rem + {((episode || isValidNumber(episode)) && String(episode).length <= 10 ? String(episode).length : 2) * .7}rem) !important'

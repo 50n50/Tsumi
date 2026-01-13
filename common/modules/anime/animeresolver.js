@@ -1,7 +1,7 @@
 import { anilistClient } from '@/modules/anilist.js'
 import { cache } from '@/modules/cache.js'
 import { anitomyscript, hasZeroEpisode } from '@/modules/anime/anime.js'
-import { chunks, matchKeys } from '@/modules/util.js'
+import { chunks, matchKeys, isValidNumber } from '@/modules/util.js'
 //import levenshtein from 'js-levenshtein'
 import Debug from 'debug'
 const debug = Debug('ui:animeresolver')
@@ -376,24 +376,24 @@ export default new class AnimeResolver {
             if (needsVerification) {
               const mediaSearch = (await this.manualMediaSearch(parseObj, maxep, media, titleKeys, threshold))
               media = mediaSearch.media
-              episode = mediaSearch.episode || episode
-              failed = mediaSearch.failed
+              episode = isValidNumber(mediaSearch.episode) ? Math.abs(mediaSearch.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+              failed = mediaSearch.failed || (isValidNumber(mediaSearch.episode) && Number(mediaSearch.episode) < 0) || failed
             }
           } else {
             if (maxep && parseInt(parseObj.episode_number[1]) > maxep) {
               const result = await this.findResult(parseObj, maxep, 0, media, titleKeys, threshold)
               parseObj = result.parseObj
               media = result.media
-              episode = result.episode || episode
-              failed = result.failed || failed
+              episode = isValidNumber(result.episode) ? Math.abs(result.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+              failed = result.failed || (isValidNumber(result.episode) && Number(result.episode) < 0) || failed
             } else {
               // cant find ep count or range seems fine
               episode = `${Number(parseObj.episode_number[0])} ~ ${Number(parseObj.episode_number[1])}`
               if (needsVerification) {
                 const mediaSearch = (await this.manualMediaSearch(parseObj, maxep, media, titleKeys, threshold))
                 media = mediaSearch.media
-                episode = mediaSearch.episode || episode
-                failed = mediaSearch.failed
+                episode = isValidNumber(mediaSearch.episode) ? Math.abs(mediaSearch.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+                failed = mediaSearch.failed || (isValidNumber(mediaSearch.episode) && Number(mediaSearch.episode) < 0) || failed
               }
             }
           }
@@ -412,32 +412,33 @@ export default new class AnimeResolver {
             const result = await this.findResult(parseObj, maxep, offset, media, titleKeys, threshold)
             parseObj = result.parseObj
             media = result.media
-            episode = result.episode || episode
-            failed = result.failed || failed
+            episode = isValidNumber(result.episode) ? Math.abs(result.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+            failed = result.failed || (isValidNumber(result.episode) && Number(result.episode) < 0) || failed
           } else {
             // cant find ep count or episode seems fine
             episode = Number(parseObj.episode_number)
             if (needsVerification) {
               const mediaSearch = (await this.manualMediaSearch(parseObj, maxep, media, titleKeys, threshold))
               media = mediaSearch.media
-              episode = mediaSearch.episode || episode
-              failed = mediaSearch.failed
+              episode = isValidNumber(mediaSearch.episode) ? Math.abs(mediaSearch.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+              failed = mediaSearch.failed || (isValidNumber(mediaSearch.episode) && Number(mediaSearch.episode) < 0) || failed
             }
           }
         }
       } else if (needsVerification) {
         const mediaSearch = (await this.manualMediaSearch(parseObj, maxep, media, titleKeys, threshold))
         media = mediaSearch.media
-        episode = mediaSearch.episode || episode
-        failed = mediaSearch.failed
+        episode = isValidNumber(mediaSearch.episode) ? Math.abs(mediaSearch.episode) : isValidNumber(episode) ? Math.abs(episode) : episode
+        failed = mediaSearch.failed || (isValidNumber(mediaSearch.episode) && Number(mediaSearch.episode) < 0) || failed
       }
       debug(`${failed || !(media?.title?.userPreferred) ? `Failed to resolve` : `Resolved`} ${parseObj.anime_title} ${parseObj.episode_number} ${episode} ${media?.id}:${media?.title?.userPreferred}`)
+      const guessedEpisode = isValidNumber(episode) ? episode : episode ? episode : isValidNumber(parseObj.episode_number) ? parseObj.episode_number : parseObj.episode_number ? parseObj.episode_number : media?.episodes === 1 ? 1 : media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1 ? 1 : null
       fileAnimes.push({
-        episode: episode || parseObj.episode_number || (media?.episodes === 1 ? 1 : media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1 ? 1 : null),
+        episode: isValidNumber(guessedEpisode) ? Math.abs(guessedEpisode) : guessedEpisode,
         ...(!media || media?.format !== 'MOVIE' || parseObj?.anime_season ? {season: parseObj?.anime_season ? Number(parseObj.anime_season) : 1} : {}),
         parseObject: parseObj,
         media,
-        failed: failed || !(media?.title?.userPreferred)
+        failed: failed || !(media?.title?.userPreferred) || (isValidNumber(guessedEpisode) && Number(guessedEpisode) < 0)
       })
     }
     return fileAnimes
