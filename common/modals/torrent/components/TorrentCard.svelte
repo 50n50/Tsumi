@@ -51,9 +51,10 @@
   termMapping.AACX3 = termMapping.AAC
   termMapping.AACX4 = termMapping.AAC
   termMapping.OPUS = { text: 'Opus', color: 'var(--octonary-color)' }
-  termMapping.AC3 = { text: 'AC3', color: 'var(--octonary-color)' }
   termMapping.EAC3 = { text: 'EAC3', color: 'var(--octonary-color)' }
   termMapping['E-AC-3'] = termMapping.EAC3
+  termMapping['E-AC3'] = termMapping.EAC3
+  termMapping.AC3 = { text: 'AC3', color: 'var(--octonary-color)' }
   termMapping['AC-3'] = termMapping.AC3
   termMapping.DDP = { text: 'Dolby', color: 'var(--octonary-color)' }
   termMapping.FLAC = { text: 'FLAC', color: 'var(--octonary-color)' }
@@ -95,6 +96,8 @@
   termMapping['DUAL-AUDIO'] = termMapping.DUALAUDIO
   termMapping['MULTI AUDIO'] = termMapping.DUALAUDIO
   termMapping['MULTI-AUDIO'] = termMapping.DUALAUDIO
+  termMapping['MULTI DUB'] = termMapping.DUALAUDIO
+  termMapping['MULTI-DUB'] = termMapping.DUALAUDIO
   termMapping['CN AUDIO'] = termMapping.CHINESEAUDIO
   termMapping['CHINESE AUDIO'] = termMapping.CHINESEAUDIO
   termMapping['CHINESE DUB'] = termMapping.CHINESEAUDIO
@@ -112,7 +115,7 @@
    * @param {Object} search
    * @param {AnitomyResult} param0
    */
-  export async function sanitiseTerms (search, { video_term: vid, audio_term: aud, video_resolution: resolution, file_name: _fileName }) {
+  export async function sanitiseTerms (search, { video_term: vid, audio_term: aud, video_resolution: resolution, file_name: _fileName, release_group: group }) {
     const isEnglishDubbed = await malDubs.isDubMedia(search?.media)
     const video = !Array.isArray(vid) ? [vid] : vid
     const audio = !Array.isArray(aud) ? [aud] : aud
@@ -133,9 +136,13 @@
       }
     }
 
+    // Remove release group from fileName
+    if (group) fileName = fileName.replace(new RegExp(String(group).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+
     let terms = [...new Set([...video, ...audio].map(term => {
       const key = term?.toUpperCase()
       const mappedTerm = termMapping[key]
+      if (mappedTerm && fileName) fileName = fileName.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
       return mappedTerm ? { key, term: mappedTerm } : null
     }).filter(t => t))]
 
@@ -148,8 +155,14 @@
     for (const key of Object.keys(termMapping)) {
       if (fileName && (isEnglishDubbed || termMapping[key] !== termMapping.ENGLISHAUDIO) && !terms.some(existingTerm => existingTerm.key === key)) {
         if (!fileName.toLowerCase().includes(key.toLowerCase())) {
-          if (matchPhrase(key.toLowerCase(), fileName, 1)) terms.push({ key, term: termMapping[key] })
-        } else terms.push({ key, term: termMapping[key] })
+          if (matchPhrase(key.toLowerCase(), fileName, 1)) {
+            terms.push({ key, term: termMapping[key] })
+            fileName = fileName.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+          }
+        } else {
+          terms.push({ key, term: termMapping[key] })
+          fileName = fileName.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+        }
       }
     }
 
