@@ -27,7 +27,7 @@
       setTimeout(() => IPC.emit('notification-unread', hasUnreadNotifications.value), 50)
       debounceNotify = false
     }
-  }, 1500)
+  }, 1_500)
   notifications.subscribe(() => {
     debounceNotify = true
     debounceBatch()
@@ -38,11 +38,8 @@
     modal.close(modal.NOTIFICATIONS)
   }
   $: {
-    if (!$modal[modal.NOTIFICATIONS]) updateSort()
-    else {
-      markWatchedAsRead()
-      currentNotifications = filterResults($notifications, searchText).slice(0, notificationCount)
-    }
+    if ($modal[modal.NOTIFICATIONS]) markWatchedAsRead()
+    else updateSort()
   }
 
   window.addEventListener('notification-app', (event) => queueNotification(event.detail, settings.value.systemNotify && (event.detail.button?.length || event.detail.activation)))
@@ -152,6 +149,7 @@
       })
       updateSort()
     }
+    currentNotifications = filterResults(notifications.value, searchText).slice(0, notificationCount)
   }
 
   function onclick(notification, view) {
@@ -171,6 +169,11 @@
     if (!searchText?.length) return results
     return results.filter(({ id, title }) => matchPhrase(searchText, title, 0.4, false, true) || matchKeys(cache.getMedia(id), searchText, ['title.userPreferred', 'title.english', 'title.romaji', 'title.native', 'synonyms'], 0.4)) || []
   }
+  const updateSearch = debounce((value) => {
+    container?.scrollTo?.({top: 0})
+    notificationCount = notificationCountDefault
+    currentNotifications = filterResults($notifications, value).slice(0, notificationCount)
+  }, 500)
 
   let notificationCountDefault = 25
   let notificationCount = notificationCountDefault
@@ -208,7 +211,7 @@
         autocomplete='off'
         spellcheck='false'
         data-option='search'
-        placeholder='Filter notifications by their titles' bind:value={searchText} on:input={(event) => { container.scrollTo({top: 0}); notificationCount = notificationCountDefault; currentNotifications = filterResults($notifications, event.target.value).slice(0, notificationCount) }} />
+        placeholder='Filter notifications by their titles' bind:value={searchText} on:input={(event) => updateSearch(event.target.value)} />
   </div>
   <div class='shadow-overlay' class:d-none={!$notifications?.length} />
   {#if $notifications?.length && !currentNotifications?.length}

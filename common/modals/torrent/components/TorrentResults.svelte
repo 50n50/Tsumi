@@ -1,6 +1,6 @@
 <script context='module'>
   import { settings } from '@/modules/settings.js'
-  import { matchPhrase, createListener } from '@/modules/util.js'
+  import { debounce, matchPhrase, createListener } from '@/modules/util.js'
   import { sanitiseTerms } from '@/modals/torrent/components/TorrentCard.svelte'
   import { add } from '@/modules/torrent.js'
   import { nowPlaying as currentMedia } from '@/components/MediaHandler.svelte'
@@ -147,7 +147,9 @@
 
   let countdown = 5
   let timeoutHandle
-  const maxEpisode = 10000
+  const maxEpisode = 10_000
+  const updateEpisode = debounce((value) => { if (search.episode !== value) search.episode = value }, 500)
+  $: episodeSearch = search?.episode
 
   /**
    * @param {ReturnType<typeof getBest>} promise
@@ -300,13 +302,16 @@
   }
 
   function episodeInput ({ target }) {
-    const episode = Number(target.value)
+    const episode = Math.floor(Number(target.value))
     const episodeValue = episode > maxEpisode ? maxEpisode : episode
-    if (search.episode === episodeValue) {
+    if (episodeSearch === episodeValue) {
       target.value = episodeValue
+      episodeSearch = episodeValue
+      updateEpisode(episodeValue)
     } else if (episode || episode === 0) {
-      search.episode = episodeValue
-      if (episode > maxEpisode) target.value = maxEpisode
+      target.value = episodeValue
+      episodeSearch = episodeValue
+      updateEpisode(episodeValue)
     }
   }
 
@@ -411,9 +416,9 @@
         </span>
         </button>
       </div>
-      <div class='d-flex align-items-center mr-5' style='width: calc(5.2rem + {(String(search.episode).length <= 10 ? String(search.episode).length : 10) * 1}rem) !important' title='Episode'>
+      <div class='d-flex align-items-center mr-5' style='width: calc(5.2rem + {(String(episodeSearch).length <= 10 ? String(episodeSearch).length : 10) * 1}rem) !important' title='Episode'>
         <Clapperboard size='2.75rem' class='position-absolute z-10 text-dark-light pl-10 pointer-events-none' />
-        <input type='number' inputmode='numeric' pattern='[0-9]*' max={maxEpisode} class='form-control bg-dark-very-light pl-40 control' placeholder='5' value={search.episode} on:input={episodeInput} disabled={(!search.episode && search.episode !== 0) || movie} />
+        <input type='number' inputmode='numeric' pattern='[0-9]*' max={maxEpisode} class='form-control bg-dark-very-light pl-40 control' placeholder='5' step='1' value={episodeSearch} on:input={episodeInput} disabled={(!search.episode && search.episode !== 0) || movie} />
       </div>
     </div>
     <div class='col-12 col-sm-6 d-flex align-items-center mt-5 justify-content-center mt-sm-0 justify-content-sm-end'>
