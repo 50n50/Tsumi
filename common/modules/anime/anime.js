@@ -8,6 +8,7 @@ import { page } from '@/modules/navigation.js'
 import clipboard from '@/modules/clipboard.js'
 import { playAnime } from '@/modals/torrent/TorrentModal.svelte'
 import { animeSchedule } from '@/modules/anime/animeschedule.js'
+import AnimeResolver from '@/modules/anime/animeresolver.js'
 import { episodesList } from '@/modules/episodes.js'
 import { settings } from '@/modules/settings.js'
 import { cache, caches } from '@/modules/cache.js'
@@ -235,8 +236,13 @@ export async function hasZeroEpisode(media, existingMappings) { // really wish t
   const zeroAsFirstEpisode = /episode\s*0/i.test(mappings?.episodes?.[1]?.title?.en || mappings?.episodes?.[1]?.title?.jp) // The first episode is titled as Episode 0 so this is likely a Prologue, fixes issues with series like `Fate/stay night: Unlimited Blade Works`
   // no clue what fixed Mushoku but this initial part seems to allow 'Episode 0 : Guardian Fits' to properly be mapped to season 2 part 1, ensure when making changes this doesn't appear on season 1 part 1.
   if (hasZeroEpisode?.length > 0 && ((media.episodes >= media.streamingEpisodes?.length) || zeroAsFirstEpisode)) {
-    return [{...hasZeroEpisode[0], title: hasZeroEpisode[0]?.title?.replace('Episode 0 - ', '')}]
-  } else if (!(media.episodes && media.episodes === mappings?.episodeCount && media.status === 'FINISHED')) {
+    const title = hasZeroEpisode[0]?.title?.replace('Episode 0 - ', '')
+    const prequel = title?.length > 4 && await AnimeResolver.getAnimeById(AnimeResolver.findEdge(media, 'PREQUEL', ['SPECIAL'])?.node?.id)
+    if (!prequel || !Object.values(prequel.title).filter(Boolean).some(_title => _title.toLowerCase().includes(title.toLowerCase()))) {
+      return [{...hasZeroEpisode[0], title}]
+    }
+  }
+  if (!(media.episodes && media.episodes === mappings?.episodeCount && media.status === 'FINISHED')) {
     const special = (mappings?.episodes?.S0 || mappings?.episodes?.s0 || mappings?.episodes?.S1 || mappings?.episodes?.s1)
     if (mappings?.specialCount > 0 && special?.airedBeforeEpisodeNumber > 0) { // very likely it's a zero episode, streamingEpisodes were likely just empty...
       return [{title: special.title?.en, thumbnail: special.image, length: special.length, summary: special.summary, airingAt: special.airDateUtc}]
