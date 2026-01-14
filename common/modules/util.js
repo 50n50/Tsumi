@@ -304,10 +304,11 @@ function replaceSeasonWithWords(text) {
   })
 }
 
+const hyphenRegex = /(\w)-(\w)/g
 const regex = !SUPPORTS.isAndroid ? new RegExp('[^\\p{L}\\p{N}\\p{Zs}\\p{Pd}]', 'gu') : /[^a-zA-Z0-9\s\-\u00C0-\u024F\u0400-\u04FF\u0370-\u03FF\u0600-\u06FF\u0900-\u097F\u4E00-\u9FFF]/g
 function cleanText(text) {
   if (typeof text !== 'string') return ''
-  return replaceSeasonWithWords(text.replace(regex, ''))
+  return replaceSeasonWithWords(text.replace(hyphenRegex, '$1 $2').replace(regex, ''))
 }
 
 /**
