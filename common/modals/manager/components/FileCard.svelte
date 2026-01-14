@@ -20,9 +20,10 @@
     export let fileEdit
     export let playFile
 
-    $: notWatching = ((!$mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress) || ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress === 0 && ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'CURRENT' || $mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'REPEATING' && $mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'COMPLETED')))
+    $: repeating = $mediaCache[file?.media?.media?.id]?.mediaListEntry?.status === 'REPEATING'
+    $: notWatching = ((!$mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress) || ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress === 0 && (($mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'CURRENT' || !repeating) && $mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'COMPLETED')))
     $: behind = Helper.isAuthorized() && file?.media?.episode && !Array.isArray(file?.media?.episode) && (file?.media?.episode - 1) >= 1 && ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.status !== 'COMPLETED' && (($mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress || -1) < (file?.media?.episode - 1)))
-    $: watched = !notWatching && !behind && file?.media?.episode && ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.status === 'COMPLETED' || ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress >= file?.media?.episode))
+    $: completed = !notWatching && !behind && file?.media?.episode && ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.status === 'COMPLETED' || ($mediaCache[file?.media?.media?.id]?.mediaListEntry?.progress >= file?.media?.episode))
     $: failed = file?.failed || file?.media?.failed
 
     let prompt = false
@@ -85,7 +86,7 @@
     }
 </script>
 
-<div class='file-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale {$$restProps.class}' class:pointer={!playing} role='button' tabindex='0' title={file?.name} use:blurExit={ () => { if (prompt) setTimeout(() => { prompt = false }) }} use:hoverExit={() => { if (prompt) setTimeout(() => { prompt = false }) }} use:click={() => { if (!behind || prompt || (!playing && !file?.media?.media)) { prompt = false; if (!playing) { modal.close(modal.FILE_MANAGER); playFile(file) } } else if (!playing) { prompt = true } } } class:not-reactive={!$reactive || playing} class:behind={(behind && !notWatching)} class:current={!behind && !notWatching} class:not-watching={notWatching} class:watched={watched}>
+<div class='file-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale {$$restProps.class}' class:pointer={!playing} role='button' tabindex='0' title={file?.name} use:blurExit={ () => { if (prompt) setTimeout(() => { prompt = false }) }} use:hoverExit={() => { if (prompt) setTimeout(() => { prompt = false }) }} use:click={() => { if (!behind || prompt || (!playing && !file?.media?.media)) { prompt = false; if (!playing) { modal.close(modal.FILE_MANAGER); playFile(file) } } else if (!playing) { prompt = true } } } class:not-reactive={!$reactive || playing} class:behind={(behind && !notWatching)} class:current={!behind && !notWatching && !repeating} class:repeating={!behind && !notWatching && repeating} class:not-watching={notWatching} class:completed={completed}>
     <div class='position-absolute top-0 left-0 w-full h-full'>
         <img src={file?.media?.media?.bannerImage || ''} alt='bannerImage' class='hero-img img-cover w-full h-full' />
         <div class='position-absolute rounded-5 opacity-transition-hack' style='background: var(--notification-card-gradient)' />
@@ -178,8 +179,11 @@
     .file-item.current {
         border-left: .4rem solid var(--current-color);
     }
-    .file-item.watched {
-        border-left: .4rem solid var(--watched-color);
+    .file-item.repeating {
+      border-left: .4rem solid var(--repeating-color);
+    }
+    .file-item.completed {
+        border-left: .4rem solid var(--completed-color);
     }
     .file-item.behind {
         border-left: .4rem solid var(--dropped-color);

@@ -222,17 +222,18 @@
       {#await cache.requestMedia(notification?.id) then media}
         {@const delayed = notification.delayed}
         {@const announcement = notification.click_action === 'VIEW' && !delayed}
-        {@const notWatching = !announcement && !delayed && ((!media?.mediaListEntry?.progress) || (media?.mediaListEntry?.progress === 0 && (media?.mediaListEntry?.status !== 'CURRENT' || media?.mediaListEntry?.status !== 'REPEATING' && media?.mediaListEntry?.status !== 'COMPLETED')))}
+        {@const repeating = media?.mediaListEntry?.status === 'REPEATING'}
+        {@const notWatching = !announcement && !delayed && ((!media?.mediaListEntry?.progress) || (media?.mediaListEntry?.progress === 0 && ((media?.mediaListEntry?.status !== 'CURRENT' || !repeating) && media?.mediaListEntry?.status !== 'COMPLETED')))}
         {@const behind = Helper.isAuthorized() && !announcement && !delayed && isValidNumber(notification.episode) && (notification.episode - 1) >= 1 && (media?.mediaListEntry?.status !== 'COMPLETED' && ((media?.mediaListEntry?.progress || -1) < ((!isValidNumber(notification.season) ? notification.episode : media?.episodes) - 1)))}
-        {@const watched = !announcement && !delayed && !notWatching && !behind && isValidNumber(notification.episode) && (media?.mediaListEntry?.status === 'COMPLETED' || (media?.mediaListEntry?.progress >= (!isValidNumber(notification.season) ? notification.episode : media?.episodes)))}
+        {@const completed = !announcement && !delayed && !notWatching && !behind && isValidNumber(notification.episode) && (media?.mediaListEntry?.status === 'COMPLETED' || (media?.mediaListEntry?.progress >= (!isValidNumber(notification.season) ? notification.episode : media?.episodes)))}
         {@const resolvedHash = getHash(notification.id, { episode: notification.episode, client: true }, false, true)}
-        <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching} class:not-watching={notWatching} class:watched={watched} class:announcement={announcement}
+        <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching && !repeating} class:repeating={!behind && !notWatching && repeating} class:not-watching={notWatching} class:completed={completed} class:announcement={announcement}
              use:blurExit={ () => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
              use:hoverExit={() => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
              use:click={() => {
-                   if (!behind || notification.prompt) preventScroll(container.scrollTop, () => { notification.read = true; delete notification.prompt; onclick(notification) })
-                   else preventScroll(container.scrollTop, () => notification.prompt = true)
-                 }}
+               if (!behind || notification.prompt) preventScroll(container.scrollTop, () => { notification.read = true; delete notification.prompt; onclick(notification) })
+               else preventScroll(container.scrollTop, () => notification.prompt = true)
+             }}
              on:contextmenu|preventDefault={() => { notification.read = true; onclick(notification, true) }}>
           {#if notification.heroImg}
             <div class='position-absolute top-0 left-0 w-full h-full'>
@@ -251,7 +252,7 @@
                 {#if notification.hash || resolvedHash}
                   <TorrentButton class='btn btn-square mr-5 z-1' hash={[...(notification.hash && notification.hash !== resolvedHash ? [notification.hash] : []), ...(resolvedHash ? [resolvedHash] : [])]} torrentID={notification.magnet} search={{ media: { id: notification.id }, episode: notification.episode }}/>
                 {/if}
-                <button type='button' class='read-button btn btn-square d-flex align-items-center justify-content-center z-1' class:not-allowed={watched} class:not-reactive={watched} use:click={() => { preventScroll(container.scrollTop, () => { notification.read = !notification.read; delete notification.prompt }) }}>
+                <button type='button' class='read-button btn btn-square d-flex align-items-center justify-content-center z-1' class:not-allowed={completed} class:not-reactive={completed} use:click={() => { preventScroll(container.scrollTop, () => { notification.read = !notification.read; delete notification.prompt }) }}>
                   {#if notification.read}
                     <MailOpen size='1.7rem' strokeWidth='3'/>
                   {:else}
@@ -344,8 +345,11 @@
   .notification-item.current {
     border-left: .4rem solid var(--current-color);
   }
-  .notification-item.watched {
-    border-left: .4rem solid var(--watched-color);
+  .notification-item.repeating {
+    border-left: .4rem solid var(--repeating-color);
+  }
+  .notification-item.completed {
+    border-left: .4rem solid var(--completed-color);
   }
   .notification-item.behind {
     border-left: .4rem solid var(--dropped-color);
