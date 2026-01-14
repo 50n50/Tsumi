@@ -90,6 +90,15 @@
   async function load () {
     const mappings = await getAniMappings(id) || {}
     const { episodes, specialCount, episodeCount: newEpisodeCount } = mappings
+    const getEpisode = (episode) => {
+      const keys = Object.keys(episodes || {})
+      const episodeData = episodes?.[episode] || episodes?.[`O${episode}`]
+      // Handle mappings edge case where there are two entries with the same episode. This typically happens when a movie or special gets broken up into multiple parts for streaming e.g: https://anilist.co/anime/151384 and https://anilist.co/anime/194884
+      if (episode === 1 && specialCount === 0 && episodes?.['1'] && episodes?.['O1'] && (media.format === 'MOVIE' || media.format === 'SPECIAL' || episodeData?.title?.en?.match(/MOVIE/i)) && keys.length > (media.episodes ?? 0) && media.status === 'FINISHED') {
+        return episodes[keys[1]]
+      }
+      return episodeData
+    }
 
     /** @type {{ zeroEpisode: object; airingAt: number; episode: number; filler?: boolean; dubAiring?: object; }[]} */
     episodeList = Array.from({ length: (newEpisodeCount > episodeCount ? newEpisodeCount : episodeCount) }, (_, i) => ({
@@ -142,8 +151,8 @@
       const alDate = airingPromise && new Date(typeof airingPromise === 'number' ? (airingPromise || 0) * 1000 : (airingPromise || 0))
 
       // validate by air date if the anime has specials AND doesn't have matching episode count
-      const needsValidation = !(!specialCount || (media.episodes && media.episodes === newEpisodeCount && episodes && episodes[Number(episode)]))
-      const { image, summary, overview, rating, title: newTitle, length, airdate } = needsValidation ? episodeByAirDate(null, episodes, episode) : ((episodes && episodes[Number(episode)]) || {})
+      const needsValidation = !(!specialCount || (media.episodes && media.episodes === newEpisodeCount && episodes && getEpisode(Number(episode))))
+      const { image, summary, overview, rating, title: newTitle, length, airdate } = needsValidation ? episodeByAirDate(null, episodes, episode) : (episodes && getEpisode(Number(episode)) || {})
       const kitsuEpisode = kitsuMappings?.data?.find(ep => ep?.attributes?.number === episode)?.attributes
       const streamingTitle = !media.streamingEpisodes?.find(ep => episodeRx.exec(ep.title) && Number(episodeRx.exec(ep.title)[1]) === (media?.episodes + 1)) && media.streamingEpisodes?.find(ep => episodeRx.exec(ep.title) && Number(episodeRx.exec(ep.title)[1]) === episode && episodeRx.exec(ep.title)[2] && !episodeRx.exec(ep.title)[2].toLowerCase().trim().startsWith('episode'))
       const streamingThumbnail = media.streamingEpisodes?.find(ep => episodeRx.exec(ep.title) && Number(episodeRx.exec(ep.title)[1]) === episode)?.thumbnail
@@ -325,7 +334,7 @@
                     </div>
                   {/if}
                   <div class='font-size-12 overflow-hidden {(!completed && !progress) || !dubAiring ? `line-3 line-sm-4` : `line-2 line-sm-3`}' class:mb-10={unreleased && !largeCard} class:summary={unreleased} class:font-weight-bold={unreleased}>
-                    {summary?.replace(/source:\s*.+$/i, '') || ''}
+                    {summary?.replace(/\s*\(?source:\s*[\s\S]+?\)?$/i, '') || ''}
                   </div>
                   <div class='font-size-12 mt-auto' class:mb-5={dubAiring} class:mb-10={!dubAiring}>
                     {#if dubAiring}
