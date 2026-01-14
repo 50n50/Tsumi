@@ -876,7 +876,7 @@ export async function isSubbedProgress(media) {
 }
 
 const concurrentRequests = new Map()
-export async function getKitsuMappings(anilistID) { // TODO: Likely need to make this the primary mappings over ani mappings as there appears to be zero rate limit or concurrency limit when testing.
+export async function getKitsuMappings(anilistID) {
   if (!anilistID) return
   const cachedEntry = cache.cachedEntry(caches.MAPPINGS, `kitsu-${anilistID}`, status.value === 'offline')
   if (cachedEntry) return cachedEntry
@@ -908,7 +908,10 @@ export async function getKitsuMappings(anilistID) { // TODO: Likely need to make
           checkError(res, 'kitsu')
         }
       }
-      return cache.cacheEntry(caches.MAPPINGS, `kitsu-${anilistID}`, {}, json, Date.now() + getRandomInt(480, 1440) * 60 * 1000)
+      const date = new Date()
+      const media = cache.getMedia(anilistID)
+      const cacheDuration = media?.status === 'FINISHED' && (media?.endDate ? (date.getFullYear() - media?.endDate.year) * 12 + (date.getMonth() + 1 - media?.endDate.month) >= 1 : (media?.startDate?.year || media?.seasonYear) && date.getFullYear() - (media?.startDate?.year || media?.seasonYear) >= 1) ? getRandomInt(14, 21) * 24 * 60 * 60 * 1_000 : getRandomInt(60, 90) * 60 * 1_000
+      return cache.cacheEntry(caches.MAPPINGS, `kitsu-${anilistID}`, {}, json, date.getTime() + cacheDuration) // caches currently airing series for 60 to 90 minutes, or 2 to 3 weeks for finished series (its highly unlikely the mappings will change drastically at that point).
     } catch (e) {
       const cachedEntry = cache.cachedEntry(caches.MAPPINGS, `kitsu-${anilistID}`, true)
       if (cachedEntry) {
@@ -977,7 +980,10 @@ export async function getAniMappings(anilistID) {
           checkError(res, 'ani')
         }
       }
-      return cache.cacheEntry(caches.MAPPINGS, `ani-${anilistID}`, {}, json, Date.now() + getRandomInt(480, 1440) * 60 * 1000)
+      const date = new Date()
+      const media = cache.getMedia(anilistID)
+      const cacheDuration = media?.status === 'FINISHED' && (media?.endDate ? (date.getFullYear() - media?.endDate.year) * 12 + (date.getMonth() + 1 - media?.endDate.month) >= 1 : (media?.startDate?.year || media?.seasonYear) && date.getFullYear() - (media?.startDate?.year || media?.seasonYear) >= 1) ? getRandomInt(14, 21) * 24 * 60 * 60 * 1_000 : getRandomInt(60, 90) * 60 * 1_000
+      return cache.cacheEntry(caches.MAPPINGS, `ani-${anilistID}`, {}, json, date.getTime() + cacheDuration) // caches currently airing series for 60 to 90 minutes, or 2 to 3 weeks for finished series (its highly unlikely the mappings will change drastically at that point).
     } catch (e) {
       const cachedEntry = cache.cachedEntry(caches.MAPPINGS, `ani-${anilistID}`, true)
       if (cachedEntry) {
