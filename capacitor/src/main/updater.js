@@ -70,6 +70,7 @@ export default class Updater {
 
   startUpdatePolling() {
     this.updateAvailable = true
+    clearInterval(this.availableInterval)
     this.availableInterval = setInterval(() => {
       if (!this.hasUpdate) IPC.emit('update-available', sanitizeVersion(this.latestRelease))
     }, 1_000)
@@ -84,27 +85,37 @@ export default class Updater {
         this.hasUpdate = true
         const releaseInfo = await (await fetch(this.assetURL)).json()
         const regex = new RegExp(`${sanitizeVersion(releaseInfo.tag_name)}.*${this.versionCode}`, 'i')
-        const asset = releaseInfo.assets.find(a => regex.test(a.browser_download_url))
+        const asset = releaseInfo?.assets?.find(a => regex.test(a.browser_download_url))
+        const updateAborted = (aborted = false) => {
+          this.hasUpdate = false
+          this.startUpdatePolling()
+          IPC.emit('update-aborted', aborted)
+        }
         if (!asset) {
           console.error('Update file not found for version and architecture:', this.latestRelease, releaseInfo.tag_name, this.versionCode)
-          this.hasUpdate = false
+          updateAborted()
           return
         }
-        await ApkUpdater.download(asset.browser_download_url, { onDownloadProgress: console.debug }, () => {
+        await ApkUpdater.download(asset.browser_download_url, {
+          onDownloadProgress: (progress) => {
+            console.debug(progress)
+            IPC.emit('update-progress', progress.progress ?? 0)
+          }
+        }, () => {
           const listener = App.addListener('appStateChange', (state) => {
             if (state.isActive) {
               listener.remove()
-              setTimeout(() => {
-                this.hasUpdate = false
-                this.startUpdatePolling()
-                IPC.emit('update-aborted')
-              }, 1_500).unref?.()
+              setTimeout(() => updateAborted(true), 1_500).unref?.()
             }
           })
           ApkUpdater.install(console.error, console.error)
-        }, (error) => console.error('Updater failed to download update', error))
+        }, (error) => {
+          console.error('Updater failed to download update', error)
+          updateAborted()
+        })
         return true
       } catch (error) {
+        IPC.emit('update-aborted')
         clearInterval(this.availableInterval)
         this.updateAvailable = false
         this.hasUpdate = false

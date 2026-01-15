@@ -3,9 +3,9 @@ import { IPC } from '../preload/preload.js'
 import { Device } from '@capacitor/device'
 
 const _console = { ...console }
-const stripAnsi = str => str.replace(/\x1b\[[0-9;]*m/g, '')
+const stripAnsi = str => str?.replace(/\x1b\[[0-9;]*m/g, '')
 const wrap = level => (...args) => {
-  SecureLogger[level](level, stripAnsi(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ')))
+  SecureLogger[level](level, stripAnsi(args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ')))
   _console[level === 'info' ? 'log' : level](...args)
 }
 console.log = wrap('info')

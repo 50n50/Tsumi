@@ -19,6 +19,7 @@ export default class Updater {
     this.torrentWindow = torrentWindow
     autoUpdater.autoInstallOnAppQuit = false
     ipcMain.on('update', () => autoUpdater.checkForUpdates())
+    autoUpdater.on('error', () => this.window.webContents.send('update-aborted'))
     autoUpdater.on('update-available', (info) => {
       if (!this.downloading) {
         this.downloading = true

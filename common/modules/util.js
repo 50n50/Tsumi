@@ -58,18 +58,20 @@ export function stringToHex(str) {
 }
 
 /**
- * Creates a deferred promise that can be resolved manually.
- * @returns {{ promise: Promise<boolean>, resolve: (value?: boolean) => void }}
+ * Creates a deferred promise that can be resolved or rejected manually.
+ * @returns {{ promise: Promise<boolean>, resolve: (value?: boolean) => void, reject: (reason?: any) => void }}
  */
 export function createDeferred() {
   let resolveFn
-  const promise = new Promise((resolve) => {
+  let rejectFn
+  const promise = new Promise((resolve, reject) => {
     resolveFn = resolve
+    rejectFn = reject
   })
-  if (typeof resolveFn !== 'function') {
+  if (typeof resolveFn !== 'function' || typeof rejectFn !== 'function') {
     throw new Error('Failed to create deferred promise')
   }
-  return { promise, resolve: resolveFn }
+  return { promise, resolve: resolveFn, reject: rejectFn }
 }
 
 /**

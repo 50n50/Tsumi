@@ -9,7 +9,9 @@
   import { changeLog, markdownToHtml } from '@/routes/settings/tabs/ChangelogTab.svelte'
   import { settings } from '@/modules/settings.js'
   import { page, modal } from '@/modules/navigation.js'
+  import { createDeferred } from '@/modules/util.js'
   import { IPC } from '@/modules/bridge.js'
+  import { toast } from 'svelte-sonner'
   import Debug from 'debug'
   const debug = Debug('ui:update-modal')
 
@@ -52,6 +54,8 @@
       }
     }
   })
+  const updateProgress = writable(0)
+  IPC.on('update-progress', progress => updateProgress.set(progress))
   setTimeout(() => IPC.emit('update'), 2_500).unref?.()
   setInterval(() => IPC.emit('update'), 300_000).unref?.()
 </script>
@@ -59,6 +63,7 @@
   $: $updateState === 'ready' && getChangeLogs() && modal.open(modal.UPDATE_PROMPT)
   $: ($updateState === 'up-to-date' || $updateState === 'downloading') && close()
   $: updating = false
+  let updatePromise = createDeferred()
   const defaultLogs = [{ version: '0.0.1', date: new Date().getTime(), body: '', url: 'https://github.com/RockinChaos/Shiru/releases/latest' }, { version: '0.0.1' }]
   let changeLogs = defaultLogs
   async function getChangeLogs() {
@@ -77,6 +82,17 @@
   function confirm() {
     if (updating) return
     updating = true
+    updatePromise = createDeferred()
+    const id = toast.loading(SUPPORTS.isAndroid ? 'Downloading Update' : 'Preparing Update', { duration: Infinity, description: SUPPORTS.isAndroid ? 'Please wait while the latest version is downloaded...' : 'Please wait while the update is applied. The app will restart automatically...' })
+    updatePromise.promise.then(() => {
+      toast.success('Update Complete', {
+        id, duration: 6_000, description: 'Update was successfully applied. The app will now restart...'
+      })
+    }).catch(() => {
+      toast.error(SUPPORTS.isAndroid ? 'Update Aborted' : 'Update Failed', {
+        id, duration: 15_000, description: SUPPORTS.isAndroid ? 'Update was not installed. The process was canceled or an error occurred.' : 'Something went wrong during the update process!'
+      })
+    })
     IPC.emit('quit-and-install')
   }
   function compareVersions(currentVersion, previousVersion) {
@@ -90,12 +106,13 @@
     }
     return 0
   }
-  if (SUPPORTS.isAndroid) {
-    IPC.on('update-aborted', () => {
-      updating = false
-      $updateState = 'aborted'
-    })
-  }
+  IPC.on('update-aborted', (aborted) => {
+    if (!updating) return
+    updating = false
+    $updateProgress = 0
+    if (aborted) $updateState = 'aborted'
+    updatePromise.reject()
+  })
 </script>
 
 <SoftModal class='m-0 pt-0 d-flex flex-column rounded bg-very-dark scrollbar-none viewport-md-4-3 border-md w-full h-full rounded-10' css='z-105 m-0 p-0 modal-soft-ellipse' innerCss='m-0 p-0' showModal={$modal[modal.UPDATE_PROMPT]} close={() => {}} id={modal.UPDATE_PROMPT}>
@@ -131,7 +148,7 @@
   <div class='mt-auto border-top px-40'>
     <div class='d-flex my-20 flex-column-reverse flex-md-row font-enlarge-14'>
       <button class='btn btn-close mr-5 font-weight-bold rounded-2 w-full mt-10 mt-md-0 py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={updating} on:click={() => close(true)}>Not now</button>
-      <button class='btn btn-secondary text-dark font-weight-bold ml-md-auto rounded-2 w-full py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={updating} on:click={confirm}>{SUPPORTS.isAndroid && $updateState !== 'aborted' ? (!updating ? 'Download' : 'Downloading...') : (!updating ? 'Update' : 'Updating...')}</button>
+      <button class='btn btn-secondary update-button position-relative overflow-hidden border-0 text-dark font-weight-bold ml-md-auto rounded-2 w-full py-10 h-auto py-md-2 w-md-auto px-md-30' type='button' disabled={updating} on:click={confirm} style={updating && $updateProgress > 0 ? `--update-progress: ${$updateProgress}%` : ''}>{SUPPORTS.isAndroid && $updateState !== 'aborted' ? (!updating ? 'Download' : 'Downloading...') : (!updating ? 'Update' : 'Updating...')}</button>
     </div>
   </div>
 </SoftModal>
@@ -141,5 +158,17 @@
     .btn-close:hover {
       background-color: var(--gray-color-light) !important;
     }
+  }
+  .update-button::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--update-progress, 0%);
+    border-radius: inherit;
+    background: var(--white-color-dim);
+    transition: width .3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 </style>
