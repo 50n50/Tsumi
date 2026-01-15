@@ -1,8 +1,9 @@
 import { settings } from '@/modules/settings.js'
 import WPC from '@/modules/wpc.js'
-import { sleep } from '@/modules/util.js'
+import { sleep, isValidNumber } from '@/modules/util.js'
 import { anilistClient } from '@/modules/anilist.js'
 import { anitomyscript, getAniMappings, getMediaMaxEp } from '@/modules/anime/anime.js'
+import { checkForZero } from '@//components/MediaHandler.svelte'
 import { status } from '@/modules/networking.js'
 import { extensionManager } from '@/modules/extensions/manager.js'
 import AnimeResolver from '@/modules/anime/animeresolver.js'
@@ -165,7 +166,7 @@ function getRelation (list, type) {
  **/
 async function ALtoAniDBEpisode ({ media, episode }, { episodes, episodeCount, specialCount }) {
   debug(`Fetching AniDB episode for ${episode}:${media?.id}:${media?.title?.userPreferred}`)
-  if (!episode || !Object.values(episodes).length) return
+  if (!isValidNumber(episode) || !Object.values(episodes).length) return
   // if media has no specials or their episode counts don't match
   if (!specialCount || (media.episodes && media.episodes === episodeCount && episodes[Number(episode)])) {
     debug('No specials found, or episode count matches between AL and AniDB')
@@ -174,18 +175,20 @@ async function ALtoAniDBEpisode ({ media, episode }, { episodes, episodeCount, s
   debug(`Episode count mismatch between AL and AniDB for ${media?.id}:${media?.title?.userPreferred}`)
   let alDate
 
+  // Track zero episodes and offset episode by 1 when searching AniList as matching dates would correlate to episode + 1.
+  const hasZeroEpisode = specialCount && await checkForZero(media)
   // Cached media generally contains the full airing schedule including already aired episodes... best to check this first to reduce the number of anilist queries.
-  const scheduleNode = media?.airingSchedule?.nodes?.find(node => node.episode === episode)
+  const scheduleNode = media?.airingSchedule?.nodes?.find(node => node.episode === (episode + (hasZeroEpisode ? 1 : 0)))
   if (scheduleNode?.airingAt) {
-    debug(`Found airdate in cached media for episode ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+    debug(`Found airdate in cached media for episode ${episode}:${!!hasZeroEpisode}:${media?.id}:${media?.title?.userPreferred}`)
     alDate = new Date(scheduleNode.airingAt * 1000)
   } else {
-    debug(`No airdate in cached media, querying episodeDate for episode ${episode}:${media?.id}:${media?.title?.userPreferred}`)
+    debug(`No airdate in cached media, querying episodeDate for episode ${episode}:${!!hasZeroEpisode}:${media?.id}:${media?.title?.userPreferred}`)
     let res
     try {
-      res = await anilistClient.episodeDate({ id: media.id, ep: episode })
+      res = await anilistClient.episodeDate({ id: media.id, ep: episode + (hasZeroEpisode ? 1 : 0) })
     } catch (e) {
-      debug(`Failed to get episode (network status: ${status.value}) for ${media?.id}:${media?.title?.userPreferred}`)
+      debug(`Failed to get episode (network status: ${status.value}) for ${episode}:${!!hasZeroEpisode}:${media?.id}:${media?.title?.userPreferred}`)
     }
 
     const airingAt = res?.data?.AiringSchedule?.airingAt
