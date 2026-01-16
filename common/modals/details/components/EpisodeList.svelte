@@ -281,7 +281,7 @@
             {@const hasFiller = filler?.filler || filler?.recap}
             {@const progress = !watched && ($animeProgress?.[episode] ?? 0)}
             {@const resolvedTitle = episodeList.filter((ep) => ep.episode < episode).some((ep) => matchPhrase(ep.title, title, 0.1, true)) ? null : title}
-            {@const largeCard = image || (summary && !unreleased)}
+            {@const largeCard = image}
             {@const resolvedHash = ($completedTorrents || $seedingTorrents || $stagingTorrents || $loadedTorrent) && getHash(media?.id, { episode, client: true, batchGuess: true }, false, true)}
             <div class='w-full content-visibility-auto scale my-20' class:load-in={!loadScroll} class:opacity-half={completed} class:scale-target={target} class:px-20={!target} class:px-10={target} class:h-150={!SUPPORTS.isAndroid && largeCard} class:h-165={SUPPORTS.isAndroid && largeCard}>
               <div role='button' tabindex='0' class='episode-card rounded-2 w-full h-full overflow-hidden d-flex flex-xsm-column flex-row position-relative {unreleased ? `unreleased not-allowed` : `pointer`}' class:not-reactive={!$reactive} class:smallCard={!largeCard} class:android={SUPPORTS.isAndroid}  class:border={target || hasFiller} class:bg-black={completed} class:border-secondary={hasFiller} class:bg-dark-light={!completed} use:click={() => play(media, episode)} on:contextmenu|preventDefault={() => play(media, episode, true)}>
@@ -333,7 +333,7 @@
                       <div class='progress-bar' style='width: {progress}%'/>
                     </div>
                   {/if}
-                  <div class='font-size-12 overflow-hidden {(!completed && !progress) || !dubAiring ? `line-3 line-sm-4` : `line-2 line-sm-3`}' class:mb-10={unreleased && !largeCard} class:summary={unreleased} class:font-weight-bold={unreleased}>
+                  <div class='font-size-12 overflow-hidden {(!completed && !progress) || !dubAiring ? `line-3 line-sm-4` : `line-2 line-sm-3`}' class:mb-10={!largeCard} class:summary={unreleased} class:font-weight-bold={unreleased}>
                     {summary?.replace(/\s*\(?source:\s*[\s\S]+?\)?$/i, '') || ''}
                   </div>
                   <div class='font-size-12 mt-auto' class:mb-5={dubAiring} class:mb-10={!dubAiring}>
@@ -364,12 +364,16 @@
                     {:else}
                       {#if airdate}
                         {since(new Date(airdate))}
-                      {:else if (media.status === 'RELEASING' && episode > 1) || (media.status === 'NOT_YET_RELEASED' && !media.startDate?.month && !media?.season)}
+                      {:else if (media.status === 'NOT_YET_RELEASED' && !media.startDate?.month && !media?.season)}
                         In Production
                       {:else if (media.status === 'NOT_YET_RELEASED' && !media.startDate?.month && media?.season)}
                         {capitalize(media.season.toLowerCase()) + ' ' + (media.seasonYear || '')}
                       {:else if (media.status === 'NOT_YET_RELEASED' && media.startDate?.month)}
                         {monthDay(new Date(media.startDate.year, media.startDate.month, media.startDate.day), true)}
+                      {:else if media.status === 'FINISHED'}
+                        Released
+                      {:else}
+                        Unknown
                       {/if}
                     {/if}
                     {#if airdate && dubAiring && (new Date(airdate).getTime() > new Date().getTime())}
