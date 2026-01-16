@@ -29,9 +29,7 @@
       if (banner) return
       const dubAiring = animeSchedule.dubAiring.value?.find(entry => entry.unaired && entry.media?.media?.id === media.id)
       const airedEpisodes = dubAiredLists?.filter(ep => ep.id === media.id)?.map(ep => ep.episode.aired) || []
-      let maxAired = airedEpisodes.length ? Math.max(...airedEpisodes) : -1
-      if (maxAired === 0) maxAired = 1
-      const episodes = String((($isDubbed || $isPartial) && maxAired >= 0 && maxAired) || (dubAiredLists?.find(entry => entry.media?.media?.id === media.id)?.episodeNumber && '0') || (!$isPartial && media.status !== 'RELEASING' && media.status !== 'NOT_YET_RELEASED' && Number(media.seasonYear || 0) < 2025 && !dubAiring && getMediaMaxEp(media)) || '')
+      const episodes = String((($isDubbed || $isPartial) && airedEpisodes.length > 0 && airedEpisodes.length) || (dubAiredLists?.find(entry => entry.media?.media?.id === media.id)?.episodeNumber && '0') || (!$isPartial && media.status !== 'RELEASING' && media.status !== 'NOT_YET_RELEASED' && Number(media.seasonYear || 0) < 2025 && !dubAiring && getMediaMaxEp(media)) || '')
       if (dubEpisodes !== episodes) dubEpisodes = episodes
     }
 
