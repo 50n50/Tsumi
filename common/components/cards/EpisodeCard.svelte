@@ -260,6 +260,8 @@
   }
   .item {
     width: 36rem;
+    max-width: 100%;
+    margin: 0 auto;
     contain-intrinsic-height: 25.7rem;
   }
   .list-status-circle {
