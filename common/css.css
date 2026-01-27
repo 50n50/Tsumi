@@ -574,6 +574,9 @@ a[href]:active, button:not([disabled], .not-reactive):active:not([data-sonner-to
   padding-top: 28px;
 }
 
+.mt-safe-area {
+  margin-top: var(--safe-area-top) !important;
+}
 .pt-safe-area {
   padding-top: var(--safe-area-top) !important;
 }

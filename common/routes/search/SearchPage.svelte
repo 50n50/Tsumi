@@ -105,7 +105,7 @@
   })
 </script>
 
-<div class='bg-dark h-full w-full overflow-y-scroll d-flex flex-wrap flex-row root overflow-x-hidden justify-content-center align-content-start' class:pt-safe-area={!$search.fileEdit && !$status.match(/offline/i)} class:bg-very-dark={$search.fileEdit} bind:this={container} on:scroll={infiniteScroll} on:resize={updateRowMarkers}>
+<div class='bg-dark h-full w-full overflow-y-scroll d-flex flex-wrap flex-row root overflow-x-hidden justify-content-center align-content-start' class:mt-safe-area={!$search.fileEdit && !$status.match(/offline/i)} class:bg-very-dark={$search.fileEdit} bind:this={container} on:scroll={infiniteScroll} on:resize={updateRowMarkers}>
   <SearchBar bind:search={$search} clearNow={$clearNow} on:input={update} />
   <div class='w-full d-grid d-md-flex flex-wrap flex-row px-40 justify-content-center align-content-start'>
     {#key $key}
