@@ -18,7 +18,7 @@
 > 
 > Shiru is intended solely as a **personal media library manager** for organizing and playing content that you **legally own**. Please ensure that any media you use with this app is obtained **legally** and that you respect all applicable **copyright laws**.
 
-https://github.com/user-attachments/assets/4fa7d60e-ae48-4fb9-9d20-f129f7f907a9
+https://github.com/user-attachments/assets/3ff100f0-e008-4ff5-88f5-ad4290863f96
 
 <p align="center">
   <a href="https://github.com/RockinChaos/Shiru/releases/latest/"><img alt="Downloads" src="https://img.shields.io/github/downloads/RockinChaos/Shiru/total?style=flat-square"></a>
