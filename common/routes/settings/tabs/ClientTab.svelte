@@ -1,15 +1,28 @@
 <script>
   import { click } from '@/modules/click.js'
-  import { defaults } from '@/modules/util.js'
+  import { debounce, defaults } from '@/modules/util.js'
   import { IPC } from '@/modules/bridge.js'
   import { toast } from 'svelte-sonner'
   import { Eraser } from 'lucide-svelte'
   import ClampedNumber from '@/components/inputs/ClampedNumber.svelte'
   import SettingCard from '@/routes/settings/components/SettingCard.svelte'
+  import { loadedTorrent, completedTorrents, seedingTorrents, stagingTorrents } from '@/modules/torrent.js'
   import { SUPPORTS } from '@/modules/support.js'
   export let settings
-  function handleFolder () {
-    IPC.emit('dialog')
+
+  let trackers = settings.trackers.join('\n') || ''
+  const updateTrackers = debounce((event) => {
+    const newTrackers = [...new Set(event.target.value.split('\n').map(line => line.trim()).filter(Boolean))]
+    if (JSON.stringify(settings.trackers) !== JSON.stringify(newTrackers)) {
+      settings.trackers = newTrackers
+    }
+  }, 800)
+  function configTrackers() {
+    if (settings.configTrackers) return true
+    else if (Object.entries(settings.extensionsNew).length || [...completedTorrents.value, ...seedingTorrents.value, ...stagingTorrents.value, loadedTorrent.value].some(Boolean)) {
+      settings.configTrackers = true
+      return true
+    }
   }
 </script>
 
@@ -30,7 +43,7 @@
 <SettingCard title='Download Location' description={'Path to the folder used to store torrents. By default this is the TMP folder, which might lose data when your OS tries to reclaim storage.' + (SUPPORTS.isAndroid ? '\n\nIn Android, /sdcard/ is internal storage not external SD Cards and /storage/AB12-34CD/ is external storage not internal.' : '')}>
   <div class='input-group mw-100 w-400 flex-nowrap'>
     <div class='input-group-prepend'>
-      <button type='button' use:click={handleFolder} class='btn btn-primary input-group-append d-flex align-items-center justify-content-center' title='Select a folder to store the torrents'><span>Select Folder</span></button>
+      <button type='button' use:click={() => IPC.emit('dialog')} class='btn btn-primary input-group-append d-flex align-items-center justify-content-center' title='Select a folder to store the torrents'><span>Select Folder</span></button>
     </div>
     {#if !SUPPORTS.isAndroid}
       <input type='url' class='form-control bg-dark mw-100 text-truncate' readonly bind:value={settings.torrentPathNew} placeholder='/tmp' />
@@ -98,3 +111,14 @@
     <label for='disable-torrent-autoload'>{settings.disableStartupTorrent ? 'On' : 'Off'}</label>
   </div>
 </SettingCard>
+{#if configTrackers()}
+  <SettingCard title='Custom Trackers' description={'Configure tracker servers used for peer discovery and coordination of peer-to-peer connections for faster downloads. Enter one tracker URL per line (udp://, http://, https://, ws:// or wss://).\n\nChanges immediately apply to new torrents but a restart will be required for changes to take effect for existing torrents.'}>
+    <div class='d-flex flex-column'>
+        <span class='text-muted font-weight-semi-bold align-self-center'>
+          {settings.trackers.length} Tracker{settings.trackers.length === 1 ? '' : 's'}
+        </span>
+      <textarea class='form-control w-md-500 w-full bg-dark hm-20' placeholder={defaults.trackers.join('\n') || ''} bind:value={trackers} on:input={(event) => { trackers = event.target.value; updateTrackers(event) }} />
+      <button type='button' use:click={() => { settings.trackers = defaults.trackers; trackers = defaults.trackers.join('\n') || '' }} class='btn btn-secondary d-none align-items-center justify-content-center mt-10' class:d-flex={!SUPPORTS.isAndroid}><span class='text-truncate'>Reset to Defaults</span></button>
+    </div>
+  </SettingCard>
+{/if}

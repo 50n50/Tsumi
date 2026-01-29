@@ -186,6 +186,12 @@
 .h-270 {
   height: 27rem;
 }
+.hm-20 {
+  min-height: 20rem !important;
+}
+.mh-full {
+  max-height: 100%;
+}
 
 .w-20 {
   width: 2rem;
@@ -236,10 +242,6 @@
 
 .rounded-right-block {
   border-radius: 0 var(--base-border-radius) var(--base-border-radius) 0 !important;
-}
-
-.mh-full {
-  max-height: 100%;
 }
 
 .vwh-90 {

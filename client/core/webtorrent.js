@@ -2,7 +2,7 @@ import WebTorrent from 'webtorrent'
 import HTTPTracker from 'http-tracker'
 import Client from 'bittorrent-tracker'
 import { hex2bin, arr2hex, text2arr } from 'uint8-util'
-import { makeHash, getInfoHash, hasIntegrity, getProgressAndSize, stringifyQuery, errorToString, encodeStreamURL, ANNOUNCE, TMP } from '@client/lib/util.js'
+import { makeHash, getInfoHash, hasIntegrity, getProgressAndSize, stringifyQuery, errorToString, encodeStreamURL, TMP } from '@client/lib/util.js'
 import { fontRx, sleep, subRx, videoRx, isValidNumber } from '@/modules/util.js'
 import { SUPPORTS } from '@/modules/support.js'
 import { spawn } from 'node:child_process'
@@ -278,7 +278,7 @@ export default class TorrentClient extends WebTorrent {
 
     const torrent = await this.add(structuredClone(cache ?? id), {
       path: this.settings.torrentPathNew || undefined,
-      announce: ANNOUNCE,
+      announce: this.settings.trackers,
       bitfield: cache?._bitfield,
       deselect: this.settings.torrentStreamedDownload
     })
