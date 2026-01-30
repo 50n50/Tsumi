@@ -139,6 +139,12 @@ export async function complete(hash) {
     client.send('complete', hash)
   }
 }
+export async function reannounce(hash) {
+  if (hash) {
+    debug('Requesting reannounce for torrent', hash)
+    client.send('reannounce', hash)
+  }
+}
 
 function deduplicateTorrents(hash, ..._caches) {
   if (!hash) return

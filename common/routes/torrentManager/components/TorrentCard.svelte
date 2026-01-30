@@ -5,7 +5,7 @@
 </script>
 <script>
   import { fastPrettyBytes } from '@/modules/util.js'
-  import { add, stage, unload, untrack, complete } from '@/modules/torrent.js'
+  import { add, stage, unload, untrack, complete, reannounce } from '@/modules/torrent.js'
   import { click } from '@/modules/click.js'
   import { eta, createListener } from '@/modules/util.js'
   import { mediaCache } from '@/modules/cache.js'
@@ -116,6 +116,9 @@
       </div>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={resolvedId && $mediaCache[resolvedId]} aria-label='View Media' title='View Media' use:click={() => { viewMedia(); toggleDropdown() }}>
         View Media
+      </div>
+      <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={!completed} aria-label='Reannounce' title='Reannounce' use:click={() => { reannounce(infoHash); toggleDropdown() }}>
+        Reannounce
       </div>
       <div role='button' class='pointer d-none align-items-center justify-content-center font-size-16 rounded option details py-5 px-10' class:d-flex={data.magnetURI} aria-label='Copy Magnet Link' title='Copy Magnet Link' use:click={() => { copyToClipboard(data.magnetURI, 'magnet URL'); toggleDropdown() }}>
         Copy Magnet
