@@ -46,14 +46,14 @@ importers:
         specifier: ^17.1.0
         version: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.45.0(eslint@9.39.2)(typescript@5.5.4))(eslint@9.39.2))(eslint-plugin-n@16.6.2(eslint@9.39.2))(eslint-plugin-promise@6.6.0(eslint@9.39.2))(eslint@9.39.2)
       eslint-plugin-svelte:
-        specifier: ^3.13.1
-        version: 3.13.1(eslint@9.39.2)(svelte@4.2.20)(ts-node@10.9.2(@types/node@22.18.8)(typescript@5.5.4))
+        specifier: ^3.14.0
+        version: 3.14.0(eslint@9.39.2)(svelte@4.2.20)(ts-node@10.9.2(@types/node@22.18.8)(typescript@5.5.4))
       html-webpack-plugin:
-        specifier: ^5.6.5
-        version: 5.6.5(webpack@5.104.1)
+        specifier: ^5.6.6
+        version: 5.6.6(webpack@5.104.1)
       mini-css-extract-plugin:
-        specifier: ^2.9.4
-        version: 2.9.4(webpack@5.104.1)
+        specifier: ^2.10.0
+        version: 2.10.0(webpack@5.104.1)
       webpack:
         specifier: ^5.104.1
         version: 5.104.1(webpack-cli@6.0.1)
@@ -65,8 +65,8 @@ importers:
         version: 5.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)(webpack-cli@6.0.1)(webpack@5.104.1)
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20251225.0
-        version: 4.20251225.0
+        specifier: ^4.20260129.0
+        version: 4.20260129.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -189,8 +189,8 @@ importers:
         specifier: ^11.0.19
         version: 11.0.19
       uint8-util:
-        specifier: ^2.2.5
-        version: 2.2.5
+        specifier: ^2.2.6
+        version: 2.2.6
       webtorrent:
         specifier: ^2.8.5
         version: 2.8.5
@@ -213,8 +213,8 @@ importers:
         specifier: ^4.4.2
         version: 4.4.2
       css-loader:
-        specifier: ^7.1.2
-        version: 7.1.2(webpack@5.104.1(webpack-cli@6.0.1))
+        specifier: ^7.1.3
+        version: 7.1.3(webpack@5.104.1(webpack-cli@6.0.1))
       dompurify:
         specifier: ^3.3.1
         version: 3.3.1
@@ -316,6 +316,8 @@ importers:
         specifier: ^6.7.3
         version: 6.7.3
 
+  extensions: {}
+
 packages:
 
   7zip-bin@5.2.0:
@@ -410,8 +412,8 @@ packages:
     peerDependencies:
       '@capacitor/core': ^6.0.0
 
-  '@cloudflare/workers-types@4.20251225.0':
-    resolution: {integrity: sha512-ZZl0cNLFcsBRFKtMftKWOsfAybUYSeiTMzpQV1NlTVlByHAs1rGQt45Jw/qz8LrfHoq9PGTieSj9W350Gi4Pvg==}
+  '@cloudflare/workers-types@4.20260129.0':
+    resolution: {integrity: sha512-ytqtGV7L60HI/BL/p6tY1A5DIIlNl0NX+wiNeGTyB6e65x1HEeZrceVzL5RsVws7xMsBpF+2VAlm/3ga3c7Txg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2064,8 +2066,8 @@ packages:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
 
-  css-loader@7.1.2:
-    resolution: {integrity: sha512-6WvYYn7l/XEGN8Xu2vWFt9nVzrCn39vKyTEFf/ExEyoksJjjSZV/0/35XPlMbpnr6VGhZIUg5yJrL8tGfes/FA==}
+  css-loader@7.1.3:
+    resolution: {integrity: sha512-frbERmjT0UC5lMheWpJmMilnt9GEhbZJN/heUb7/zaJYeIzj5St9HvDcfshzzOqbsS+rYpMk++2SD3vGETDSyA==}
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -2559,8 +2561,8 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  eslint-plugin-svelte@3.13.1:
-    resolution: {integrity: sha512-Ng+kV/qGS8P/isbNYVE3sJORtubB+yLEcYICMkUWNaDTb0SwZni/JhAYXh/Dz/q2eThUwWY0VMPZ//KYD1n3eQ==}
+  eslint-plugin-svelte@3.14.0:
+    resolution: {integrity: sha512-Isw0GvaMm0yHxAj71edAdGFh28ufYs+6rk2KlbbZphnqZAzrH3Se3t12IFh2H9+1F/jlDhBBL4oiOJmLqmYX0g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0
@@ -3054,8 +3056,8 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  html-webpack-plugin@5.6.5:
-    resolution: {integrity: sha512-4xynFbKNNk+WlzXeQQ+6YYsH2g7mpfPszQZUi3ovKlj+pDmngQ7vRXjrrmGROabmKwyQkcgcX5hqfOwHbFmK5g==}
+  html-webpack-plugin@5.6.6:
+    resolution: {integrity: sha512-bLjW01UTrvoWTJQL5LsMRo1SypHW80FTm12OJRSnr3v6YHNhfe+1r0MYUZJMACxnCHURVnBWRwAsWs2yPU9Ezw==}
     engines: {node: '>=10.13.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -3807,8 +3809,8 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
-  mini-css-extract-plugin@2.9.4:
-    resolution: {integrity: sha512-ZWYT7ln73Hptxqxk2DxPU9MmapXRhxkJD6tkSR04dnQxm8BGu2hzgKLugK5yySD97u/8yy7Ma7E76k9ZdvtjkQ==}
+  mini-css-extract-plugin@2.10.0:
+    resolution: {integrity: sha512-540P2c5dYnJlyJxTaSloliZexv8rji6rY8FhQN+WF/82iHQfA23j/xtJx97L+mXOML27EqksSek/g4eK7jaL3g==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -5254,10 +5256,6 @@ packages:
     resolution: {integrity: sha512-eeEgGc2DtiUil5ANdtd8vPwt9AgaMdnuUFnPft9F5oMvU/FHu5IHFic+p1dR/UOB7XU2mX2yHW+NcTch4DCh5Q==}
     engines: {node: '>=16'}
 
-  tapable@2.2.1:
-    resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
-    engines: {node: '>=6'}
-
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
@@ -5502,8 +5500,8 @@ packages:
     engines: {node: '>=0.8.0'}
     hasBin: true
 
-  uint8-util@2.2.5:
-    resolution: {integrity: sha512-/QxVQD7CttWpVUKVPz9znO+3Dd4BdTSnFQ7pv/4drVhC9m4BaL2LFHTkJn6EsYoxT79VDq/2Gg8L0H22PrzyMw==}
+  uint8-util@2.2.6:
+    resolution: {integrity: sha512-r+ZjS8CzPhtPF771ROOadUoqC40OVdiMKBI8lTfJQWb4W7+73sMBwMYmai/uvNcmZ7tBJJyZSad03yMWIt3RQg==}
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -6022,7 +6020,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 6.2.1
 
-  '@cloudflare/workers-types@4.20251225.0': {}
+  '@cloudflare/workers-types@4.20260129.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -6775,7 +6773,7 @@ snapshots:
       debug: 4.4.1
       err-code: 3.0.1
       streamx: 2.22.1
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
       webrtc-polyfill: 1.1.10
     transitivePeerDependencies:
       - supports-color
@@ -6785,7 +6783,7 @@ snapshots:
       debug: 4.4.1
       queue-microtask: 1.2.3
       streamx: 2.22.1
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
       ws: 8.18.3(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     transitivePeerDependencies:
       - bufferutil
@@ -6794,7 +6792,7 @@ snapshots:
 
   '@thaunknown/thirty-two@1.0.5':
     dependencies:
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   '@tokenizer/token@0.3.0': {}
 
@@ -7533,7 +7531,7 @@ snapshots:
 
   bencode@4.0.0:
     dependencies:
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   bep53-range@2.0.0: {}
 
@@ -7575,7 +7573,7 @@ snapshots:
       rc4: 0.1.5
       streamx: 2.22.1
       throughput: 1.0.2
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
       unordered-array-remove: 1.0.2
     transitivePeerDependencies:
       - supports-color
@@ -7600,7 +7598,7 @@ snapshots:
       run-series: 1.1.9
       socks: 2.8.3
       string2compact: 2.0.1
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
       unordered-array-remove: 1.0.2
       ws: 8.18.3(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     optionalDependencies:
@@ -8271,7 +8269,7 @@ snapshots:
       piece-length: 2.0.1
       queue-microtask: 1.2.3
       run-parallel: 1.2.0
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   cross-env@10.1.0:
     dependencies:
@@ -8311,7 +8309,7 @@ snapshots:
 
   crypto-random-string@2.0.0: {}
 
-  css-loader@7.1.2(webpack@5.104.1(webpack-cli@6.0.1)):
+  css-loader@7.1.3(webpack@5.104.1(webpack-cli@6.0.1)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.6)
       postcss: 8.5.6
@@ -8320,7 +8318,7 @@ snapshots:
       postcss-modules-scope: 3.2.0(postcss@8.5.6)
       postcss-modules-values: 4.0.0(postcss@8.5.6)
       postcss-value-parser: 4.2.0
-      semver: 7.7.2
+      semver: 7.7.3
     optionalDependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
 
@@ -8880,7 +8878,7 @@ snapshots:
     dependencies:
       eslint: 9.39.2
 
-  eslint-plugin-svelte@3.13.1(eslint@9.39.2)(svelte@4.2.20)(ts-node@10.9.2(@types/node@22.18.8)(typescript@5.5.4)):
+  eslint-plugin-svelte@3.14.0(eslint@9.39.2)(svelte@4.2.20)(ts-node@10.9.2(@types/node@22.18.8)(typescript@5.5.4)):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.2)
       '@jridgewell/sourcemap-codec': 1.5.0
@@ -8891,7 +8889,7 @@ snapshots:
       postcss: 8.5.6
       postcss-load-config: 3.1.4(postcss@8.5.6)(ts-node@10.9.2(@types/node@22.18.8)(typescript@5.5.4))
       postcss-safe-parser: 7.0.1(postcss@8.5.6)
-      semver: 7.7.2
+      semver: 7.7.3
       svelte-eslint-parser: 1.4.0(svelte@4.2.20)
     optionalDependencies:
       svelte: 4.2.20
@@ -9190,7 +9188,7 @@ snapshots:
       random-access-file: 4.0.7
       run-parallel: 1.2.0
       thunky: 1.1.0
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   fs-constants@1.0.0: {}
 
@@ -9492,7 +9490,7 @@ snapshots:
       relateurl: 0.2.7
       terser: 5.43.1
 
-  html-webpack-plugin@5.6.5(webpack@5.104.1):
+  html-webpack-plugin@5.6.6(webpack@5.104.1):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -10092,7 +10090,7 @@ snapshots:
     dependencies:
       '@thaunknown/thirty-two': 1.0.5
       bep53-range: 2.0.0
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   make-error@1.3.6: {}
 
@@ -10151,7 +10149,7 @@ snapshots:
       ebml-iterator: 1.0.5
       fast-readable-async-iterator: 1.1.2
       pako: 2.1.0
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   mdn-data@2.0.30: {}
 
@@ -10229,10 +10227,10 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mini-css-extract-plugin@2.9.4(webpack@5.104.1):
+  mini-css-extract-plugin@2.10.0(webpack@5.104.1):
     dependencies:
-      schema-utils: 4.3.2
-      tapable: 2.2.1
+      schema-utils: 4.3.3
+      tapable: 2.3.0
       webpack: 5.104.1(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
@@ -10630,7 +10628,7 @@ snapshots:
   p2pt@https://codeload.github.com/ThaUnknown/p2pt/tar.gz/9ad7a56ed6ee43f5664ebad33b803702ee349316:
     dependencies:
       bittorrent-tracker: 11.2.2
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
     optionalDependencies:
       wrtc: 0.4.7
     transitivePeerDependencies:
@@ -10681,7 +10679,7 @@ snapshots:
       get-stdin: 9.0.0
       magnet-uri: 7.0.7
       queue-microtask: 1.2.3
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   parseurl@1.3.3: {}
 
@@ -11652,8 +11650,6 @@ snapshots:
       magic-string: 0.30.10
       periscopic: 3.1.0
 
-  tapable@2.2.1: {}
-
   tapable@2.3.0: {}
 
   tar-fs@2.1.1:
@@ -11709,7 +11705,7 @@ snapshots:
       type-fest: 0.16.0
       unique-string: 2.0.0
 
-  terser-webpack-plugin@5.3.16(webpack@5.104.1):
+  terser-webpack-plugin@5.3.16(webpack@5.104.1(webpack-cli@6.0.1)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -11796,7 +11792,7 @@ snapshots:
 
   torrent-piece@3.0.2:
     dependencies:
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
 
   touch@3.1.1: {}
 
@@ -11912,7 +11908,7 @@ snapshots:
   uglify-js@3.19.2:
     optional: true
 
-  uint8-util@2.2.5:
+  uint8-util@2.2.6:
     dependencies:
       base64-arraybuffer: 1.0.2
 
@@ -11976,7 +11972,7 @@ snapshots:
       bencode: 4.0.0
       bitfield: 4.2.0
       debug: 4.4.1
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
     transitivePeerDependencies:
       - supports-color
 
@@ -12157,7 +12153,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(webpack@5.104.1)
+      terser-webpack-plugin: 5.3.16(webpack@5.104.1(webpack-cli@6.0.1))
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     optionalDependencies:
@@ -12217,7 +12213,7 @@ snapshots:
       throughput: 1.0.2
       torrent-discovery: 11.0.17
       torrent-piece: 3.0.2
-      uint8-util: 2.2.5
+      uint8-util: 2.2.6
       unordered-array-remove: 1.0.2
       ut_metadata: 4.0.3
       ut_pex: 4.0.4
