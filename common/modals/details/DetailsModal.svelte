@@ -22,6 +22,8 @@
   import SmallCardSk from '@/components/skeletons/SmallCardSk.svelte'
   import Helper from '@/modules/helper.js'
   import { modal } from '@/modules/navigation.js'
+  import DOMPurify from 'dompurify'
+  import { marked } from 'marked'
   import { Clapperboard, Users, Heart, Play, Timer, TrendingUp, Tv, Hash, ArrowDown01, ArrowUp10 } from 'lucide-svelte'
 
   $: view = $modal[modal.ANIME_DETAILS]?.data
@@ -123,6 +125,42 @@
   window.addEventListener('play-torrent', (event) => add(event.detail.magnet, null, null, null, event.detail.base64))
 
   IPC.on('play-torrent', (detail) => add(detail.magnet, null, null, null, detail.base64))
+
+  function sanitize(body) {
+    if (!body) return ''
+    const cleanBody = body.trim()
+      .replace(/\.\.+(?=\s*$)/gm, '.') // Remove excessive trailing "..."
+      .replace(/\n/g, '<br>')  // Convert all \n to <br>
+      .replace(/(<br\s*\/?>){2,}/gi, '<br><br>') // Then collapse 2+ <br> to exactly 2
+      .replace(/^(<br\s*\/?>\s*)+|(<br\s*\/?>\s*)+$/gi, '') // Remove any prepended or appended <br>.
+    return DOMPurify.sanitize(marked.parse(cleanBody, {
+      pedantic: false,
+      breaks: true,
+      gfm: true
+    }).trim(), {
+      ALLOWED_TAGS: [
+        'p', 'br', 'span', 'div',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'strong', 'em', 'b', 'i', 'u', 's', 'del', 'ins', 'mark',
+        'ul', 'ol', 'li',
+        'blockquote',
+        'code', 'pre',
+        'a',
+        'img',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+        'hr',
+        'details', 'summary',
+        'input'
+      ],
+      ALLOWED_ATTR: [
+        'href', 'target', 'rel', 'title',
+        'src', 'alt', 'width', 'height',
+        'class', 'id',
+        'align',
+        'type', 'checked', 'disabled'
+      ]
+    })
+  }
 
   let episodeList = []
   let episodeLoad
@@ -272,8 +310,8 @@
                 <div class='font-size-18 font-weight-semi-bold px-20 text-white'>Synopsis</div>
                 <hr class='w-full' />
               </div>
-              <div class='font-size-16 pre-wrap pt-20 select-all'>
-                {staticMedia.description?.replace(/<[^>]*>/g, '')?.replace(/\.\.+(?=\s*$)/gm, '.') || ''}
+              <div class='font-size-16 pt-20 select-all'>
+                {@html sanitize(staticMedia.description)}
               </div>
             {/if}
             {#if episodeList?.length}

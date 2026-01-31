@@ -39,11 +39,11 @@
   export let body = ''
 
   export function sanitize(body) {
-    return DOMPurify.sanitize(marked.parse(body, {
+    return DOMPurify.sanitize(marked.parse(body.trim(), {
       pedantic: false,
       breaks: true,
       gfm: true
-    }), {
+    }).trim(), {
       ALLOWED_TAGS: [
         'p', 'br', 'span', 'div',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
