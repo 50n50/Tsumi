@@ -51,10 +51,16 @@
     <label for='rss-autoplay'>{settings.rssAutoplay ? 'On' : 'Off'}</label>
   </div>
 </SettingCard>
-<SettingCard title='Auto-Select Files' description='Automatically selects the requested file when clicking the desired episode if it already exists in the batch or if you already have the torrent file before prompting the torrent selection. With this setting enabled you may get unexpected results if the video file(s) fail to determine what media is playing. Disable this to always be prompted to select a torrent regardless of what you already downloaded or is in the current batch. '>
+<SettingCard title='Auto-Select Files' description='Automatically selects the requested file when clicking the desired episode if it already exists in the batch or if you already have the torrent file before prompting the torrent selection. With this setting enabled you may get unexpected results if the video file(s) fail to determine what media is playing. Disable this to always be prompted to select a torrent regardless of what you already downloaded or is in the current batch.'>
   <div class='custom-switch'>
     <input type='checkbox' id='rss-autofile' bind:checked={settings.rssAutofile} />
     <label for='rss-autofile'>{settings.rssAutofile ? 'On' : 'Off'}</label>
+  </div>
+</SettingCard>
+<SettingCard title='Auto-Scrape Results' description={'Automatically scrapes seeder and leecher counts when fetching extension results for torrent selection. When enabled, you\'ll see accurate peer data but results may load slower (5-15 seconds). When disabled, results load instantly but show the counts reported by indexers, which may be outdated. You can always manually scrape using the "Scrape" button in the torrent menu to refresh peer data on demand.'}>
+  <div class='custom-switch'>
+    <input type='checkbox' id='rss-autoscrape' bind:checked={settings.torrentAutoScrape} />
+    <label for='rss-autoscrape'>{settings.torrentAutoScrape ? 'On' : 'Off'}</label>
   </div>
 </SettingCard>
 <SettingCard title='Torrent Quality' description="What quality to use when trying to find torrents. None might rarely find less results than specific qualities. This doesn't exclude other qualities from being found like 4K or weird DVD resolutions.">

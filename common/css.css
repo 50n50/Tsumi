@@ -257,6 +257,9 @@
 .mw-0 {
   min-width: 0;
 }
+.mw-80 {
+  min-width: 8rem !important;
+}
 .mw-100 {
   min-width: 10rem !important;
 }
@@ -965,7 +968,7 @@ img[src=''], img[src=' '] {
     border-bottom-width: 0;
 }
 .dmr-arrow::after {
-    bottom: .7rem;
+    top: .7rem;
     right: -.9rem;
     border-top-width: 1rem;
     border-bottom-width: 1rem;

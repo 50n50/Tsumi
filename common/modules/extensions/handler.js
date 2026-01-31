@@ -86,7 +86,8 @@ export async function getResultsFromExtensions({ media, episode, batch, movie, r
           if (!deduped.length) return []
           const parseObjects = await anitomyscript(deduped.map(r => r.title))
           deduped.forEach((r, i) => r.parseObject = parseObjects[i])
-          return await updatePeerCounts(deduped)
+          if (settings.value.torrentAutoScrape) return await updatePeerCounts(deduped)
+          else return deduped
         } catch (error) {
           debug(`Extension ${key} failed: ${error}`)
           return { results: [], errors: [{ message: error?.[0]?.message || error?.message }] }
@@ -99,8 +100,8 @@ export async function getResultsFromExtensions({ media, episode, batch, movie, r
 }
 
 const peerCache = new Map()
-async function updatePeerCounts (entries) {
-  const cacheKey = JSON.stringify(entries)
+export async function updatePeerCounts (entries) {
+  const cacheKey = entries.map(({ hash }) => hash).sort().join(',')
   const cached = peerCache.get(cacheKey)
   if (cached && (((Date.now() - cached.timestamp) <= 90000) || status.value === 'offline')) {
     debug(`The previously cached peer counts are less than two minutes old, returning cached entries...`, entries)
