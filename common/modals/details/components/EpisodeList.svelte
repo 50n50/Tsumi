@@ -15,11 +15,14 @@
     const entry = (await animeSchedule.dubAiringLists.value)?.find(entry => entry.media?.media?.id === media.id)
     const episodeEntry = (await animeSchedule.dubAiredLists.value)?.find(entry => entry?.id === media.id && entry?.episode?.aired === episode)
     if (entry && !episodeEntry) {
-      const airingSchedule = entry?.media?.media?.airingSchedule?.nodes[episode - 1] || entry?.media?.media?.airingSchedule?.nodes.find((entry) => entry.episode === episode) || entry?.airingSchedule?.media?.media?.nodes[0]
-      const delayed = !!(entry.episodeDate && (((new Date(entry.delayedUntil) >= new Date(entry.episodeDate)) && ((new Date(entry.delayedFrom) > new Date(entry.episodeDate)) || (new Date(entry.delayedUntil).getTime() === new Date(entry.episodeDate).getTime()) || ((new Date(entry.delayedFrom) <= new Date(entry.episodeDate)) && (entry.episodeNumber === entry.media?.media?.airingSchedule?.nodes[0].episode) && (new Date(entry.delayedUntil).getTime() === new Date(entry.media?.media?.airingSchedule?.nodes[0].airingAt).getTime()))) && (new Date(entry.delayedUntil) > new Date())) || entry.delayedIndefinitely))
-      const numberOfEpisodes = entry?.subtractedEpisodeNumber ? (entry.episodeNumber - entry.subtractedEpisodeNumber) : 1
-      if (entry.episodeDate && (entry.episodeNumber <= episode)) {
-        return { airdate: past(new Date(delayed ? entry.delayedUntil : entry.episodeDate), entry.episodeNumber >= episode ? 0 : episode - entry.episodeNumber, true), text: `${entry.delayedIndefinitely ? 'Suspended' : entry.delayedIndefinitely ? 'Not Planned' : ((episode > entry.episodeNumber) && (numberOfEpisodes > 4) && !entry.unaired) ? 'In Production' : since(past(new Date(delayed ? entry.delayedUntil : entry.episodeDate), entry.episodeNumber >= episode ? 0 : episode - entry.episodeNumber, true)) + (delayed ? ` (${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed }
+      const airingEntry = entry?.media?.media?.airingSchedule?.nodes.find((entry) => entry.episode === episode)
+      const airingSchedule = airingEntry || entry?.media?.media?.airingSchedule?.nodes[episode - 1] || entry?.media?.media?.airingSchedule?.nodes[0]
+      const isDelayed = (episodeDate) => !!(episodeDate && (((new Date(entry.delayedUntil) >= new Date(episodeDate)) && ((new Date(entry.delayedFrom) > new Date(episodeDate)) || (new Date(entry.delayedUntil).getTime() === new Date(episodeDate).getTime()) || ((new Date(entry.delayedFrom) <= new Date(episodeDate)) && (entry.episodeNumber === entry.media?.media?.airingSchedule?.nodes[0].episode) && (new Date(entry.delayedUntil).getTime() === new Date(entry.media?.media?.airingSchedule?.nodes[0].airingAt).getTime()))) && (new Date(entry.delayedUntil) > new Date())) || entry.delayedIndefinitely))
+      const delayed = isDelayed(entry.episodeDate) || (airingEntry && isDelayed(airingSchedule?.airingAt))
+      const numberOfEpisodes = entry.subtractedEpisodeNumber || 1
+      if (entry.episodeDate && entry.episodeNumber <= episode) {
+        const airDate = past(new Date(airingSchedule.airingAt), entry.episodeNumber >= episode ? 0 : episode - entry.episodeNumber, true)
+        return { airdate: airDate, text: `${entry.delayedIndefinitely ? 'Suspended' : entry.delayedIndefinitely ? 'Not Planned' : ((episode > entry.episodeNumber) && (numberOfEpisodes > 4) && !entry.unaired) ? 'In Production' : since(airDate) + (delayed ? ` (${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed }
       } else if (airingSchedule && airingSchedule.episode <= episode) {
         return { airdate: airingSchedule.airingAt, text: `${since(new Date(airingSchedule.airingAt))} ${(delayed ? `(${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed && !entry.delayedIndefinitely }
       } else {
