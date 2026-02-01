@@ -67,7 +67,15 @@ async function getExtension(name, url) {
       try {
         const response = await fetch(`${ghProtocol ? `https://esm.sh/gh/${pathParts[0]}/${pathParts[1]}` : `https://esm.sh/${pathParts[0]}`}/es2022/${pathParts.slice(ghProtocol ? 2 : 1).join('/')}.mjs`)
         if (!response.ok) throw new Error(`Failed to load extension code for url ${url} ${response.status} ${response.statusText}`)
-        const code = await response.text()
+        let code = await response.text()
+        if (code.includes('export * from') && code.includes('export { default } from')) {
+          const match = code.match(/from\s+["']([^"']+)["']/)
+          if (match && match[1]) {
+            const moduleResponse = await fetch(`https://esm.sh${match[1]}`)
+            if (!moduleResponse.ok) throw new Error(`Failed to resolve module ${match[1]}`)
+            code = await moduleResponse.text()
+          }
+        }
         if (!code || code.trim().length === 0) throw new Error(`Failed to load extension code for url ${url}, extension code is empty`)
         return code
       } catch (error) {
