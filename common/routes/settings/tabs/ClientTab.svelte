@@ -4,6 +4,7 @@
   import { IPC } from '@/modules/bridge.js'
   import { toast } from 'svelte-sonner'
   import { Eraser } from 'lucide-svelte'
+  import ConfirmButton from '@/components/inputs/ConfirmButton.svelte'
   import ClampedNumber from '@/components/inputs/ClampedNumber.svelte'
   import SettingCard from '@/routes/settings/components/SettingCard.svelte'
   import { loadedTorrent, completedTorrents, seedingTorrents, stagingTorrents } from '@/modules/torrent.js'
@@ -118,7 +119,9 @@
           {settings.trackers.length} Tracker{settings.trackers.length === 1 ? '' : 's'}
         </span>
       <textarea class='form-control w-md-500 w-full bg-dark hm-20' placeholder={defaults.trackers.join('\n') || ''} bind:value={trackers} on:input={(event) => { trackers = event.target.value; updateTrackers(event) }} />
-      <button type='button' use:click={() => { settings.trackers = defaults.trackers; trackers = defaults.trackers.join('\n') || '' }} class='btn btn-secondary d-none align-items-center justify-content-center mt-10' class:d-flex={!SUPPORTS.isAndroid}><span class='text-truncate'>Reset to Defaults</span></button>
+      <ConfirmButton click={() => { settings.trackers = defaults.trackers; trackers = defaults.trackers.join('\n') || '' }} class='btn btn-secondary d-flex align-items-center justify-content-center mt-10 long-button' confirmText='Confirm Reset' actionClass='d-inline-flex'>
+        <span class='text-truncate'>Reset to Defaults</span>
+      </ConfirmButton>
     </div>
   </SettingCard>
 {/if}

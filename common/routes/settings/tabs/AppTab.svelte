@@ -52,6 +52,7 @@
   import { platformMap } from '@/routes/settings/SettingsPage.svelte'
   import SettingCard from '@/routes/settings/components/SettingCard.svelte'
   import ChangelogTab from '@/routes/settings/tabs/ChangelogTab.svelte'
+  import ConfirmButton from '@/components/inputs/ConfirmButton.svelte'
   import WPC from '@/modules/wpc.js'
   import { copyToClipboard } from '@/modules/clipboard.js'
   import { toast } from 'svelte-sonner'
@@ -130,19 +131,27 @@
   </div>
 </SettingCard>
 <SettingCard title='Reset Notifications' description='Resets all notifications that have been cached, this is not recommended unless you are experiencing issues. This will also reset the last time you have been notified, so expect previous notifications to appear again.'>
-  <button type='button' use:click={() => cache.resetNotifications()} class='btn btn-primary d-flex align-items-center justify-content-center' data-toggle='tooltip' data-placement='top' data-title='Resets Your Notifications Within The App'><span class='text-truncate'>Reset Notifications</span></button>
+  <ConfirmButton click={() => cache.resetNotifications()} class='btn btn-primary mt-5 d-flex align-items-center justify-content-center' confirmText='Confirm Reset' confirmClass='btn-danger-dim long-button' cancelClass='btn-secondary long-button' actionClass='d-inline-flex d-md-block' dataToggle='tooltip' dataPlacement='top' dataTitle='Resets Your Notifications Within The App'>
+    <span class='text-truncate'>Reset Notifications</span>
+  </ConfirmButton>
 </SettingCard>
 <SettingCard title='Reset History' description='Resets all history data that has been cached, this is not recommended unless you are experiencing issues. You will lose your local episode progress, subtitle choices, volume boost, and magnet links history.'>
-  <button type='button' use:click={() => cache.resetHistory()} class='btn btn-primary d-flex align-items-center justify-content-center' data-toggle='tooltip' data-placement='top' data-title='Resets Your Episode Progress, Subtitle Choices, Volume Boost, Magnet Link History, Manually Corrected Series, and More'><span class='text-truncate'>Reset History</span></button>
+  <ConfirmButton click={() => cache.resetHistory()} class='btn btn-primary mt-5 d-flex align-items-center justify-content-center' primaryClass='px-30' confirmText='Confirm Reset' confirmClass='btn-danger-dim long-button' cancelClass='btn-secondary long-button' actionClass='d-inline-flex d-md-block' dataToggle='tooltip' dataPlacement='top' dataTitle='Resets Your Episode Progress, Subtitle Choices, Volume Boost, Magnet Link History, Manually Corrected Series, and More'>
+    <span class='text-truncate'>Reset History</span>
+  </ConfirmButton>
 </SettingCard>
 <SettingCard title='Reset Caches' description='Resets everything the app has cached, this is not recommended unless you are experiencing issues. Caching speeds up load times and decreases down time. This does not reset the notifications or history cache. THIS WILL FORCE RESTART THE APP!'>
-  <button type='button' use:click={() => cache.resetCaches()} class='btn btn-primary d-flex align-items-center justify-content-center' data-toggle='tooltip' data-placement='top' data-title='Resets All Cached Media And Queries... This Will Cause The App To Restart!'><span class='text-truncate'>Reset Caches</span></button>
+  <ConfirmButton click={() => cache.resetCaches()} class='btn btn-primary mt-5 d-flex align-items-center justify-content-center' primaryClass='px-30' confirmText='Confirm Reset' confirmClass='btn-danger-dim long-button' cancelClass='btn-secondary long-button' actionClass='d-inline-flex d-md-block' dataToggle='tooltip' dataPlacement='top' dataTitle='Resets All Cached Media And Queries... This Will Cause The App To Restart!'>
+    <span class='text-truncate'>Reset Caches</span>
+  </ConfirmButton>
 </SettingCard>
 <SettingCard title='Settings Management' description='Import saved settings from your clipboard, export your current configuration to back it up or share with others, and restore everything back to default values if needed. This is especially useful for syncing preferences across devices, sharing settings with friends, or starting fresh with recommended defaults.'>
   <div class='d-inline-flex flex-column'>
     <button use:click={importSettings} class='btn btn-primary d-flex align-items-center justify-content-center' type='button'><span class='text-truncate'>Import from Clipboard</span></button>
     <button use:click={() => copyToClipboard(JSON.stringify(cache.getEntry(caches.GENERAL, 'settings')), 'settings')} class='btn btn-primary mt-5 d-flex align-items-center justify-content-center' type='button'><span class='text-truncate'>Export to Clipboard</span></button>
-    <button use:click={resetSettings} class='btn btn-danger mt-5 d-flex align-items-center justify-content-center' type='button' data-toggle='tooltip' data-placement='top' data-title='Restores All Settings Back To Their Recommended Defaults'><span class='text-truncate'>Reset to Defaults</span></button> <!--TODO: Add a prompt for the user  -->
+    <ConfirmButton click={() => resetSettings()} class='btn btn-danger mt-5 d-flex align-items-center justify-content-center' confirmText='Confirm Reset' confirmClass='btn-danger-dim long-button' cancelClass='btn-secondary long-button' actionClass='d-inline-flex d-md-block' dataToggle='tooltip' dataPlacement='top' dataTitle='Restores All Settings Back To Their Recommended Defaults'>
+      <span class='text-truncate'>Reset to Defaults</span>
+    </ConfirmButton>
   </div>
 </SettingCard>
 
@@ -170,8 +179,10 @@
 </SettingCard>
 <SettingCard title='Log Output' description='Export logs to a selection location or reset the log file. Once you enable a logging level you can use this to quickly get the created logs instead of navigating to the log file in directories.'>
   <div class='d-inline-flex flex-column'>
-    <button type='button' use:click={() => IPC.emit('get-log-contents')} class='btn btn-primary d-flex align-items-center justify-content-center'><span class='text-truncate'>Export Logs</span></button>
-    <button type='button' use:click={() => IPC.emit('reset-log-contents')} class='btn btn-danger mt-5 d-flex align-items-center justify-content-center'><span class='text-truncate'>Reset Logs</span></button>
+    <button type='button' use:click={() => IPC.emit('get-log-contents')} class='btn btn-primary d-flex align-items-center justify-content-center px-40'><span class='text-truncate'>Export Logs</span></button>
+    <ConfirmButton click={() => IPC.emit('reset-log-contents')} class='btn btn-danger mt-5 d-flex align-items-center justify-content-center' confirmText='Confirm Reset' confirmClass='btn-danger-dim long-button' cancelClass='btn-secondary long-button' actionClass='d-inline-flex d-md-block'>
+      <span class='text-truncate'>Reset Logs</span>
+    </ConfirmButton>
   </div>
 </SettingCard>
 {#if !SUPPORTS.isAndroid}

@@ -1,6 +1,7 @@
 <script>
   import { click } from '@/modules/click.js'
   import SettingCard from '@/routes/settings/components/SettingCard.svelte'
+  import ConfirmButton from '@/components/inputs/ConfirmButton.svelte'
   import { stringToHex, capitalize, toFlags } from '@/modules/util.js'
   import { extensionManager } from '@/modules/extensions/manager.js'
   import { status } from '@/modules/networking.js'
@@ -227,7 +228,9 @@
           </div>
           <span class='font-weight-semi-bold ml-10 overflow-hidden text-truncate mr-5 font-scale-18'>{extension.host.replace(/^[^:]+:/, '')}</span>
           <span class='font-weight-semi-bold ml-auto text-muted text-nowrap text-truncate'>{extension.count} Extensions</span>
-          <button type='button' use:click={() => removeSource(extension.host)} class='btn btn-square d-flex align-items-center justify-content-center ml-10 bg-transparent shadow-none border-0' title='Remove Source' style='color: var(--accent-color)' disabled={pendingSource} class:cursor-wait={pendingSource}><Trash2 size='1.8rem' /></button>
+          <ConfirmButton click={() => removeSource(extension.host)} title='Remove Source' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 {pendingSource ? `cursor-wait` : ``} text-danger' disabled={pendingSource} primaryClass='ml-10' confirmText='' cancelText='' confirmClass='btn-square text-success w-auto' cancelClass='ml-10 text-muted w-auto' actionClass='d-inline-flex flex-row-reverse'>
+            <Trash2 size='1.8rem' />
+          </ConfirmButton>
         </div>
       {/each}
     {/if}
@@ -248,7 +251,9 @@
           </div>
           <span class='font-weight-semi-bold ml-10 overflow-hidden text-truncate mr-5 font-scale-18'>{sourceUrl.replace(/^[^:]+:/, '')}</span>
           <span class='font-weight-semi-bold ml-auto text-muted text-nowrap text-truncate'>{availableSources[sourceUrl].length} Sources</span>
-          <button type='button' use:click={() => removeSource(sourceUrl, true)} class='btn btn-square d-flex align-items-center justify-content-center ml-10 bg-transparent shadow-none border-0' title='Remove Repo' style='color: var(--accent-color)' disabled={pendingSource} class:cursor-wait={pendingSource}><Trash2 size='1.8rem' /></button>
+          <ConfirmButton click={() => removeSource(sourceUrl, true)} title='Remove Repository' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 {pendingSource ? `cursor-wait` : ``} text-danger' disabled={pendingSource} primaryClass='ml-10' confirmText='' cancelText='' confirmClass='btn-square text-success w-auto' cancelClass='ml-10 text-muted w-auto' actionClass='d-inline-flex flex-row-reverse'>
+            <Trash2 size='1.8rem' />
+          </ConfirmButton>
         </div>
       {/each}
     </div>

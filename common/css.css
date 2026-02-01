@@ -281,10 +281,10 @@
 .mw-350 {
   min-width: 35rem;
 }
+
 .wm-600 {
   max-width: 60rem;
 }
-
 .wm-1000 {
   max-width: 100rem;
 }
@@ -321,6 +321,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.d-contents {
+  display: contents;
 }
 
 .top-100 {
