@@ -28,7 +28,7 @@ for (const [flag, value] of flags) app.commandLine.appendSwitch(flag, value)
 app.commandLine.appendSwitch('use-angle', store.get('angle') || 'default')
 
 ipcMain.on('open', (event, url) => shell.openExternal(url))
-ipcMain.on('set:angle', (e, data) => store.set('angle', data))
+ipcMain.on('set:angle', (event, data) => store.set('angle', data))
 ipcMain.on('version', ({ sender }) => sender.send('version', app.getVersion()))
 ipcMain.handle('get:angle', () => store.get('angle') || 'default')
 ipcMain.on('doh', (event, dns) => {

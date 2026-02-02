@@ -12,8 +12,6 @@
   import { createDeferred } from '@/modules/util.js'
   import { IPC } from '@/modules/bridge.js'
   import { toast } from 'svelte-sonner'
-  import Debug from 'debug'
-  const debug = Debug('ui:update-modal')
 
   export const updateState = writable('up-to-date')
   const sanitizeVersion = (version) => ((version || '').match(/[\d.]+/g)?.join('') || '')
@@ -37,7 +35,7 @@
   const updateVersion = writable()
   IPC.on(SUPPORTS.isAndroid ? 'update-available' : 'update-downloaded', (version) => {
     if (updateState.value !== 'ignored' && latestVersion === version && updateVersion.value !== version && (!document.fullscreenElement || page.value !== page.PLAYER)) {
-      updateVersion.set('1.2.0')
+      updateVersion.set(version)
       updateState.value = 'ready'
       if (settings.value.systemNotify || SUPPORTS.isAndroid) {
         IPC.emit('notification', {
