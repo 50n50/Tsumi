@@ -7,7 +7,12 @@ import Jimp from 'jimp'
 import fs from 'fs'
 
 import { BrowserWindow, MessageChannelMain, Notification, Tray, Menu, nativeImage, app, dialog, ipcMain, powerMonitor, shell, session } from 'electron'
-import electronShutdownHandler from '@paymoapp/electron-shutdown-handler'
+let electronShutdownHandler
+try {
+  electronShutdownHandler = require('@paymoapp/electron-shutdown-handler')
+} catch {
+  console.warn('electron-shutdown-handler not available (native module not built), graceful shutdown on Windows will be limited')
+}
 
 import { development, getWindowState, saveWindowState, getDefaultBounds } from './util.js'
 import Discord from './discord.js'
@@ -168,9 +173,9 @@ export default class App {
       process.on('message', data => {
         if (data === 'graceful-exit') this.destroy()
       })
-      electronShutdownHandler.setWindowHandle(this.mainWindow.getNativeWindowHandle())
-      electronShutdownHandler.blockShutdown('Saving torrent data...')
-      electronShutdownHandler.on('shutdown', async () => {
+      electronShutdownHandler?.setWindowHandle(this.mainWindow.getNativeWindowHandle())
+      electronShutdownHandler?.blockShutdown('Saving torrent data...')
+      electronShutdownHandler?.on('shutdown', async () => {
         await this.destroy()
         electronShutdownHandler.releaseShutdown()
       })

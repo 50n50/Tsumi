@@ -1,16 +1,16 @@
 {
-  "name": "shiru",
+  "name": "tsumi",
   "version": "6.5.0",
   "license": "GPL-3.0-or-later",
   "private": true,
   "author": "RockinChaos <RockinChaos@users.noreply.github.com>",
   "description": "Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!",
   "main": "build/main.js",
-  "homepage": "https://github.com/RockinChaos/Shiru#readme",
+  "homepage": "https://github.com/RockinChaos/Tsumi#readme",
   "scripts": {
-    "start": "cross-env NODE_ENV=development webpack build && concurrently --kill-others \"npm run web:watch\" \"npm run electron:start\"",
+    "start": "webpack build && concurrently --kill-others \"npm run web:watch\" \"npm run electron:start\"",
     "web:watch": "webpack serve",
-    "web:build": "cross-env NODE_ENV=production webpack build",
+    "web:build": "webpack build",
     "electron:start": "electron ./build/main.js",
     "build": "npm run web:build && electron-builder",
     "electron:build": "electron-builder",
@@ -53,9 +53,9 @@
       "customDir": "39.2.7"
     },
     "protocols": {
-      "name": "shiru",
+      "name": "tsumi",
       "schemes": [
-        "shiru",
+        "tsumi",
         "magnet"
       ]
     },
@@ -71,11 +71,11 @@
       {
         "provider": "github",
         "owner": "RockinChaos",
-        "repo": "shiru"
+        "repo": "tsumi"
       }
     ],
-    "appId": "com.github.rockinchaos.shiru",
-    "productName": "Shiru",
+    "appId": "com.github.rockinchaos.tsumi",
+    "productName": "Tsumi",
     "files": [
       "build/**/*",
       "!node_modules/**/*.{mk,a,o,h}"
@@ -114,7 +114,7 @@
         "entry": {
           "Comment": "Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!",
           "Keywords": "anime",
-          "MimeType": "x-scheme-handler/shiru;"
+          "MimeType": "x-scheme-handler/tsumi;"
         }
       },
       "target": [
