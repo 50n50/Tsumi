@@ -4,7 +4,7 @@
     "name": "Dummy Extension",
     "version": "0.0.1",
     "main": "sources/example",
-    "update": "gh:RockinChaos/Shiru/extensions",
+    "update": "gh:50n50/Tsumi/extensions",
     "type": "torrent",
     "speed": "fast",
     "accuracy": "low",

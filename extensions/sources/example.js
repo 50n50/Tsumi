@@ -9,7 +9,7 @@ import AbstractSource from './abstract.js'
  *
  * **Installation:**
  * - Local: Direct path to index.json
- * - Remote: `gh:RockinChaos/Shiru/extensions`
+ * - Remote: `gh:50n50/Tsumi/extensions`
  *
  * **Remote URL formats:**
  * - GitHub: `gh:username/repo/path`

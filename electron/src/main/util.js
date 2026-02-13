@@ -52,8 +52,7 @@ app.setJumpList?.([
       },
       {
         type: 'task',
-        program: 'shiru://donate/',
-        title: 'Donate',
+
         description: 'Support This App'
       }
     ]

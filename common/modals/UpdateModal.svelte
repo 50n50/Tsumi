@@ -118,10 +118,10 @@
           <div class='font-scale-20'>{latestVersion} - {changelog?.entry ? new Date(changelog.entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</div>
           <hr class='my-20'>
           <div class='mt-20' class:d-none={!isLesser}>
-            It looks like you're upgrading from an earlier version, consider checking out the <span class='custom-link' use:click={() => IPC.emit('open', 'https://github.com/RockinChaos/Shiru/releases')}>past release notes</span>.
+            It looks like you're upgrading from an earlier version, consider checking out the <span class='custom-link' use:click={() => IPC.emit('open', 'https://github.com/50n50/Tsumi/releases')}>past release notes</span>.
           </div>
           <div class:mt-20={!isLesser}>
-            Consider <span class='custom-link' use:click={() => IPC.emit('open', 'https://github.com/sponsors/RockinChaos')}>donating on GitHub</span> to help support future Shiru development.
+
           </div>
           <hr class='my-20'/>
           {#if changelog?.entry?.body?.trim().length}

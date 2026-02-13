@@ -49,14 +49,6 @@
     <button type='button' use:click={() => IPC.emit('ui-devtools')} class='btn btn-primary d-none align-items-center justify-content-center mt-10' class:d-flex={!SUPPORTS.isAndroid}><span class='text-truncate'>Open Devtools</span></button>
   </div>
 </SettingCard>
-{#if !SUPPORTS.isAndroid}
-  <SettingCard title='Donate Button' description='Enables the "Support This App" button on the side bar.'>
-    <div class='custom-switch'>
-      <input type='checkbox' id='donate' bind:checked={settings.donate} />
-      <label for='donate'>{settings.donate ? 'On' : 'Off'}</label>
-    </div>
-  </SettingCard>
-{/if}
 <SettingCard title='Expandable Sidebar' description='Enables the sidebar to expand revealing detailed text for the navigation buttons.'>
   <div class='custom-switch'>
     <input type='checkbox' id='disable-sidebar' bind:checked={settings.expandingSidebar} />

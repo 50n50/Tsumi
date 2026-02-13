@@ -54,7 +54,7 @@
   import PlayerTab from '@/routes/settings/tabs/PlayerTab.svelte'
   import InterfaceTab from '@/routes/settings/tabs/InterfaceTab.svelte'
   import AppTab from '@/routes/settings/tabs/AppTab.svelte'
-  import ChangelogTab from '@/routes/settings/tabs/ChangelogTab.svelte'
+
   import ExtensionTab from '@/routes/settings/tabs/ExtensionTab.svelte'
   import { status } from '@/modules/networking.js'
   import { modal } from '@/modules/navigation.js'
@@ -85,17 +85,7 @@
       name: 'App',
       icon: LayoutDashboard
     },
-    changelog: {
-      name: 'Changelog',
-      icon: Logs,
-      sidebar: true
-    },
-    donate: {
-      name: 'Donate',
-      icon: Heart,
-      action: () => IPC.emit('open', 'https://github.com/sponsors/RockinChaos/'),
-      sidebar: true
-    }
+
   }
   function pathListener (data) {
     if (SUPPORTS.isAndroid) requestFileAccess(data, () => $settings.torrentPathNew = data)
@@ -173,16 +163,6 @@
           </div>
         </div>
       </Tab>
-      <Tab>
-        <div class='root h-full w-full overflow-y-md-auto p-20 pt-5'>
-          <div class='scroll-container'>
-            <div class='page pb-100' style={miniplayerPadding}>
-              <ChangelogTab {version} />
-            </div>
-          </div>
-        </div>
-      </Tab>
-      <Tab/> <!-- Skip Donate Tab -->
     </div>
   </div>
 </Tabs>

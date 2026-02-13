@@ -610,7 +610,7 @@ export const defaults = {
   queryComplexity: 'Complex',
   expandingSidebar: false,
   torrentPathNew: undefined,
-  donate: true,
+
   font: undefined,
   angle: 'default',
   sourcesNew: {},

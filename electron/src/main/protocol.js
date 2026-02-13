@@ -24,9 +24,7 @@ export default class Protocol {
     search: id => this.play(id),
     w2g: link => this.window.webContents.send('w2glink', link),
     schedule: () => this.window.webContents.send('schedule'),
-    donate: () => shell.openExternal('https://github.com/sponsors/RockinChaos/'),
     update: () => ipcMain.emit('quit-and-install'),
-    changelog: () => shell.openExternal('https://github.com/RockinChaos/Shiru/releases/latest'),
     show: () => ipcMain.emit('window-show')
   }
 

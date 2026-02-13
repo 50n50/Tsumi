@@ -15,9 +15,8 @@ export default class Protocol {
     search: id => this.play(id),
     w2g: link => IPC.emit('w2glink', link),
     schedule: () => IPC.emit('schedule'),
-    donate: () => Browser.open({url: 'https://github.com/sponsors/RockinChaos/'}),
+
     update: () => IPC.emit('quit-and-install'),
-    changelog: () => Browser.open({url: 'https://github.com/RockinChaos/Shiru/releases/latest'}),
     show: () => IPC.emit('window-show')
   }
 

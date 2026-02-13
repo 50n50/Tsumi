@@ -51,7 +51,7 @@ export default class Updater {
         clearInterval(this.downloadedInterval)
         autoUpdater.quitAndInstall(true, true)
       })
-      if (process.platform === 'darwin') shell.openExternal('https://github.com/RockinChaos/Shiru/releases/latest')
+      if (process.platform === 'darwin') shell.openExternal('https://github.com/50n50/Tsumi/releases/latest')
       this.hasUpdate = false
       return true
     }

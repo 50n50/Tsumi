@@ -10,14 +10,14 @@ export default class Discord {
       state: 'Enjoying an anime episode...',
       assets: {
         large_image: 'icon',
-        large_text: 'https://github.com/RockinChaos/Shiru',
+        large_text: 'https://github.com/50n50/Tsumi',
         small_image: 'sail',
         small_text: 'Watching anime on Shiru'
       },
       buttons: [
         {
           label: 'Download Shiru',
-          url: 'https://github.com/RockinChaos/Shiru/releases/latest'
+          url: 'https://github.com/50n50/Tsumi/releases/latest'
         }
       ],
       instance: true,

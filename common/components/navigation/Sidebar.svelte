@@ -87,21 +87,17 @@
     <SidebarLink click={() => page.navigateTo(page.WATCH_TOGETHER)} _page={page.WATCH_TOGETHER} icon='groups' text='Watch Together' let:active>
       <Users size={btnSize} class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
     </SidebarLink>
-    {#if $settings.donate && !SUPPORTS.isAndroid}
-      <SidebarLink click={() => { IPC.emit('open', 'https://github.com/sponsors/RockinChaos/') }} icon='favorite' text='Support This App' css='mt-md-h-auto d-sm-h-none' let:active let:hovering>
-        <Heart size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1 donate' strokeWidth='2.5' fill='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--quattuordenary-color)`}' />
-      </SidebarLink>
-    {/if}
+
     {#if $updateState === 'downloading'}
-      <SidebarLink click={() => { toast('Update is downloading...', { description: 'This may take a moment, the update will be ready shortly.' }) }} icon='download' text='Update Downloading...' css='{!$settings.donate && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``} d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
+      <SidebarLink click={() => { toast('Update is downloading...', { description: 'This may take a moment, the update will be ready shortly.' }) }} icon='download' text='Update Downloading...' css='d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
         <CloudDownload size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1' strokeWidth='2.5' color='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--tertiary-color-light)`}' />
       </SidebarLink>
     {:else if $updateState === 'ready' || $updateState === 'ignored' || $updateState === 'aborted'}
-      <SidebarLink click={() => { $updateState = 'ready' }} icon='download' text='Update Available!' css='{!$settings.donate && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``} d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
+      <SidebarLink click={() => { $updateState = 'ready' }} icon='download' text='Update Available!' css='d-sm-h-none' _modal={modal.UPDATE_PROMPT} let:active let:hovering>
         <CloudDownload size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1' strokeWidth='2.5' color='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--success-color-light)`}' />
       </SidebarLink>
     {/if}
-    <SidebarLink click={() => { modal.toggle(modal.NOTIFICATIONS) }} icon='bell' text='Notifications' css='{!$settings.donate && $updateState !== `downloading` && $updateState !== `ready` && $updateState !== `ignored` && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``}' _modal={modal.NOTIFICATIONS} let:active let:hovering>
+    <SidebarLink click={() => { modal.toggle(modal.NOTIFICATIONS) }} icon='bell' text='Notifications' css='{$updateState !== `downloading` && $updateState !== `ready` && $updateState !== `ignored` && !SUPPORTS.isAndroid ? `mt-md-h-auto` : ``}' _modal={modal.NOTIFICATIONS} let:active let:hovering>
       {#if $hasUnreadNotifications && $hasUnreadNotifications > 0}
         <BellDot size={btnSize} class='flex-shrink-0 p-5 m-5 rounded fill-1 notify' strokeWidth='2.5' color='currentColor' style='--fill-button-color: {hovering ? `var(--gray-color-very-dim)` : `var(--notify-color)`}' />
       {:else}
@@ -120,10 +116,6 @@
 </div>
 
 <style>
-  .sidebar .animate :global(.donate) {
-    animation: pink_glow 1s ease-in-out infinite alternate;
-    will-change: drop-shadow;
-  }
   .sidebar .animate :global(.notify) {
     animation: purple_glow 1s ease-in-out infinite alternate, bell_shake 10s infinite;
     will-change: drop-shadow;

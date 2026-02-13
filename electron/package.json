@@ -3,10 +3,10 @@
   "version": "6.5.0",
   "license": "GPL-3.0-or-later",
   "private": true,
-  "author": "RockinChaos <RockinChaos@users.noreply.github.com>",
+  "author": "50n50 <50n50@users.noreply.github.com>",
   "description": "Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!",
   "main": "build/main.js",
-  "homepage": "https://github.com/RockinChaos/Tsumi#readme",
+  "homepage": "https://github.com/50n50/Tsumi#readme",
   "scripts": {
     "start": "webpack build && concurrently --kill-others \"npm run web:watch\" \"npm run electron:start\"",
     "web:watch": "webpack serve",
@@ -70,11 +70,11 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "RockinChaos",
+        "owner": "50n50",
         "repo": "tsumi"
       }
     ],
-    "appId": "com.github.rockinchaos.tsumi",
+    "appId": "com.github.50n50.tsumi",
     "productName": "Tsumi",
     "files": [
       "build/**/*",
@@ -109,7 +109,7 @@
       "icon": "buildResources/icon.png",
       "category": "AudioVideo;Video",
       "description": "Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!",
-      "maintainer": "RockinChaos <RockinChaos@users.noreply.github.com>",
+      "maintainer": "50n50 <50n50@users.noreply.github.com>",
       "desktop": {
         "entry": {
           "Comment": "Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!",

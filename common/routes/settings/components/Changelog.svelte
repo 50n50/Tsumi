@@ -18,7 +18,7 @@
 
   async function getChanges() {
     try {
-      const json = await (await fetch('https://api.github.com/repos/RockinChaos/Shiru/releases')).json()
+      const json = await (await fetch('https://api.github.com/repos/50n50/Tsumi/releases')).json()
       return json.map(({body, tag_name: version, published_at: date, assets, html_url: url}) => ({
         body,
         version,

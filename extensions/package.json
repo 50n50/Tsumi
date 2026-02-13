@@ -1,5 +1,5 @@
 {
-  "name": "@rockinchaos/example",
+  "name": "@50n50/example",
   "version": "1.0.0",
   "description": "Example extensions for Shiru that returns generated dummy results based on query parameters",
   "license": "GPLv3",

@@ -179,7 +179,7 @@ export default class App {
     })
 
     if (process.platform === 'win32') {
-      app.setAppUserModelId('com.github.rockinchaos.shiru')
+      app.setAppUserModelId('com.github.50n50.tsumi')
       // this message usually fires in dev-mode from the parent process
       process.on('message', data => {
         if (data === 'graceful-exit') this.destroy()
@@ -202,8 +202,8 @@ export default class App {
     this.mainWindow.webContents.on('render-process-gone', async (e, { reason }) => {
       if (reason === 'crashed') {
         if (++crashcount > 10) {
-          await dialog.showMessageBox({ message: 'Crashed too many times.', title: 'Shiru', detail: 'App crashed too many times. For a fix visit https://github.com/RockinChaos/Shiru/wiki/faq/', icon: '/renderer/public/icon_filled.png' })
-          shell.openExternal('https://github.com/RockinChaos/Shiru/wiki/faq/')
+          await dialog.showMessageBox({ message: 'Crashed too many times.', title: 'Tsumi', detail: 'App crashed too many times. For a fix visit https://github.com/50n50/Tsumi/wiki/faq/', icon: '/renderer/public/icon_filled.png' })
+          shell.openExternal('https://github.com/50n50/Tsumi/wiki/faq/')
         } else {
           app.relaunch()
         }

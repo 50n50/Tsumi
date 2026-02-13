@@ -17,7 +17,7 @@ import { loadingClient } from './util.js'
 export default class App {
   protocol = new Protocol()
   debugger = new Debugger()
-  updater = new Updater('https://github.com/RockinChaos/Shiru/releases/latest/download/latest-android.yml', 'https://api.github.com/repos/RockinChaos/Shiru/releases/latest')
+  updater = new Updater('https://github.com/50n50/Tsumi/releases/latest/download/latest-android.yml', 'https://api.github.com/repos/50n50/Tsumi/releases/latest')
   dialog = new Dialog()
 
   ready = NodeJS.whenReady()
