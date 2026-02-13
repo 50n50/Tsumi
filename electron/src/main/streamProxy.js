@@ -13,6 +13,49 @@ export async function startStreamProxy() {
   return new Promise((resolve, reject) => {
     try {
       expressApp = express()
+      expressApp.use(express.json({ limit: '10mb' }))
+
+      // General-purpose fetch proxy — supports all HTTP methods and custom headers
+      // (including User-Agent, Cookie, Referer which are forbidden in browser fetch)
+      expressApp.post('/fetch', async (req, res) => {
+        try {
+          const { url, headers: reqHeaders, method, body: reqBody } = req.body
+
+          if (!url) {
+            return res.status(400).json({ error: 'Missing url' })
+          }
+
+          const fetchOptions = {
+            method: (method || 'GET').toUpperCase(),
+            headers: reqHeaders || {}
+          }
+
+          if (reqBody != null && fetchOptions.method !== 'GET' && fetchOptions.method !== 'HEAD') {
+            fetchOptions.body = typeof reqBody === 'string' ? reqBody : JSON.stringify(reqBody)
+          }
+
+          const response = await fetch(url, fetchOptions)
+
+          const contentType = response.headers.get('content-type') || 'application/octet-stream'
+          res.setHeader('Content-Type', contentType)
+          res.setHeader('Access-Control-Allow-Origin', '*')
+
+          // Forward Set-Cookie so extensions can read cookies from responses
+          const setCookie = response.headers.getSetCookie?.() || []
+          if (setCookie.length) {
+            res.setHeader('X-Set-Cookie', JSON.stringify(setCookie))
+          }
+
+          res.status(response.status)
+          const buffer = await response.arrayBuffer()
+          res.send(Buffer.from(buffer))
+        } catch (error) {
+          debug('Fetch proxy error:', error)
+          if (!res.headersSent) {
+            res.status(500).json({ error: error.message })
+          }
+        }
+      })
 
       expressApp.get('/proxy', async (req, res) => {
         try {

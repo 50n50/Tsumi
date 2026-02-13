@@ -16,7 +16,10 @@ module.exports = [
       filename: 'background.js'
     },
     mode,
-    externals: {\n      'fs-native-extensions': 'commonjs2 fs-native-extensions',\n      'require-addon': 'commonjs2 require-addon'\n    },
+    externals: {
+      'fs-native-extensions': 'commonjs2 fs-native-extensions',
+      'require-addon': 'commonjs2 require-addon'
+    },
     resolve: {
       aliasFields: [],
       mainFields: ['module', 'main', 'node'],

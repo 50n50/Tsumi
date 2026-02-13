@@ -1,16 +1,32 @@
 import { writable } from 'simple-store-svelte'
 import { settings } from '@/modules/settings.js'
+import { ELECTRON } from '@/modules/bridge.js'
 import Debug from 'debug'
 
 const debug = Debug('ui:extension:manager')
 
+let cachedProxyPort = null
+async function getProxyPort() {
+  if (cachedProxyPort !== null) return cachedProxyPort
+  try {
+    cachedProxyPort = await ELECTRON.getProxyPort?.()
+    return cachedProxyPort
+  } catch {
+    return null
+  }
+}
+
 export async function extensionFetch(url, options = {}) {
   const headers = options.headers || {}
-  const method = options.method || 'GET'
+  const method = (options.method || 'GET').toUpperCase()
   const body = options.body || null
 
   try {
-    const response = await fetch(url, { headers, method, body })
+    const fetchOptions = { headers, method }
+    if (body != null && method !== 'GET' && method !== 'HEAD') {
+      fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body)
+    }
+    const response = await fetch(url, fetchOptions)
     return response
   } catch (error) {
     debug('fetch failed:', error)
@@ -26,17 +42,47 @@ async function getExtension(url, isJson = false) {
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
-const fetchv2Polyfill = `
+function buildFetchv2Polyfill(proxyPort) {
+  if (!proxyPort) {
+    // Fallback: direct fetch (User-Agent and other forbidden headers won't work)
+    return `
 async function fetchv2(url, headers, method, body) {
-  return await fetch(url, {
-    headers: headers || {},
-    method: method || 'GET',
-    body: body || null
-  })
+  const options = {
+    method: (method || 'GET').toUpperCase(),
+    headers: headers || {}
+  };
+  if (body != null && options.method !== 'GET' && options.method !== 'HEAD') {
+    options.body = typeof body === 'string' ? body : JSON.stringify(body);
+  }
+  return await fetch(url, options);
 }
 `
+  }
+
+  // Route through the Node.js proxy so all headers (User-Agent, Cookie, Referer) work
+  return `
+async function fetchv2(url, headers, method, body) {
+  const proxyBody = {
+    url: url,
+    headers: headers || {},
+    method: (method || 'GET').toUpperCase()
+  };
+  if (body != null) {
+    proxyBody.body = body;
+  }
+  return await fetch('http://localhost:${proxyPort}/fetch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(proxyBody)
+  });
+}
+`
+}
 
 export async function executeExtensionFunction(scriptCode, functionName, ...args) {
+  const proxyPort = await getProxyPort()
+  const fetchv2Polyfill = buildFetchv2Polyfill(proxyPort)
+
   const code = `
     ${fetchv2Polyfill}
     ${scriptCode}

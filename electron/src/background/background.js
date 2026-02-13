@@ -1,1 +1,2 @@
-// Background process - placeholder\nconsole.log('Background process started')\n
+// Background process - placeholder
+console.log('Background process started')

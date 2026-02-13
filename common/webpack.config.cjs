@@ -60,6 +60,7 @@ module.exports = (parentDir, alias = {}, aliasFields = 'browser', filename = 'ap
       module: false,
       url: false,
       debug: resolve(__dirname, './modules/debug.js'),
+      'bittorrent-tracker/lib/client/websocket-tracker.js': resolve('../node_modules/bittorrent-tracker/lib/client/websocket-tracker.js'),
       'webpack/hot/emitter.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/emitter.js'),
       'webpack/hot/log.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/log.js')
     },

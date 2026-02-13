@@ -49,11 +49,6 @@ app.setJumpList?.([
         program: 'shiru://w2g/',
         title: 'Watch Together',
         description: 'Create a New Watch Together Lobby'
-      },
-      {
-        type: 'task',
-
-        description: 'Support This App'
       }
     ]
   }
