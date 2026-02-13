@@ -1,6 +1,6 @@
-/** @typedef {import('../').TorrentSource} TorrentSource */
+/** @typedef {import('../').SourceConfig} Source */
 
-/** @implements {TorrentSource} */
+/** @implements {Source} */
 export default class AbstractSource {
   /**
    * Query results for a single episode.

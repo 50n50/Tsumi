@@ -6,17 +6,14 @@ export default class Updater {
   downloading = false
 
   window
-  torrentWindow
   availableInterval
   downloadedInterval
 
   /**
    * @param {import('electron').BrowserWindow} window
-   * @param {() => import('electron').BrowserWindow} torrentWindow
    */
-  constructor (window, torrentWindow) {
+  constructor (window) {
     this.window = window
-    this.torrentWindow = torrentWindow
     autoUpdater.autoInstallOnAppQuit = false
     ipcMain.on('update', () => autoUpdater.checkForUpdates())
     autoUpdater.on('error', () => this.window.webContents.send('update-aborted'))
@@ -46,7 +43,6 @@ export default class Updater {
       setImmediate(() => {
         try {
           this.window.close()
-          this.torrentWindow().close()
         } catch (e) {}
         clearInterval(this.downloadedInterval)
         autoUpdater.quitAndInstall(true, true)

@@ -3,7 +3,6 @@ import { settings } from '@/modules/settings.js'
 import { status } from '@/modules/networking.js'
 import { cache, caches } from '@/modules/cache.js'
 import { toast } from 'svelte-sonner'
-import { add } from '@/modules/torrent.js'
 import { getEpisodeMetadataForMedia, isSubbedProgress } from '@/modules/anime/anime.js'
 import AnimeResolver from '@/modules/anime/animeresolver.js'
 import { anilistClient } from '@/modules/anilist.js'
@@ -232,7 +231,10 @@ class RSSMediaManager {
           debug(`Warn: failed fetching episode metadata for ${res.media.title?.userPreferred} episode ${requestEpisode}:`, e.stack)
         }
       }
-      res.onclick = () => add(res.link, { media: res.media, episode: res.episode, episodeRange: res.episodeRange }, res.hash || res.link)
+      res.onclick = () => {
+        // Magnet link handling removed - users should use streaming extensions
+        console.log('RSS magnet handling disabled:', res.link)
+      }
       return res
     })
   }

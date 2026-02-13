@@ -2,7 +2,6 @@ import JASSUB from 'jassub'
 import { hex2arr, bin2hex } from 'uint8-util'
 import { toTS, subRx, videoRx } from '@/modules/util.js'
 import { settings } from '@/modules/settings.js'
-import { client } from '@/modules/torrent.js'
 import clipboard from '@/modules/clipboard.js'
 import { SUPPORTS } from '@/modules/support.js'
 
@@ -116,15 +115,16 @@ export default class Subtitles {
       this.addSingleSubtitleFile(new File([detail.data], detail.name))
     }
 
-    client.on('tracks', this.handleTracks)
-    client.on('subtitle', this.handleSubtitle)
-    client.on('file', this.handleFile)
-    client.on('subtitleFile', this.handleSubtitleFile)
+    // Note: Torrent client event listeners removed - subtitles loaded from streaming sources
     clipboard.on('text', this.handleClipboardText)
     clipboard.on('files', this.handleClipboardFiles)
   }
 
-  async addSingleSubtitleFile (file) {
+  // Client event handlers are now noops
+  handleTracks() {}
+  handleSubtitle() {}
+  handleFile() {}
+  handleSubtitleFile() {}  async addSingleSubtitleFile (file) {
     // lets hope there's no more than 100 subtitle tracks in a file
     const index = 100 + this.headers.length
     this.subtitleFiles[index] = file
@@ -297,12 +297,7 @@ export default class Subtitles {
   }
 
   destroy () {
-    client.off('tracks', this.handleTracks)
-    client.off('subtitle', this.handleSubtitle)
-    client.off('file', this.handleFile)
-    client.off('files', this.handleClipboardFiles)
-    client.off('text', this.handleClipboardText)
-    client.off('subtitleFile', this.handleSubtitleFile)
+    // Client event listeners removed
     this.stream?.destroy()
     this.parser?.destroy()
     this.renderer?.destroy()

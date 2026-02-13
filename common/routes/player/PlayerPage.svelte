@@ -1684,7 +1684,7 @@
         <Minus size='1.9rem' strokeWidth='3'/>
       </span>
     {/if}
-    <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} title='Exit' data-name='playPause' use:click={() => { stopStream(video); if (pip) { try { document.exitPictureInPicture() } catch(e) {} pip = false } window.dispatchEvent(new CustomEvent('torrent-unload')); if ($page === page.PLAYER) page.navigateTo(page.HOME)}}>
+    <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} title='Exit' data-name='playPause' use:click={() => { stopStream(video); if (pip) { try { document.exitPictureInPicture() } catch(e) {} pip = false } window.dispatchEvent(new CustomEvent('stream-unload')); if ($page === page.PLAYER) page.navigateTo(page.HOME)}}>
       <X size='1.9rem' strokeWidth='3'/>
     </span>
     <div class='d-flex align-items-center position-relative' class:mb-50={!miniplayer} style='width: 100%;' title='Play/Pause'>

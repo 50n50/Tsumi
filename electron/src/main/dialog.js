@@ -16,7 +16,7 @@ export default class Dialog {
     })
     ipcMain.on('dialog', async ({ sender }) => {
       const { filePaths, canceled } = await dialog.showOpenDialog({
-        title: 'Select torrent download location',
+        title: 'Select download location',
         properties: ['openDirectory']
       })
       if (canceled) return

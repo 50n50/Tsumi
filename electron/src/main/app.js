@@ -6,7 +6,7 @@ import { youtubeServer } from './youtube.js'
 import Jimp from 'jimp'
 import fs from 'fs'
 
-import { BrowserWindow, MessageChannelMain, Notification, Tray, Menu, nativeImage, app, dialog, ipcMain, powerMonitor, shell, session } from 'electron'
+import { BrowserWindow, Notification, Tray, Menu, nativeImage, app, dialog, ipcMain, powerMonitor, shell, session } from 'electron'
 let electronShutdownHandler
 try {
   electronShutdownHandler = require('@paymoapp/electron-shutdown-handler')
@@ -29,9 +29,6 @@ export default class App {
 
   timeouts = new Set()
   stateTimeout = null
-
-  torrentLoad = null
-  webtorrentWindow = this.makeWebTorrentWindow()
 
   isMinimized = false
   isFullScreen = false
@@ -62,7 +59,7 @@ export default class App {
 
   discord = new Discord(this.mainWindow)
   protocol = new Protocol(this.mainWindow)
-  updater = new Updater(this.mainWindow, () => this.webtorrentWindow)
+  updater = new Updater(this.mainWindow)
   dialog = new Dialog()
   tray = new Tray(this.trayIcon)
   imageDir = join(app.getPath('userData'), 'Cache', 'Image_Data')
@@ -76,13 +73,11 @@ export default class App {
     this.mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
     if (development) this.mainWindow.once('ready-to-show', () => this.showAndFocus(true))
     else ipcMain.once('main-ready', () => this.showAndFocus(true)) // HACK: Prevents the window from being shown while it's still loading. This is nice for production as the window can't be moved without the elements being rendered.
-    ipcMain.on('torrent-devtools', () => this.webtorrentWindow.webContents.openDevTools({ mode: 'detach' }))
     ipcMain.on('ui-devtools', ({ sender }) => sender.openDevTools({ mode: 'detach' }))
     ipcMain.on('window-hide', () => this.mainWindow.hide())
     ipcMain.on('window-show', () => this.showAndFocus())
     ipcMain.on('minimize', () => this.mainWindow?.minimize())
     ipcMain.on('maximize', () => this.mainWindow?.isMaximized() ? this.mainWindow.unmaximize() : this.mainWindow.maximize())
-    ipcMain.on('webtorrent-restart', () => this.setWebTorrentWindow(true))
     this.mainWindow.on('maximize', () => this.mainWindow.webContents.send('isMaximized', true))
     this.mainWindow.on('unmaximize', () => {
       saveWindowState(this.mainWindow)
@@ -113,8 +108,6 @@ export default class App {
     this.mainWindow.on('enter-full-screen', () => fullScreen(true))
     this.mainWindow.on('leave-full-screen', () => fullScreen(false))
 
-    this.setWebTorrentWindow()
-    
     this.proxyPort = null
     startStreamProxy().then(port => {
       this.proxyPort = port
@@ -185,7 +178,7 @@ export default class App {
         if (data === 'graceful-exit') this.destroy()
       })
       electronShutdownHandler?.setWindowHandle(this.mainWindow.getNativeWindowHandle())
-      electronShutdownHandler?.blockShutdown('Saving torrent data...')
+      electronShutdownHandler?.blockShutdown('Shutting down...')
       electronShutdownHandler?.on('shutdown', async () => {
         await this.destroy()
         electronShutdownHandler.releaseShutdown()
@@ -210,20 +203,6 @@ export default class App {
         app.quit()
       }
     })
-
-    ipcMain.on('portRequest', async (event, settings) => {
-      const { port1, port2 } = new MessageChannelMain()
-      await this.torrentLoad
-      ipcMain.once('webtorrent-heartbeat', () => {
-        this.webtorrentWindow.webContents.postMessage('main-heartbeat', settings)
-        ipcMain.once('torrentRequest', () => {
-          this.webtorrentWindow.webContents.postMessage('port', null, [port1])
-          event.sender.postMessage('port', null, [port2])
-        })
-      })
-    })
-
-    ipcMain.on('webtorrent-reload', () => { if (!this.mainWindow?.isDestroyed() && !this.webtorrentWindow?.isDestroyed()) this.webtorrentWindow.webContents.postMessage('webtorrent-reload', null) })
 
     let authWindow
     ipcMain.on('open-auth', (event, url) => {
@@ -285,47 +264,6 @@ export default class App {
     })
   }
 
-  makeWebTorrentWindow() {
-    return new BrowserWindow({
-      webPreferences: {
-        webSecurity: false,
-        allowRunningInsecureContent: false,
-        nodeIntegration: true,
-        contextIsolation: false,
-        backgroundThrottling: false
-      },
-      show: false
-    })
-  }
-
-  webTorrentCrashes = 0
-  setWebTorrentWindow(crashed = false) {
-    if (!crashed || ++this.webTorrentCrashes < 5) {
-      if (crashed) {
-        const timeout = setTimeout(() => {
-          this.timeouts.delete(timeout)
-          if (this.webTorrentCrashes < 5) this.webTorrentCrashes = 0
-        }, 60_000)
-        timeout.unref?.()
-        this.timeouts.add(timeout)
-        try {
-          if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) {
-            this.webtorrentWindow.removeAllListeners('closed')
-            this.webtorrentWindow.destroy()
-          }
-        } catch {}
-        this.webtorrentWindow = this.makeWebTorrentWindow()
-      }
-      this.torrentLoad = this.webtorrentWindow.loadURL(development ? 'http://localhost:5000/background.html' : `file://${join(__dirname, '/background.html')}`)
-      if (development) this.webtorrentWindow.webContents.openDevTools({ mode: 'detach' })
-      if (crashed) this.mainWindow.webContents.send('webtorrent-crashed')
-      this.webtorrentWindow.on('closed', () => this.destroy())
-      this.webtorrentWindow.webContents.on('render-process-gone', async (e, { reason }) => {
-       if (reason === 'crashed') this.setWebTorrentWindow(true)
-      })
-    }
-  }
-
   destroyed = false
   async destroy(forceRunAfter = false) {
     if (this.destroyed) return
@@ -340,19 +278,6 @@ export default class App {
     clearTimeout(this.stateTimeout)
     saveWindowState(this.mainWindow)
     youtubeServer?.close?.()
-    try {
-      if (this.webtorrentWindow && !this.webtorrentWindow.isDestroyed()) { // WebTorrent shouldn't ever be destroyed before main, but it's better to be safe.
-        this.webtorrentWindow.webContents?.closeDevTools?.()
-        this.webtorrentWindow.webContents?.postMessage('destroy', null)
-        let resolveTimeout
-        await new Promise(resolve => {
-          ipcMain.once('destroyed', resolve)
-          resolveTimeout = setTimeout(resolve, 5_000)
-          resolveTimeout.unref?.()
-        })
-        clearTimeout(resolveTimeout)
-      }
-    } catch {} // WebTorrent crashed... prevents hanging infinitely.
     if (!this.updater.install(forceRunAfter)) app.quit()
   }
 

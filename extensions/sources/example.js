@@ -1,10 +1,10 @@
 import AbstractSource from './abstract.js'
 
 /**
- * Example torrent source extension that generates dummy search results for testing and development.
+ * Example streaming source extension that generates dummy search results for testing and development.
  *
  * @remarks
- * This extension demonstrates the complete implementation pattern for torrent sources,
+ * This extension demonstrates the complete implementation pattern for streaming sources,
  * including all required extension methods (single, batch, movie, validate) and proper result formatting.
  *
  * **Installation:**
@@ -20,19 +20,19 @@ import AbstractSource from './abstract.js'
  */
 export default new class DummySource extends AbstractSource {
   /**
-   * Base URL for the torrent source.
+   * Base URL for the streaming source.
    * Used by the validate() method to check source availability and should be used in the extensions query method.
    *
    * @example 'https://feed.example.org/json'
-   * @example 'https://dummy.example.com/api'
+   * @example 'https://api.example.com/stream'
    */
   url = 'https://www.google.com'
 
   /**
-   * Generates dummy torrent results based on query parameters
+   * Generates dummy streaming results based on query parameters
    * @param {string} searchType Type of search (single, batch, movie)
    * @param {Object} query Query object with titles, resolution, episode, etc.
-   * @returns {import('./').TorrentResult[]} Array of torrent results matching the query parameters.
+   * @returns {import('./').TorrentResult[]} Array of streaming results matching the query parameters.
    */
   #query(searchType, query) {
     const baseDate = new Date('2026-01-09')
@@ -61,7 +61,7 @@ export default new class DummySource extends AbstractSource {
     }
     const episodeInfo = getEpisodeInfo()
 
-    /** @returns {import('./').TorrentResult[]} Array of torrent results matching the query parameters. */
+    /** @returns {import('./').TorrentResult[]} Array of streaming results matching the query parameters. */
     return [
       {
         title: `[QuickSubs] ${baseTitle}${searchType === 'movie' ? '' : ` - ${episodeInfo}`} (${res}p)`,

@@ -40,8 +40,7 @@
   "pnpm": {
     "overrides": {
       "node-abi": "3.77.0",
-      "node-datachannel": "0.30.0",
-      "bittorrent-tracker": "^11.2.2"
+      "node-datachannel": "0.30.0"
     },
     "patchedDependencies": {
       "@capacitor/local-notifications": "patches/@capacitor__local-notifications.patch",
@@ -59,7 +58,6 @@
       "node-datachannel",
       "sharp",
       "utf-8-validate",
-      "utp-native",
       "wrtc"
     ]
   }

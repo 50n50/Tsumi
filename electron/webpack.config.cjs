@@ -16,24 +16,17 @@ module.exports = [
       filename: 'background.js'
     },
     mode,
-    externals: {
-      'utp-native': 'require("utp-native")',
-      'fs-native-extensions': 'commonjs2 fs-native-extensions',
-      'require-addon': 'commonjs2 require-addon'
-    },
+    externals: {\n      'fs-native-extensions': 'commonjs2 fs-native-extensions',\n      'require-addon': 'commonjs2 require-addon'\n    },
     resolve: {
       aliasFields: [],
       mainFields: ['module', 'main', 'node'],
       alias: {
         '@': resolve(__dirname, '..', 'common'),
         '@client': resolve(__dirname, '..', 'client'),
-        'webtorrent-client': resolve(__dirname, '..', 'client/core/webtorrent.js'),
         'node-fetch': false,
         ws: false,
         wrtc: false,
         debug: resolve(__dirname, '../common/modules/debug.js'),
-        'webrtc-polyfill': resolve('../node_modules/webrtc-polyfill/browser.js'),
-        'http-tracker': resolve('../node_modules/bittorrent-tracker/lib/client/http-tracker.js'),
         'webpack/hot/emitter.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/emitter.js'),
         'webpack/hot/log.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/log.js')
       }

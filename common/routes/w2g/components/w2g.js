@@ -4,7 +4,6 @@ import P2PT from 'p2pt'
 
 import Event, { EventTypes } from '@/routes/w2g/components/events.js'
 import Helper from '@/modules/helper.js'
-import { add } from '@/modules/torrent.js'
 import { generateRandomHexCode } from '@/modules/util.js'
 import { writable } from 'simple-store-svelte'
 import Debug from 'debug'
@@ -182,7 +181,8 @@ export class W2GClient extends EventEmitter {
         if (hash !== this.magnet?.hash) {
           this.isHost = false
           this.magnet = data.payload
-          add(magnet)
+          // Magnet link received but torrent system is disabled
+          // Users can use streaming extensions instead
         }
 
         break

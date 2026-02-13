@@ -161,9 +161,6 @@
     <option value='' selected>None</option>
     <option value='*'>All</option>
     <option value='ui:*'>Interface</option>
-    <option value='torrent:*'>Torrent</option>
-    <option value='webtorrent:*,simple-peer,bittorrent-protocol,bittorrent-dht,bittorrent-lsd,torrent-discovery,bittorrent-tracker:*,ut_metadata,nat-pmp,nat-api'>WebTorrent</option>
-    <option value='ui:*,torrent:*'>Full Stack</option>
   </select>
 </SettingCard>
 <SettingCard title='Toast Levels' description='Changes what toasts are shown in the app, limiting what toasts are shown could be useful if an api is down to prevent spam.'>
