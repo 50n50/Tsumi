@@ -7,7 +7,7 @@
   import { status } from '@/modules/networking.js'
   import { loadedTorrent, completedTorrents, seedingTorrents, stagingTorrents } from '@/modules/torrent.js'
   import ErrorCard from '@/components/cards/ErrorCard.svelte'
-  import TorrentCard from '@/routes/torrentManager/components/TorrentCard.svelte'
+  import TorrentCard from '@/routes/extensionManager/components/ExtensionCard.svelte'
   import { Search, RefreshCw, TriangleAlert, Package, Percent, Activity, Scale, Gauge, CloudDownload, CloudUpload, Sprout, Magnet, Timer } from 'lucide-svelte'
   const rescanning = writable(true)
   WPC.listen('rescan_done', () => rescanning.value = false)

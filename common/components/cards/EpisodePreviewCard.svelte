@@ -1,7 +1,7 @@
 <script context='module'>
   import SmartImage from '@/components/visual/SmartImage.svelte'
   import AudioLabel from '@/components/AudioLabel.svelte'
-  import TorrentButton from '@/components/TorrentButton.svelte'
+  import TorrentButton from '@/components/ExtensionButton.svelte'
   import { CalendarDays, Play, Tv, RefreshCwOff } from 'lucide-svelte'
 </script>
 <script>

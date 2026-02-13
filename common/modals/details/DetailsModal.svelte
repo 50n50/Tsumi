@@ -1,7 +1,7 @@
 <script>
   import { onDestroy } from 'svelte'
   import { formatMap, genreIcons, getEpisodeMetadataForMedia, getKitsuMappings, getMediaMaxEp, playMedia } from '@/modules/anime/anime.js'
-  import { playAnime } from '@/modals/torrent/TorrentModal.svelte'
+  import { playAnime } from '@/modals/extension/ExtensionModal.svelte'
   import { copyToClipboard } from '@/modules/clipboard.js'
   import { settings } from '@/modules/settings.js'
   import { mediaCache } from '@/modules/cache.js'

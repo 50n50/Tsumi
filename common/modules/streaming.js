@@ -55,15 +55,26 @@ export async function loadStream(video, streamUrl, options = {}) {
   if (!streamUrl) throw new Error('No stream URL provided')
 
   const isHLS = streamUrl.toLowerCase().includes('.m3u8')
+  const hasHeaders = options.headers && Object.keys(options.headers).length > 0
 
-  if (!isHLS) {
+  if (!isHLS && !hasHeaders) {
     video.src = streamUrl
+    return
+  }
+
+  if (!isHLS && hasHeaders) {
+    const port = await getProxyPortInternal()
+    if (port) {
+      video.src = getProxyUrl(streamUrl, options.headers, port)
+    } else {
+      debug('No proxy available, falling back to direct src (headers will be missing)')
+      video.src = streamUrl
+    }
     return
   }
 
   const Hls = await loadHLSLibrary()
 
-  const hasHeaders = options.headers && Object.keys(options.headers).length > 0
   const port = hasHeaders ? await getProxyPortInternal() : null
 
   if (!Hls) {

@@ -5,7 +5,7 @@
   import { Play, RefreshCwOff } from 'lucide-svelte'
   import { onDestroy, onMount } from 'svelte'
   import { writable } from 'simple-store-svelte'
-  import { playActive } from '@/components/TorrentButton.svelte'
+  import { playActive } from '@/components/ExtensionButton.svelte'
   import { createListener, since, isValidNumber } from '@/modules/util.js'
   const { reactive, init } = createListener(['torrent-button', 'cont-button', 'episode-safe-area'])
   init(true)

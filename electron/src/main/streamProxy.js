@@ -68,14 +68,19 @@ export async function startStreamProxy() {
           const decodedUrl = decodeURIComponent(url)
           const decodedHeaders = headers ? JSON.parse(decodeURIComponent(headers)) : {}
 
-          const response = await fetch(decodedUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              ...decodedHeaders
-            }
-          })
+          const fetchHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            ...decodedHeaders
+          }
 
-          if (!response.ok) {
+          // Forward Range header for video seeking support
+          if (req.headers.range) {
+            fetchHeaders.Range = req.headers.range
+          }
+
+          const response = await fetch(decodedUrl, { headers: fetchHeaders })
+
+          if (!response.ok && response.status !== 206) {
             return res.status(response.status).json({ error: `Stream request failed: ${response.status}` })
           }
 
@@ -84,11 +89,12 @@ export async function startStreamProxy() {
           res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
           res.setHeader('Access-Control-Allow-Origin', '*')
 
-          const buffer = await response.arrayBuffer()
-          let body = Buffer.from(buffer)
+          const isM3U8 = decodedUrl.includes('.m3u8') || contentType.includes('mpegurl')
 
-          // Rewrite m3u8 playlists: convert every URL to an absolute proxy URL
-          if (decodedUrl.includes('.m3u8') || contentType.includes('mpegurl')) {
+          if (isM3U8) {
+            // Buffer m3u8 playlists to rewrite URLs
+            const buffer = await response.arrayBuffer()
+            let body = Buffer.from(buffer)
             const baseUrl = decodedUrl.substring(0, decodedUrl.lastIndexOf('/') + 1)
             const port = server.address().port
             const hdrs = encodeURIComponent(JSON.stringify(decodedHeaders))
@@ -100,10 +106,29 @@ export async function startStreamProxy() {
               return `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
             }).join('\n')
             body = Buffer.from(rewritten, 'utf-8')
-          }
+            res.setHeader('Content-Length', body.length)
+            res.send(body)
+          } else {
+            // Stream non-m3u8 responses (MP4, TS segments, etc.)
+            res.status(response.status)
 
-          res.setHeader('Content-Length', body.length)
-          res.send(body)
+            // Forward relevant headers for Range/partial content support
+            const contentLength = response.headers.get('content-length')
+            const contentRange = response.headers.get('content-range')
+            const acceptRanges = response.headers.get('accept-ranges')
+            if (contentLength) res.setHeader('Content-Length', contentLength)
+            if (contentRange) res.setHeader('Content-Range', contentRange)
+            if (acceptRanges) res.setHeader('Accept-Ranges', acceptRanges)
+
+            const { Readable } = require('stream')
+            const nodeStream = Readable.fromWeb(response.body)
+            nodeStream.pipe(res)
+            nodeStream.on('error', (err) => {
+              debug('Stream pipe error:', err)
+              if (!res.headersSent) res.status(500).end()
+              else res.end()
+            })
+          }
         } catch (error) {
           debug('Proxy error:', error)
           if (!res.headersSent) {

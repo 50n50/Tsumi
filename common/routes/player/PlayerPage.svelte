@@ -3,7 +3,8 @@
   import { cache, caches } from '@/modules/cache.js'
   import { page, modal, playPage } from '@/modules/navigation.js'
   import { getAnimeProgress, setAnimeProgress } from '@/modules/anime/animeprogress.js'
-  import { playAnime } from '@/modals/torrent/TorrentModal.svelte'
+  import { playAnime } from '@/modals/extension/ExtensionModal.svelte'
+  import { nowPlaying, files as filesStore } from '@/components/MediaHandler.svelte'
   import { loadStream, stopStream } from '@/modules/streaming.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { episodesList } from '@/modules/episodes.js'
@@ -12,7 +13,7 @@
   import { writable } from 'simple-store-svelte'
   import { createEventDispatcher } from 'svelte'
   import Subtitles from '@/modules/subtitles.js'
-  import { toTS, fastPrettyBytes, matchPhrase, videoRx, isValidNumber } from '@/modules/util.js'
+  import { toTS, matchPhrase, videoRx, isValidNumber } from '@/modules/util.js'
   import { toast } from 'svelte-sonner'
   import { getChaptersAniSkip } from '@/modules/anime/anime.js'
   import { mediaCache } from '@/modules/cache.js'
@@ -28,11 +29,19 @@
   import 'rvfc-polyfill'
   import { IPC, ELECTRON, ANDROID } from '@/modules/bridge.js'
   import WPC from '@/modules/wpc.js'
-  import { X, Minus, ArrowDown, ArrowUp, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Users, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
+  import { X, Minus, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
   import Debug from 'debug'
   const debug = Debug('ui:player')
 
   const emit = createEventDispatcher()
+
+  function closePlayer () {
+    stopStream(video)
+    if (pip) { try { document.exitPictureInPicture() } catch(e) {} pip = false }
+    nowPlaying.set({})
+    filesStore.set([])
+    if ($page === page.PLAYER) page.navigateTo(page.HOME)
+  }
 
   w2gEmitter.on('playerupdate', detail => {
     currentTime = detail.time
@@ -130,7 +139,7 @@
     if ('audioTracks' in HTMLVideoElement.prototype) {
       if (!video.audioTracks.length) {
         toast.error('Audio Codec Unsupported', {
-          description: "This torrent's audio codec is not supported, try a different release by disabling Autoplay Torrents in RSS settings."
+          description: "This file's audio codec is not supported. Try a different source from another extension."
         })
       } else if (video.audioTracks.length > 1) {
         const preferredTrack = [...video.audioTracks].find(({ language }) => language === $settings.audioLanguage)
@@ -1364,13 +1373,7 @@
       if (externalPlayback) tryPlayNext()
     }
   }
-  const torrent = {}
-  WPC.listen('stats', updateStats)
-  function updateStats (detail) {
-    torrent.peers = detail.numPeers || 0
-    torrent.up = detail.uploadSpeed || 0
-    torrent.down = detail.downloadSpeed || 0
-  }
+
   function checkError ({ target }) {
     // video playback failed - show a message saying why
     switch (target.error?.code) {
@@ -1400,7 +1403,7 @@
           debug('The video could not be loaded, either because the server or network failed or because the format is not supported.', target.error)
           saveAnimeProgress(true)
           toast.error('Video Codec Unsupported', {
-            description: 'The video could not be loaded, either because the server or network failed or because the format is not supported. Try a different release by disabling Autoplay Torrents in RSS settings.',
+            description: 'The video could not be loaded, either because the server or network failed or because the format is not supported. Try a different source from another extension.',
             duration: 30_000
           })
         }
@@ -1613,11 +1616,14 @@
   {/if}
   <ManagerModal playing={current} files={playableFiles} {playFile} />
   <div class='top z-40 row d-title'>
-    <div class='stats pl-20 col-4 d-title'>
+    <span class='player-exit-btn pl-20 d-flex align-items-center' title='Exit' use:click={closePlayer}>
+      <X size='100%' strokeWidth='2.5'/>
+    </span>
+    <div class='stats col-4 d-title'>
       <div class='font-weight-bold overflow-hidden text-truncate font-scale-23'>
         {#if media?.title}
           {media?.title}
-        {:else if media?.media?.title} <!-- useful when a torrent is EXTREMELY slow at loading... -->
+        {:else if media?.media?.title} <!-- useful when metadata is loading slowly... -->
           {anilistClient.title(media?.media)}
         {:else if current}
           {AnimeResolver.cleanFileName(current.name)}
@@ -1636,12 +1642,6 @@
       </div>
     </div>
     <div class='d-flex justify-content-center bottom-0 col-4 d-title d-filler'>
-      <span class='icon'><Users class='pt-5 block-scale-30' strokeWidth={3} /> </span>
-      <span class='stats font-scale-24'>{torrent.peers || 0}</span>
-      <span class='icon'><ArrowDown class='block-scale-30' /></span>
-      <span class='stats font-scale-24'>{fastPrettyBytes(torrent.down)}/s</span>
-      <span class='icon'><ArrowUp class='block-scale-30' /></span>
-      <span class='stats font-scale-24'>{fastPrettyBytes(torrent.up)}/s</span>
       {#if resolvePrompt}
         <div class='position-absolute text-monospace rounded skipPrompt d-flex flex-column align-items-center text-center bg-dark-light p-20 z-50 mt-60' class:w-500={SUPPORTS.isAndroid}>
           <div class='skipFont'>
@@ -1678,15 +1678,15 @@
     <div aria-hidden='true' class='w-full h-full position-absolute toggle-immerse d-none' on:dblclick={toggleFullscreen} on:click|self={toggleImmerse} />
     <div class='w-full h-full position-absolute mobile-focus-target d-none' use:click={() => { page.navigateTo(page.PLAYER) }} />
     <span aria-hidden='true' class='icon ctrl align-items-center justify-content-end w-150 mw-full mr-auto' class:hidden={externalPlayback} class:mb-50={!miniplayer} on:click={rewind}><Rewind size='3rem' /></span>
-    <!-- player close/minimize buttons (z-11 to sit above fullscreen/immerse overlays) -->
+    <!-- player minimize button (z-11 to sit above fullscreen/immerse overlays) -->
     {#if miniplayer}
-      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} class:mr-40={!SUPPORTS.isAndroid} class:mr-50={SUPPORTS.isAndroid} title='Minimize' data-name='playPause' use:click={() => (playPage.set(!playPage.value))}>
+      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11 player-close-btn' class:mr-40={!SUPPORTS.isAndroid} class:mr-50={SUPPORTS.isAndroid} title='Minimize' use:click={() => (playPage.set(!playPage.value))}>
         <Minus size='1.9rem' strokeWidth='3'/>
       </span>
+      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11 player-close-btn' title='Exit' use:click={closePlayer}>
+        <X size='1.9rem' strokeWidth='3'/>
+      </span>
     {/if}
-    <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} title='Exit' data-name='playPause' use:click={() => { stopStream(video); if (pip) { try { document.exitPictureInPicture() } catch(e) {} pip = false } window.dispatchEvent(new CustomEvent('stream-unload')); if ($page === page.PLAYER) page.navigateTo(page.HOME)}}>
-      <X size='1.9rem' strokeWidth='3'/>
-    </span>
     <div class='d-flex align-items-center position-relative' class:mb-50={!miniplayer} style='width: 100%;' title='Play/Pause'>
       {#if hasLast}
         <span class='icon ctrl position-absolute rounded-10 text-white' style={externalPlayback ? `left: 5%` : `left: 15%`} title='Last' data-name='playPause' use:click={playLast}>
@@ -2077,6 +2077,38 @@
   .immersed .bottom, .immersed .skip {
     pointer-events: none;
     opacity: 0;
+  }
+  .immersed .player-close-btn {
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .player-exit-btn {
+    cursor: pointer;
+    filter: drop-shadow(0 0 8px var(--black-color));
+    z-index: 11;
+    flex-shrink: 0;
+    align-self: stretch;
+    width: 3.5rem;
+  }
+  .miniplayer .player-exit-btn {
+    display: none;
+  }
+
+  .player-close-btn {
+    display: flex !important;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 11;
+  }
+  .miniplayer:hover .player-close-btn {
+    opacity: 1;
+  }
+  @media (pointer: none), (pointer: coarse) {
+    .player-close-btn {
+      opacity: 1;
+    }
   }
   /*:fullscreen .ctrl[data-name='toggleCast'] {*/
   /*  display: none !important;*/

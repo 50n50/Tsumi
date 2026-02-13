@@ -16,7 +16,7 @@ const debug = Debug('ui:history')
  * @property {string} SCHEDULE
  * @property {string} SETTINGS
  * @property {string} PLAYER
- * @property {string} TORRENT_MANAGER
+ * @property {string} EXTENSION_MANAGER
  * @property {string} WATCH_TOGETHER
  */
 
@@ -38,7 +38,7 @@ const debug = Debug('ui:history')
  * @property {string} FILE_MANAGER
  * @property {string} NOTIFICATIONS
  * @property {string} PROFILE
- * @property {string} TORRENT_MENU
+ * @property {string} EXTENSION_MENU
  * @property {string} TRAILER
  * @property {string} ANIME_DETAILS
  */
@@ -61,7 +61,7 @@ export const page = (() => {
     SCHEDULE: 'schedule',
     SETTINGS: 'settings',
     PLAYER: 'player',
-    TORRENT_MANAGER: 'torrent_manager',
+    EXTENSION_MANAGER: 'extension_manager',
     WATCH_TOGETHER: 'watch_together'
   }
   return {
@@ -95,14 +95,14 @@ export const modal = (() => {
       id: 'minimize_prompt',
       priority: 1,
       get siblings() {
-        return [MODALS.UPDATE_PROMPT, MODALS.FILE_EDITOR, MODALS.FILE_MANAGER, MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.TORRENT_MENU, MODALS.TRAILER, MODALS.ANIME_DETAILS]
+        return [MODALS.UPDATE_PROMPT, MODALS.FILE_EDITOR, MODALS.FILE_MANAGER, MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.EXTENSION_MENU, MODALS.TRAILER, MODALS.ANIME_DETAILS]
       }
     },
     UPDATE_PROMPT: {
       id: 'update_prompt',
       priority: 2,
       get siblings() {
-        return [MODALS.MINIMIZE_PROMPT, MODALS.FILE_EDITOR, MODALS.FILE_MANAGER, MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.TORRENT_MENU, MODALS.TRAILER, MODALS.ANIME_DETAILS]
+        return [MODALS.MINIMIZE_PROMPT, MODALS.FILE_EDITOR, MODALS.FILE_MANAGER, MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.EXTENSION_MENU, MODALS.TRAILER, MODALS.ANIME_DETAILS]
       }
     },
     FILE_EDITOR: {
@@ -123,18 +123,18 @@ export const modal = (() => {
       id: 'notifications',
       priority: 5,
       get siblings() {
-        return [MODALS.ANIME_DETAILS, MODALS.TORRENT_MENU]
+        return [MODALS.ANIME_DETAILS, MODALS.EXTENSION_MENU]
       }
     },
     PROFILE: {
       id: 'profiles',
       priority: 6,
       get siblings() {
-        return [MODALS.ANIME_DETAILS, MODALS.TORRENT_MENU]
+        return [MODALS.ANIME_DETAILS, MODALS.EXTENSION_MENU]
       }
     },
-    TORRENT_MENU: {
-      id: 'torrent_menu',
+    EXTENSION_MENU: {
+      id: 'extension_menu',
       priority: 7,
       get siblings() {
         return [MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.ANIME_DETAILS]

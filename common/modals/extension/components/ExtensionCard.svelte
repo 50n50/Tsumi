@@ -1,5 +1,5 @@
 <script context='module'>
-  import TorrentButton from '@/components/TorrentButton.svelte'
+  import TorrentButton from '@/components/ExtensionButton.svelte'
   import SmartImage from '@/components/visual/SmartImage.svelte'
   import { click } from '@/modules/click.js'
   import { fastPrettyBytes, since, matchPhrase, createListener } from '@/modules/util.js'
@@ -266,7 +266,7 @@
           metadata?.included?.[0]?.attributes?.coverImage?.tiny])]}
       />
     </div>
-    <div class='position-absolute rounded-3 opacity-transition-hack' style='background: var(--torrent-card-gradient);' />
+    <div class='position-absolute rounded-3 opacity-transition-hack' style='background: var(--extension-card-gradient);' />
   </div>
   <button type='button' tabindex='-1' class='position-absolute torrent-safe-area top-0 right-0 h-full w-50 bg-transparent border-0 shadow-none not-reactive z-1' use:click={() => {}}/>
   <div class='d-flex pl-10 flex-column justify-content-between w-full h-auto position-relative' style='min-height: 10rem; min-width: 0;'>

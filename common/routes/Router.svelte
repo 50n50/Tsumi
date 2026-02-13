@@ -24,7 +24,7 @@
   }
 
   $: miniplayerActive = !($playPage || !$media || !Object.keys($media).length || $media?.display)
-  $: visible = !$modal[modal.TORRENT_MENU] && !$modal[modal.NOTIFICATIONS] && !$modal[modal.PROFILE] && !$modal[modal.MINIMIZE_PROMPT] && !$modal[modal.TRAILER] && !$playPage && !$media?.display
+  $: visible = !$modal[modal.EXTENSION_MENU] && !$modal[modal.NOTIFICATIONS] && !$modal[modal.PROFILE] && !$modal[modal.MINIMIZE_PROMPT] && !$modal[modal.TRAILER] && !$playPage && !$media?.display
   $: miniplayer = ($media && (Object.keys($media).length > 0)) && (($page !== page.PLAYER && visible) || ($modal[modal.ANIME_DETAILS] && visible))
 </script>
 <div class='w-full h-full position-absolute overflow-hidden' class:invisible={!($media && (Object.keys($media).length > 0)) || ($playPage && $modal[modal.ANIME_DETAILS]) || (!visible && ($page !== page.PLAYER))}>

@@ -115,8 +115,8 @@
   --sidebar-gradient: linear-gradient(90deg, var(--dark-color) 15.62%, hsla(var(--dark-color-hsl), 0.92) 36.46%, hsla(var(--dark-color-hsl), 0.62) 70.83%, hsla(var(--black-color-hsl), 0) 100%);
   --banner-gradient-bottom: linear-gradient(0deg, var(--dark-color) 0%, hsla(var(--dark-color-hsl), 0) 15%, hsla(var(--dark-color-hsl), 0) 100%);
   --banner-gradient-left: linear-gradient(90deg, var(--dark-color) 0%, rgba(23, 25, 29, 0.5) 75%, rgba(25, 28, 32, 0) 100%);
-  --torrent-card-gradient: linear-gradient(90deg, hsla(var(--dark-color-hsl), 0.98) 25%, hsla(var(--dark-color-light-hsl), 0.85) 100%);
-  --torrent-banner-gradient: linear-gradient(0, var(--dark-color-dim) 15%, hsla(var(--dark-color-very-dim-hsl), 0.64) 85%), linear-gradient(to left, var(--dark-color-dim) 0, transparent 1%);
+  --extension-card-gradient: linear-gradient(90deg, hsla(var(--dark-color-hsl), 0.98) 25%, hsla(var(--dark-color-light-hsl), 0.85) 100%);
+  --extension-banner-gradient: linear-gradient(0, var(--dark-color-dim) 15%, hsla(var(--dark-color-very-dim-hsl), 0.64) 85%), linear-gradient(to left, var(--dark-color-dim) 0, transparent 1%);
   --notification-card-gradient: linear-gradient(90deg, hsla(var(--dark-color-light-hsl), 0.98) 32%, hsla(var(--dark-color-hsl), 0.85) 100%);
   --episode-card-gradient: linear-gradient(180deg, hsla(var(--black-color-hsl), 0) 77.08%, hsla(var(--dark-color-light-hsl), 0.7) 100%);
   --episode-preview-card-gradient: linear-gradient(180deg, hsla(var(--black-color-hsl), 0) 0%, hsla(var(--black-color-hsl), 0) 80%, var(--dark-color-light) 100%);

@@ -7,7 +7,7 @@
   import { click } from '@/modules/click.js'
   import { toast } from 'svelte-sonner'
   import { parseStreamResponse } from '@/modules/streaming.js'
-  import { X, ChevronLeft, Loader, Play } from 'lucide-svelte'
+  import { X, Loader, Play } from 'lucide-svelte'
   import Debug from 'debug'
   const debug = Debug('ui:streams')
 
@@ -32,17 +32,10 @@
   export let search
   export let close
 
-  const VIEW_SEARCH = 'search'
-  const VIEW_EPISODES = 'episodes'
-
-  let view = VIEW_SEARCH
   let loading = true
   let groupedResults = []
-  let selectedResult = null
-  let episodes = []
-  let loadingEpisodes = false
-  let playingEpisode = null
-  let selectedExtension = null
+  let playingResult = null
+  let expandedGroups = {}
 
   async function searchExtensions () {
     loading = true
@@ -86,29 +79,24 @@
   }
 
   async function selectResult (result) {
-    selectedResult = result
-    selectedExtension = extensionManager.extensions.get(result.extensionKey)
-    view = VIEW_EPISODES
-    loadingEpisodes = true
-    episodes = []
+    if (playingResult) return
+    playingResult = result
+    const ext = extensionManager.extensions.get(result.extensionKey)
 
     try {
-      const raw = await callExtensionFunction(selectedExtension, 'extractEpisodes', result.href)
-      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
-      episodes = Array.isArray(parsed) ? parsed : []
-    } catch (error) {
-      debug('Failed to fetch episodes:', error)
-      toast.error('Failed to fetch episodes: ' + (error?.message || error))
-    }
-    loadingEpisodes = false
-  }
+      const rawEpisodes = await callExtensionFunction(ext, 'extractEpisodes', result.href)
+      const parsedEpisodes = typeof rawEpisodes === 'string' ? JSON.parse(rawEpisodes) : rawEpisodes
+      const episodes = Array.isArray(parsedEpisodes) ? parsedEpisodes : []
 
-  async function playEpisode (episode) {
-    if (playingEpisode) return
-    playingEpisode = episode.number || episode.href
+      if (!episodes.length) {
+        toast.error('No episodes found for this title')
+        playingResult = null
+        return
+      }
 
-    try {
-      const raw = await callExtensionFunction(selectedExtension, 'extractStreamUrl', episode.href)
+      const targetEp = episodes.find(ep => ep.number === search?.episode) || episodes[0]
+
+      const raw = await callExtensionFunction(ext, 'extractStreamUrl', targetEp.href)
       let streamData
       try {
         streamData = parseStreamResponse(raw)
@@ -123,9 +111,9 @@
         return
       }
 
-      $currentMedia = { media: search.media, episode: episode.number || search.episode }
+      $currentMedia = { media: search.media, episode: targetEp.number || search.episode }
 
-      const episodeNum = episode.number || search.episode
+      const episodeNum = targetEp.number || search.episode
       files.set([{
         name: `${anilistClient.title(search.media)} - Episode ${episodeNum}.mp4`,
         url: streamData.url,
@@ -144,36 +132,27 @@
     } catch (error) {
       debug('Failed to get stream URL:', error)
       toast.error('Stream failed: ' + (error?.message || error))
-      playingEpisode = null
+      playingResult = null
     }
   }
 
   $: if (search) searchExtensions()
 
-  function goBack () {
-    view = VIEW_SEARCH
-    selectedResult = null
-    episodes = []
-    selectedExtension = null
-    playingEpisode = null
+  function toggleGroup (key) {
+    expandedGroups[key] = !expandedGroups[key]
+    expandedGroups = expandedGroups
   }
 
   onDestroy(() => {
     groupedResults = []
-    selectedResult = null
-    episodes = []
-    selectedExtension = null
-    playingEpisode = null
+    playingResult = null
     search = null
   })
 </script>
 
 <div class='controls w-full bg-very-dark position-sticky top-0 z-10 pt-20 pb-10 px-30 mb-10'>
   <div class='d-flex'>
-    {#if view === VIEW_EPISODES}
-      <button type='button' class='btn btn-square bg-dark-very-light mr-10 d-flex align-items-center justify-content-center rounded-2 flex-shrink-0' use:click={goBack}><ChevronLeft size='1.7rem' strokeWidth='3'/></button>
-    {/if}
-    <h3 class='mb-0 font-weight-bold text-white title mr-5 font-scale-40'>{anilistClient.title(search?.media)}</h3>
+    <h3 class='mb-0 font-weight-bold text-white header-title mr-5 font-scale-40'>{anilistClient.title(search?.media)}</h3>
     <button type='button' class='btn btn-square bg-dark-very-light ml-auto d-flex align-items-center justify-content-center rounded-2 flex-shrink-0' use:click={close}><X size='1.7rem' strokeWidth='3'/></button>
     <div class='position-absolute top-0 left-0 w-full h-full z--1'>
       <div class='position-absolute w-full h-full overflow-hidden'>
@@ -191,25 +170,13 @@
           search.media.coverImage?.extraLarge]}
         />
       </div>
-      <div class='position-absolute top-0 left-0 w-full h-full' style='background: var(--torrent-banner-gradient)' />
+      <div class='position-absolute top-0 left-0 w-full h-full' style='background: var(--extension-banner-gradient)' />
     </div>
   </div>
-  {#if view === VIEW_EPISODES && selectedResult}
-    <div class='mt-10 d-flex align-items-center'>
-      <span class='text-muted font-scale-16'>Source: {selectedResult.extensionName}</span>
-      <span class='mx-10 text-muted'>•</span>
-      <span class='text-muted font-scale-16'>{selectedResult.title}</span>
-      {#if episodes.length}
-        <span class='mx-10 text-muted'>•</span>
-        <span class='text-muted font-scale-16'>{episodes.length} episodes</span>
-      {/if}
-    </div>
-  {/if}
 </div>
 
 <div class='mt-10 mb-sm-10 px-30'>
-  {#if view === VIEW_SEARCH}
-    {#if loading}
+  {#if loading}
       <div class='d-flex flex-column align-items-center justify-content-center mt-80'>
         <Loader size='4rem' class='spinning text-muted' />
         <span class='text-muted mt-20 font-scale-18'>Searching extensions...</span>
@@ -238,76 +205,49 @@
             {/if}
             <span class='text-muted ml-10 font-scale-14'>{group.results.length} result{group.results.length === 1 ? '' : 's'}</span>
           </div>
-          <div class='results-row'>
+          <div class='results-grid' class:results-grid-collapsed={!expandedGroups[group.extensionKey]}>
             {#each group.results as result, i}
-              {@const isBest = i === 0 && result.score >= 70}
-              <button type='button' class='result-card rounded-3 overflow-hidden border-0 p-0 text-left pointer flex-shrink-0' class:best-match={isBest} use:click={() => selectResult(result)}>
-                <div class='d-flex flex-column h-full'>
-                  {#if result.image}
-                    <img class='result-image w-full' src={result.image} alt={result.title} loading='lazy' />
-                  {:else}
-                    <div class='result-image-placeholder w-full d-flex align-items-center justify-content-center bg-dark'>
-                      <Play size='2rem' class='text-muted' />
-                    </div>
-                  {/if}
-                  <div class='p-10 d-flex flex-column flex-grow-1'>
-                    <div class='font-weight-bold font-scale-14 text-white result-title'>{result.title}</div>
-                    <div class='d-flex align-items-center mt-auto pt-5'>
-                      <span class='badge border-0 font-scale-12 {result.score >= 80 ? "bg-success" : result.score >= 50 ? "bg-warning" : "bg-light"}'>{result.score}%</span>
-                    </div>
+              <div class='d-flex p-15 position-relative'>
+                <button type='button' class='item load-in small-card d-flex flex-column pointer border-0 p-0 text-left w-full' disabled={!!playingResult} use:click={() => selectResult(result)}>
+                  <div class='d-inline-block position-relative w-full'>
+                    {#if playingResult === result}
+                      <div class='position-absolute w-full h-full d-flex align-items-center justify-content-center z-2'>
+                        <Loader size='3rem' class='spinning text-white' />
+                      </div>
+                    {/if}
+                    {#if result.image}
+                      <SmartImage class='cover-img cover-color cover-ratio w-full rounded' color='var(--tertiary-color)' images={[result.image, './404_cover.png']}/>
+                    {:else}
+                      <div class='cover-ratio w-full rounded d-flex align-items-center justify-content-center' style='background: var(--dark-color-light)'>
+                        <Play size='3rem' class='text-muted' />
+                      </div>
+                    {/if}
                   </div>
-                </div>
-              </button>
+                  <div class='text-white font-weight-very-bold font-size-16 title overflow-hidden mt-5'>
+                    {result.title}
+                  </div>
+                  <div class='d-flex flex-row mt-auto font-weight-medium justify-content-between w-full text-muted'>
+                    <span class='badge border-0 font-scale-12 {result.score >= 80 ? "bg-success" : result.score >= 50 ? "bg-warning" : "bg-light"}'>{result.score}% match</span>
+                  </div>
+                </button>
+              </div>
             {/each}
           </div>
+          {#if group.results.length > 5 && !expandedGroups[group.extensionKey]}
+            <span class='more-link text-muted font-scale-14 pointer mt-5 ml-15' use:click={() => toggleGroup(group.extensionKey)}>+ {group.results.length - 5} More</span>
+          {:else if group.results.length > 5 && expandedGroups[group.extensionKey]}
+            <span class='more-link text-muted font-scale-14 pointer mt-5 ml-15' use:click={() => toggleGroup(group.extensionKey)}>Show Less</span>
+          {/if}
         </div>
       {/each}
     {/if}
-  {:else if view === VIEW_EPISODES}
-    {#if loadingEpisodes}
-      <div class='d-flex flex-column align-items-center justify-content-center mt-80'>
-        <Loader size='4rem' class='spinning text-muted' />
-        <span class='text-muted mt-20 font-scale-18'>Loading episodes...</span>
-      </div>
-    {:else if !episodes.length}
-      <div class='d-flex flex-column align-items-center justify-content-center mt-80'>
-        <h3 class='font-weight-bold'>No Episodes Found</h3>
-        <span class='text-muted font-scale-18'>This source returned no episodes.</span>
-      </div>
-    {:else}
-      <div class='episodes-grid'>
-        {#each episodes as episode}
-          {@const isTarget = episode.number === (search?.episode || 1)}
-          {@const isPlaying = playingEpisode === (episode.number || episode.href)}
-          <button type='button'
-            class='episode-card d-flex align-items-center rounded-2 p-10 border-0 pointer w-full'
-            class:bg-primary={isTarget}
-            class:bg-dark-light={!isTarget}
-            disabled={!!playingEpisode}
-            use:click={() => playEpisode(episode)}>
-            <div class='d-flex align-items-center justify-content-center episode-number flex-shrink-0'>
-              {#if isPlaying}
-                <Loader size='1.8rem' class='spinning' />
-              {:else}
-                <Play size='1.6rem' />
-              {/if}
-            </div>
-            <span class='ml-10 font-weight-semi-bold font-scale-16'>Episode {episode.number}</span>
-            {#if isTarget}
-              <span class='ml-auto badge bg-light border-0 pl-10 pr-10 font-scale-14'>Requested</span>
-            {/if}
-          </button>
-        {/each}
-      </div>
-    {/if}
-  {/if}
 </div>
 
 <style>
   .controls {
     box-shadow: 0 1.2rem 1.2rem var(--dark-color-dim);
   }
-  .title {
+  .header-title {
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
@@ -315,78 +255,46 @@
     max-width: 100%;
     text-shadow: 2px 2px 4px hsla(var(--black-color-hsl), 1);
   }
-  .mt-80 {
-    margin-top: 8rem;
-  }
-  .results-row {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding-bottom: 1rem;
-    padding-top: 0.5rem;
-    padding-left: 0.3rem;
-    padding-right: 0.3rem;
-    scroll-snap-type: x mandatory;
-  }
-  .results-row::-webkit-scrollbar {
-    height: 0.4rem;
-  }
-  .results-row::-webkit-scrollbar-thumb {
-    background: var(--gray-color-very-dim);
-    border-radius: 0.4rem;
-  }
-  .result-card {
-    width: 16rem;
-    min-width: 16rem;
-    background: var(--dark-color-light);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    scroll-snap-align: start;
-  }
-  .result-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-  .best-match {
-    box-shadow: inset 0 0 0 2px var(--primary-color);
-  }
-  .best-match:hover {
-    box-shadow: inset 0 0 0 2px var(--primary-color), 0 4px 12px rgba(0,0,0,0.3);
-  }
-  .result-image {
-    height: 20rem;
-    object-fit: cover;
-  }
-  .result-image-placeholder {
-    height: 20rem;
-  }
-  .result-title {
+  .title {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    line-height: 1.2;
+  }
+  .mt-80 {
+    margin-top: 8rem;
+  }
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+  .results-grid-collapsed {
+    max-height: 32rem;
     overflow: hidden;
+  }
+  .results-grid :global(.item.small-card) {
+    max-width: 19rem;
+  }
+  .small-card {
+    background: transparent;
+    aspect-ratio: 152/296;
+  }
+  .small-card:hover {
+    z-index: 30;
+  }
+  .small-card:disabled {
+    opacity: 0.6;
+  }
+  .more-link {
+    display: inline-block;
+  }
+  .more-link:hover {
+    color: var(--white-color) !important;
   }
   .ext-icon {
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-  }
-  .episodes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-    gap: 0.8rem;
-  }
-  .episode-card {
-    transition: transform 0.1s ease;
-  }
-  .episode-card:hover {
-    transform: translateY(-1px);
-  }
-  .episode-number {
-    width: 3.6rem;
-    height: 3.6rem;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.1);
   }
   :global(.spinning) {
     animation: spin 1s linear infinite;
