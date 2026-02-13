@@ -57,17 +57,11 @@ export async function loadStream(video, streamUrl, options = {}) {
   const isHLS = streamUrl.toLowerCase().includes('.m3u8')
   const hasHeaders = options.headers && Object.keys(options.headers).length > 0
 
-  if (!isHLS && !hasHeaders) {
-    video.src = streamUrl
-    return
-  }
-
-  if (!isHLS && hasHeaders) {
+  if (!isHLS) {
     const port = await getProxyPortInternal()
     if (port) {
       video.src = getProxyUrl(streamUrl, options.headers, port)
     } else {
-      debug('No proxy available, falling back to direct src (headers will be missing)')
       video.src = streamUrl
     }
     return
@@ -142,12 +136,32 @@ export function parseStreamResponse(response) {
   }
 
   if (response?.streams && Array.isArray(response.streams)) {
+    // Handle flat array format: ["DUB", url, "SUB", url]
+    if (response.streams.length && typeof response.streams[0] === 'string') {
+      const servers = []
+      for (let i = 0; i < response.streams.length; i += 2) {
+        if (i + 1 < response.streams.length) {
+          servers.push({ title: response.streams[i], streamUrl: response.streams[i + 1], headers: {} })
+        }
+      }
+      if (servers.length) {
+        return {
+          url: servers[0].streamUrl,
+          headers: servers[0].headers || {},
+          subtitle: response.subtitles || response.subtitle || null,
+          alternatives: servers.slice(1),
+          servers
+        }
+      }
+    }
+    // Handle object array format: [{ title, streamUrl, headers }]
     const firstStream = response.streams[0]
     return {
       url: firstStream.streamUrl,
       headers: firstStream.headers || {},
       subtitle: response.subtitle || null,
-      alternatives: response.streams.slice(1)
+      alternatives: response.streams.slice(1),
+      servers: response.streams
     }
   }
 
@@ -156,7 +170,8 @@ export function parseStreamResponse(response) {
       url: response.streamUrl,
       headers: response.headers || {},
       subtitle: response.subtitle || null,
-      alternatives: []
+      alternatives: [],
+      servers: [{ title: 'Server', streamUrl: response.streamUrl, headers: response.headers || {} }]
     }
   }
 

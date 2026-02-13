@@ -29,7 +29,7 @@
   import 'rvfc-polyfill'
   import { IPC, ELECTRON, ANDROID } from '@/modules/bridge.js'
   import WPC from '@/modules/wpc.js'
-  import { X, Minus, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone } from 'lucide-svelte'
+  import { X, Minus, Captions, CircleHelp, Contrast, FastForward, Keyboard, EllipsisVertical, SquareArrowOutUpRight, List, Eye, FilePlus2, ListMusic, ListVideo, Maximize, Minimize, Pause, PictureInPicture, PictureInPicture2, Play, Proportions, RefreshCcw, Rewind, RotateCcw, RotateCw, ScreenShare, SkipBack, SkipForward, Volume1, Volume2, VolumeX, SlidersVertical, SquarePen, Milestone, Server } from 'lucide-svelte'
   import Debug from 'debug'
   const debug = Debug('ui:player')
 
@@ -68,6 +68,8 @@
   export let files = []
   export let playableFiles = []
   export let updateCurrent
+  let streamServers = []
+  let activeServerIndex = 0
   $: updateFiles(files)
   let src = null
   let video = null
@@ -292,15 +294,13 @@
     if (!externalPlayback) {
       stopStream(video)
       const isHLS = file.url?.toLowerCase()?.includes('.m3u8')
-      if (isHLS || file.streamHeaders) {
-        try {
-          await waitForVideo()
-          await loadStream(video, file.url, { headers: file.streamHeaders || {} })
-        } catch (error) {
-          debug('HLS load failed, falling back to direct src:', error)
-          src = file.url
-        }
-      } else {
+      streamServers = file.streamServers || []
+      activeServerIndex = 0
+      try {
+        await waitForVideo()
+        await loadStream(video, file.url, { headers: file.streamHeaders || {} })
+      } catch (error) {
+        debug('Stream load failed, falling back to direct src:', error)
         src = file.url
       }
       if (video) {
@@ -323,6 +323,29 @@
     }
     launchedExternal = launchExternal
     WPC.send('current', { current: file, external: settings.value.enableExternal || launchExternal })
+  }
+
+  async function switchServer (index) {
+    if (index === activeServerIndex || !streamServers[index]) return
+    const resumeTime = currentTime
+    activeServerIndex = index
+    const server = streamServers[index]
+    stopStream(video)
+    try {
+      await loadStream(video, server.streamUrl, { headers: server.headers || {} })
+    } catch (error) {
+      debug('Server switch failed, falling back to direct src:', error)
+      src = server.streamUrl
+    }
+    const isHLS = server.streamUrl?.toLowerCase()?.includes('.m3u8')
+    if (video && !isHLS) video.load()
+    if (video) {
+      const onReady = () => {
+        video.currentTime = resumeTime
+        video.removeEventListener('loadedmetadata', onReady)
+      }
+      video.addEventListener('loadedmetadata', onReady)
+    }
   }
 
   export let media
@@ -1616,8 +1639,8 @@
   {/if}
   <ManagerModal playing={current} files={playableFiles} {playFile} />
   <div class='top z-40 row d-title'>
-    <span class='player-exit-btn pl-20 d-flex align-items-center' title='Exit' use:click={closePlayer}>
-      <X size='100%' strokeWidth='2.5'/>
+    <span class='player-exit-btn pl-30 mr-15 d-flex align-items-center' title='Exit' use:click={closePlayer}>
+      <X size='3rem' strokeWidth='2.5'/>
     </span>
     <div class='stats col-4 d-title'>
       <div class='font-weight-bold overflow-hidden text-truncate font-scale-23'>
@@ -1778,6 +1801,24 @@
         <div class='ts mr-auto font-scale-20'>x{playbackRate.toFixed(1)}</div>
       {/if}
       <input type='file' class='d-none' id='search-subtitle' accept='.srt,.vtt,.ass,.ssa,.sub,.txt' on:input|preventDefault|stopPropagation={handleFile} bind:this={fileInput}/>
+      {#if streamServers.length > 1}
+        <div class='dropdown dropup with-arrow' use:click={toggleDropdown}>
+          <span class='icon text-white ctrl mr-5 d-flex align-items-center h-full' title='Servers'>
+            <Server size='2.5rem' strokeWidth={2.5} />
+          </span>
+          <div class='dropdown-menu dropdown-menu-right ctrl p-10 pb-0 mr-15 text-capitalize text-nowrap'>
+            <div class='custom-radio overflow-y-auto overflow-x-hidden hm-400'>
+              {#each streamServers as server, i}
+                <input name='server-radio-set' type='radio' id='server-{i}-radio' value={i} checked={i === activeServerIndex} />
+                <label for='server-{i}-radio' use:click={() => switchServer(i)} class='pb-5'>
+                  {server.title || `Server ${i + 1}`}
+                </label>
+              {/each}
+              <div class='mb-5 invisible'></div>
+            </div>
+          </div>
+        </div>
+      {/if}
       <div class='dropdown dropleft with-arrow' use:click={() => { showOptions.set(!$showOptions) }}>
         <span class='icon text-white ctrl d-flex align-items-center h-full' title='More'><EllipsisVertical size='2.5rem' strokeWidth={2.5} /></span>
         <div class='position-absolute hm-40 text-capitalize text-nowrap bg-dark rounded dr-arrow' style='margin-top: {launchedExternal ? -14 : externalPlayback ? -10.3 : SUPPORTS.isAndroid || $settings.playerPath ? -21 : -17.5}rem !important; margin-left: {launchedExternal ? -11.1 : externalPlayback ? -9.8 : -11.4}rem !important; transition: opacity 0.1s ease-in;' class:hidden={!$showOptions}>
@@ -2088,8 +2129,6 @@
     filter: drop-shadow(0 0 8px var(--black-color));
     z-index: 11;
     flex-shrink: 0;
-    align-self: stretch;
-    width: 3.5rem;
   }
   .miniplayer .player-exit-btn {
     display: none;

@@ -51,9 +51,8 @@
       ? [...enabled].sort((a, b) => (a.key === defaultKey ? -1 : b.key === defaultKey ? 1 : 0))
       : enabled
 
-    for (const ext of sorted) {
-      try {
-        const raw = await callExtensionFunction(ext, 'searchResults', title)
+    const searches = sorted.map(ext => callExtensionFunction(ext, 'searchResults', title)
+      .then(raw => {
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
         if (Array.isArray(parsed) && parsed.length) {
           const scored = parsed.map(r => ({
@@ -71,10 +70,10 @@
             results: scored
           }]
         }
-      } catch (error) {
-        debug(`Extension ${ext.key} search failed:`, error)
-      }
-    }
+      })
+      .catch(error => debug(`Extension ${ext.key} search failed:`, error))
+    )
+    await Promise.allSettled(searches)
     loading = false
   }
 
@@ -118,6 +117,7 @@
         name: `${anilistClient.title(search.media)} - Episode ${episodeNum}.mp4`,
         url: streamData.url,
         streamHeaders: streamData.headers || {},
+        streamServers: streamData.servers || [],
         subtitle: streamData.subtitle || null,
         length: 0,
         media: {

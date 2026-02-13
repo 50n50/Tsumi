@@ -603,7 +603,7 @@ export const defaults = {
   cardPreview: true,
   cardAudio: false,
   toggleList: !SUPPORTS.isAndroid,
-  titleLang: 'romaji',
+  titleLang: 'english',
   hideMyAnime: false,
   toasts: 'All',
   closeAction: 'Prompt',
