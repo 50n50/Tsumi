@@ -23,7 +23,6 @@
   import DetailsModal from '@/modals/details/DetailsModal.svelte'
   import TorrentModal from '@/modals/torrent/TorrentModal.svelte'
   import Menubar from '@/components/Menubar.svelte'
-  import UpdateModal from '@/modals/UpdateModal.svelte'
   import Profiles from '@/components/Profiles.svelte'
   import NotificationsModal from '@/modals/NotificationsModal.svelte'
   import MinimizeModal from '@/modals/MinimizeModal.svelte'
@@ -48,6 +47,7 @@
   })
 
   let isFullscreen = !!document.fullscreenElement
+
   function updateFullscreen() {
     isFullscreen = !!document.fullscreenElement
   }
@@ -65,7 +65,6 @@
 </script>
 
 <MinimizeModal />
-<UpdateModal />
 <div class='page-wrapper with-transitions bg-dark position-relative pl-safe-area' data-sidebar-type='overlayed-all'>
   <Status />
   <Menubar />

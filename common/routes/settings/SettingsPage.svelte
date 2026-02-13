@@ -52,15 +52,13 @@
   import { Tabs, TabLabel, Tab } from '@/components/tabs/Tabination.js'
   import { onDestroy } from 'svelte'
   import PlayerTab from '@/routes/settings/tabs/PlayerTab.svelte'
-  import ClientTab from '@/routes/settings/tabs/ClientTab.svelte'
   import InterfaceTab from '@/routes/settings/tabs/InterfaceTab.svelte'
   import AppTab from '@/routes/settings/tabs/AppTab.svelte'
   import ChangelogTab from '@/routes/settings/tabs/ChangelogTab.svelte'
   import ExtensionTab from '@/routes/settings/tabs/ExtensionTab.svelte'
-  import TorrentPage from '@/routes/torrentManager/TorrentPage.svelte'
   import { status } from '@/modules/networking.js'
   import { modal } from '@/modules/navigation.js'
-  import { AppWindow, Puzzle, User, Heart, Logs, Play, Rss, Download, LayoutDashboard } from 'lucide-svelte'
+  import { AppWindow, Puzzle, User, Heart, Logs, Play, LayoutDashboard } from 'lucide-svelte'
 
   export let statusTransition = false
   export let miniplayerPadding = ''
@@ -69,15 +67,6 @@
     player: {
       name: 'Player',
       icon: Play
-    },
-    client: {
-      name: 'Client',
-      icon: Rss
-    },
-    torrents: {
-      name: 'Torrents',
-      icon: Download,
-      substitute: true
     },
     interface: {
       name: 'Interface',
@@ -152,24 +141,6 @@
           <div class='scroll-container'>
             <div class='page pb-100' style={miniplayerPadding}>
               <PlayerTab bind:settings={$settings} />
-            </div>
-          </div>
-        </div>
-      </Tab>
-      <Tab>
-        <div class='root h-full w-full overflow-y-md-auto p-20 pt-5'>
-          <div class='scroll-container'>
-            <div class='page pb-100' style={miniplayerPadding}>
-              <ClientTab bind:settings={$settings} />
-            </div>
-          </div>
-        </div>
-      </Tab>
-      <Tab>
-        <div class='root h-full w-full overflow-y-md-auto p-20 pt-15'>
-          <div class='scroll-container'>
-            <div class='page pb-100' style={miniplayerPadding}>
-              <TorrentPage />
             </div>
           </div>
         </div>

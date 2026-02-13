@@ -20,6 +20,7 @@ import Protocol from './protocol.js'
 import Updater from './updater.js'
 import Dialog from './dialog.js'
 import Debug from './debugger.js'
+import { startStreamProxy } from './streamProxy.js'
 
 export default class App {
   icon = nativeImage.createFromPath(join(__dirname, process.platform === 'win32' ? '/icon_filled.ico' : '/icon_filled.png'))
@@ -108,10 +109,20 @@ export default class App {
       this.mainWindow.webContents.send('electron:onFullScreen', isFullScreen)
     }
     ipcMain.handle('electron:isFullScreen', () => this.isFullScreen)
+    ipcMain.handle('electron:getProxyPort', () => this.proxyPort)
     this.mainWindow.on('enter-full-screen', () => fullScreen(true))
     this.mainWindow.on('leave-full-screen', () => fullScreen(false))
 
     this.setWebTorrentWindow()
+    
+    this.proxyPort = null
+    startStreamProxy().then(port => {
+      this.proxyPort = port
+      this.mainWindow.webContents.send('electron:proxyPort', port)
+    }).catch(error => {
+      console.warn('Failed to start proxy:', error)
+    })
+    
     this.mainWindow.on('closed', () => this.destroy())
     ipcMain.on('close', () => { this.close = true; this.destroy() })
 

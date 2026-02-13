@@ -4,6 +4,7 @@
   import { page, modal, playPage } from '@/modules/navigation.js'
   import { getAnimeProgress, setAnimeProgress } from '@/modules/anime/animeprogress.js'
   import { playAnime } from '@/modals/torrent/TorrentModal.svelte'
+  import { loadStream, stopStream } from '@/modules/streaming.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { episodesList } from '@/modules/episodes.js'
   import AnimeResolver from '@/modules/anime/animeresolver.js'
@@ -268,11 +269,35 @@
     }
   }
 
+  function waitForVideo () {
+    return new Promise((resolve) => {
+      if (video) return resolve()
+      const check = setInterval(() => {
+        if (video) { clearInterval(check); resolve() }
+      }, 50)
+      setTimeout(() => { clearInterval(check); resolve() }, 3000)
+    })
+  }
+
   async function setCurrent(file, launchExternal = false) {
     if (!externalPlayback) {
-      src = file.url
-      subs = new Subtitles(video, files, current, handleHeaders)
-      video.load()
+      stopStream(video)
+      const isHLS = file.url?.toLowerCase()?.includes('.m3u8')
+      if (isHLS || file.streamHeaders) {
+        try {
+          await waitForVideo()
+          await loadStream(video, file.url, { headers: file.streamHeaders || {} })
+        } catch (error) {
+          debug('HLS load failed, falling back to direct src:', error)
+          src = file.url
+        }
+      } else {
+        src = file.url
+      }
+      if (video) {
+        subs = new Subtitles(video, files, current, handleHeaders)
+        if (!isHLS) video.load()
+      }
       await loadAnimeProgress()
     } else externalPlaying = false
     emit('current', current) // #handleCurrent in MediaHandler
@@ -1558,7 +1583,7 @@
     on:loadedmetadata={checkSubtitle}
     on:loadedmetadata={clearLoadInterval}
     on:loadedmetadata={loadAnimeProgress}
-    on:leavepictureinpicture={() => { pip = false }}
+    on:leavepictureinpicture={() => { pip = false; stopStream(video); paused = true }}
   ><track kind='captions' src='' srclang='en' label='English'/></video>
   {#if stats && !miniplayer}
     <div class='position-absolute top-0 bg-tp p-10 ml-20 mt-100 text-monospace rounded z-50'>
@@ -1653,15 +1678,15 @@
     <div aria-hidden='true' class='w-full h-full position-absolute toggle-immerse d-none' on:dblclick={toggleFullscreen} on:click|self={toggleImmerse} />
     <div class='w-full h-full position-absolute mobile-focus-target d-none' use:click={() => { page.navigateTo(page.PLAYER) }} />
     <span aria-hidden='true' class='icon ctrl align-items-center justify-content-end w-150 mw-full mr-auto' class:hidden={externalPlayback} class:mb-50={!miniplayer} on:click={rewind}><Rewind size='3rem' /></span>
-    <!-- miniplayer buttons -->
+    <!-- player close/minimize buttons (z-11 to sit above fullscreen/immerse overlays) -->
     {#if miniplayer}
-      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button' class:ctrl={!SUPPORTS.isAndroid} class:mr-40={!SUPPORTS.isAndroid} class:mr-50={SUPPORTS.isAndroid} title='Minimize' data-name='playPause' use:click={() => (playPage.set(!playPage.value))}>
+      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} class:mr-40={!SUPPORTS.isAndroid} class:mr-50={SUPPORTS.isAndroid} title='Minimize' data-name='playPause' use:click={() => (playPage.set(!playPage.value))}>
         <Minus size='1.9rem' strokeWidth='3'/>
       </span>
-      <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button' class:ctrl={!SUPPORTS.isAndroid} title='Exit' data-name='playPause' use:click={() => { window.dispatchEvent(new CustomEvent('torrent-unload')); if ($page === page.PLAYER) page.navigateTo(page.HOME)}}>
-        <X size='1.9rem' strokeWidth='3'/>
-      </span>
     {/if}
+    <span class='position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11' class:ctrl={!SUPPORTS.isAndroid} title='Exit' data-name='playPause' use:click={() => { stopStream(video); if (pip) { try { document.exitPictureInPicture() } catch(e) {} pip = false } window.dispatchEvent(new CustomEvent('torrent-unload')); if ($page === page.PLAYER) page.navigateTo(page.HOME)}}>
+      <X size='1.9rem' strokeWidth='3'/>
+    </span>
     <div class='d-flex align-items-center position-relative' class:mb-50={!miniplayer} style='width: 100%;' title='Play/Pause'>
       {#if hasLast}
         <span class='icon ctrl position-absolute rounded-10 text-white' style={externalPlayback ? `left: 5%` : `left: 15%`} title='Last' data-name='playPause' use:click={playLast}>

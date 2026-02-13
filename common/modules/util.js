@@ -638,7 +638,9 @@ export const defaults = {
     atob('aHR0cDovL2FuaWRleC5tb2U6Njk2OS9hbm5vdW5jZQ=='),
     atob('aHR0cDovL255YWEudHJhY2tlci53Zjo3Nzc3L2Fubm91bmNl'),
     atob('aHR0cDovL3RyYWNrZXIuYW5pcmVuYS5jb206ODAvYW5ub3VuY2U=')
-  ]
+  ],
+  extensions: {},
+  defaultExtension: null
 }
 
 /**

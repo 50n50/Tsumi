@@ -3,7 +3,7 @@
   import { nowPlaying as media } from '@/components/MediaHandler.svelte'
   import { hasUnreadNotifications } from '@/modals/NotificationsModal.svelte'
   import NavbarLink from '@/components/navigation/NavbarLink.svelte'
-  import { Home, Search, Users, Download, CalendarSearch, Settings, Bell, BellDot, ListVideo, History, TvMinimalPlay } from 'lucide-svelte'
+  import { Home, Search, Users, CalendarSearch, Settings, Bell, BellDot, ListVideo, History, TvMinimalPlay } from 'lucide-svelte'
 </script>
 
 <nav class='navbar z-80 navbar-fixed-bottom d-block d-md-none border-0 bg-dark bt-10'>
@@ -47,9 +47,6 @@
     {/if}
     <NavbarLink click={() => page.navigateTo(page.WATCH_TOGETHER)} _page={page.WATCH_TOGETHER} icon='groups' text='Watch Together' let:active>
       <Users size='3.6rem' class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
-    </NavbarLink>
-    <NavbarLink click={() => page.navigateTo(page.TORRENT_MANAGER)} _page={page.TORRENT_MANAGER} icon='download' text='Torrents' css='d-none d-sm-block' let:active>
-      <Download size='3.6rem' class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
     </NavbarLink>
     <NavbarLink click={() => { modal.toggle(modal.NOTIFICATIONS) }} icon='bell' text='Notifications' _modal={modal.NOTIFICATIONS} let:active let:hovering>
       {#if $hasUnreadNotifications &&  $hasUnreadNotifications > 0}

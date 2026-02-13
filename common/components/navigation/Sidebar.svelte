@@ -12,7 +12,7 @@
   import { IPC, ELECTRON, VERSION } from '@/modules/bridge.js'
   import { goBack, goForward, canGoBack, canGoForward } from '@/modules/navigation.js'
   import SidebarLink from '@/components/navigation/SidebarLink.svelte'
-  import { MoveLeft, MoveRight, CalendarSearch, Download, CloudDownload, Heart, Home, Search, ListVideo, History, TvMinimalPlay, LogIn, Settings, Users, Bell, BellDot } from 'lucide-svelte'
+  import { MoveLeft, MoveRight, CalendarSearch, CloudDownload, Heart, Home, Search, ListVideo, History, TvMinimalPlay, LogIn, Settings, Users, Bell, BellDot } from 'lucide-svelte'
 
   const btnSize = !SUPPORTS.isAndroid ? '3.1rem' : '3.6rem'
   let _status = status.value
@@ -86,9 +86,6 @@
     {/if}
     <SidebarLink click={() => page.navigateTo(page.WATCH_TOGETHER)} _page={page.WATCH_TOGETHER} icon='groups' text='Watch Together' let:active>
       <Users size={btnSize} class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
-    </SidebarLink>
-    <SidebarLink click={() => page.navigateTo(page.TORRENT_MANAGER)} _page={page.TORRENT_MANAGER} icon='download' text='Torrents' css='d-sm-h-none' let:active>
-      <Download size={btnSize} class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
     </SidebarLink>
     {#if $settings.donate && !SUPPORTS.isAndroid}
       <SidebarLink click={() => { IPC.emit('open', 'https://github.com/sponsors/RockinChaos/') }} icon='favorite' text='Support This App' css='mt-md-h-auto d-sm-h-none' let:active let:hovering>

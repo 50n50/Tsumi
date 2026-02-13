@@ -35,7 +35,9 @@ const capacitorConfig = {
       '@client': resolve(__dirname, '..', 'client'),
       'webtorrent-client': resolve(__dirname, '..', 'client/core/webtorrent.js'),
       'http-tracker': resolve('../node_modules/bittorrent-tracker/lib/client/http-tracker.js'),
-      'webrtc-polyfill': false // no webrtc on mobile, need the resources
+      'webrtc-polyfill': false,
+      'webpack/hot/emitter.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/emitter.js'),
+      'webpack/hot/log.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/log.js')
     }
   },
   target: 'node',

@@ -1,16 +1,11 @@
 <script context='module'>
   import SoftModal from '@/components/modals/SoftModal.svelte'
   import TorrentResults from '@/modals/torrent/components/TorrentResults.svelte'
-  import { findInCurrent } from '@/components/MediaHandler.svelte'
   import { page, modal } from '@/modules/navigation.js'
 
   export function playAnime (media, episode = 1, force = false) {
     episode = Number(episode)
     episode = isNaN(episode) ? 1 : episode
-    if (!force && findInCurrent({ media, episode })) {
-      page.navigateTo(page.PLAYER)
-      return
-    }
     modal.open(modal.TORRENT_MENU, { media, episode })
   }
 </script>

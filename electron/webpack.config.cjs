@@ -33,7 +33,9 @@ module.exports = [
         wrtc: false,
         debug: resolve(__dirname, '../common/modules/debug.js'),
         'webrtc-polyfill': resolve('../node_modules/webrtc-polyfill/browser.js'),
-        'http-tracker': resolve('../node_modules/bittorrent-tracker/lib/client/http-tracker.js')
+        'http-tracker': resolve('../node_modules/bittorrent-tracker/lib/client/http-tracker.js'),
+        'webpack/hot/emitter.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/emitter.js'),
+        'webpack/hot/log.js': resolve(__dirname, '../node_modules/.pnpm/webpack@5.104.1_webpack-cli@6.0.1/node_modules/webpack/hot/log.js')
       }
     },
     plugins: [new HtmlWebpackPlugin({ filename: 'background.html' })],

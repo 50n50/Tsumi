@@ -5,7 +5,6 @@
   import { copyToClipboard } from '@/modules/clipboard.js'
   import { settings } from '@/modules/settings.js'
   import { mediaCache } from '@/modules/cache.js'
-  import { add } from '@/modules/torrent.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { isValidNumber } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
@@ -121,10 +120,6 @@
     const { id, episode, torrentOnly } = event.detail
     handlePlay(id, episode, torrentOnly)
   })
-
-  window.addEventListener('play-torrent', (event) => add(event.detail.magnet, null, null, null, event.detail.base64))
-
-  IPC.on('play-torrent', (detail) => add(detail.magnet, null, null, null, detail.base64))
 
   function sanitize(body) {
     if (!body) return ''

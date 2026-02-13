@@ -4,7 +4,6 @@
   import SettingsPage from '@/routes/settings/SettingsPage.svelte'
   import WatchTogetherPage from '@/routes/w2g/WatchTogetherPage.svelte'
   import SchedulePage from '@/routes/SchedulePage.svelte'
-  import TorrentPage from '@/routes/torrentManager/TorrentPage.svelte'
   import Miniplayer, { isMobile, isSuperSmall } from '@/components/Miniplayer.svelte'
   import SearchPage from '@/routes/search/SearchPage.svelte'
   import { cache, caches } from '@/modules/cache.js'
@@ -44,6 +43,4 @@
   <SchedulePage />
 {:else if $page === page.WATCH_TOGETHER}
   <WatchTogetherPage />
-{:else if $page === page.TORRENT_MANAGER}
-  <TorrentPage class='overflow-y-scroll overflow-x-hidden' miniplayerPadding={miniplayerActive ? miniplayerPadding : ''}/>
 {/if}

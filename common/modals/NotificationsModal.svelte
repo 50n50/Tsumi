@@ -1,10 +1,8 @@
 <script context='module'>
   import { derived, writable } from 'simple-store-svelte'
   import { click, hoverExit, blurExit } from '@/modules/click.js'
-  import { getHash } from '@/modules/anime/animehash.js'
   import { createListener, matchPhrase, matchKeys, debounce, since, isValidNumber } from '@/modules/util.js'
   import { Search, MailCheck, MailOpen, Play, X } from 'lucide-svelte'
-  import TorrentButton, { playActive } from '@/components/TorrentButton.svelte'
   import ErrorCard from '@/components/cards/ErrorCard.svelte'
   import SoftModal from '@/components/modals/SoftModal.svelte'
   import Helper from '@/modules/helper.js'
@@ -156,7 +154,9 @@
     close()
     if (view) {
       window.dispatchEvent(new CustomEvent('open-anime', { detail: { id: notification.id } }))
-    } else playActive(notification.hash, { media: { id: notification.id }, episode: notification.episode }, notification.magnet, notification.click_action === 'PLAY')
+    } else {
+      window.dispatchEvent(new CustomEvent('play-anime', { detail: { id: notification.id, episode: notification.episode, torrentOnly: true } }))
+    }
   }
 
   function updateSort() {
@@ -226,7 +226,6 @@
         {@const notWatching = !announcement && !delayed && ((!media?.mediaListEntry?.progress) || (media?.mediaListEntry?.progress === 0 && ((media?.mediaListEntry?.status !== 'CURRENT' || !repeating) && media?.mediaListEntry?.status !== 'COMPLETED')))}
         {@const behind = Helper.isAuthorized() && !announcement && !delayed && isValidNumber(notification.episode) && (notification.episode - 1) >= 1 && (media?.mediaListEntry?.status !== 'COMPLETED' && ((media?.mediaListEntry?.progress || -1) < ((!isValidNumber(notification.season) ? notification.episode : media?.episodes) - 1)))}
         {@const completed = !announcement && !delayed && !notWatching && !behind && isValidNumber(notification.episode) && (media?.mediaListEntry?.status === 'COMPLETED' || (media?.mediaListEntry?.progress >= (!isValidNumber(notification.season) ? notification.episode : media?.episodes)))}
-        {@const resolvedHash = getHash(notification.id, { episode: notification.episode, client: true }, false, true)}
         <div class='notification-item shadow-lg position-relative d-flex align-items-center mx-20 my-5 p-5 scale pointer' class:mt-10={index === 0} role='button' tabindex='0' class:not-reactive={!$reactive} class:read={notification.read} class:behind={(behind && !notWatching) || delayed} class:current={!behind && !notWatching && !repeating} class:repeating={!behind && !notWatching && repeating} class:not-watching={notWatching} class:completed={completed} class:announcement={announcement}
              use:blurExit={ () => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
              use:hoverExit={() => { if (notification.prompt) setTimeout(() => preventScroll(container.scrollTop, () => delete notification.prompt)) }}
@@ -248,9 +247,13 @@
             <div class='d-flex'>
               <p class='notification-title overflow-hidden font-weight-bold my-0 mt-5 mr-10 font-scale-18 {SUPPORTS.isAndroid ? `line-clamp-1` : `line-clamp-2`}'>{notification.title}</p>
               <div class='ml-auto d-flex'>
-                <button type='button' tabindex='-1' class='position-absolute n-safe-area top-0 right-0 h-50 bg-transparent border-0 shadow-none not-reactive z-1 {notification.hash || resolvedHash ? `w-90` : `w-50`}' use:click={() => {}}/>
-                {#if notification.hash || resolvedHash}
-                  <TorrentButton class='btn btn-square mr-5 z-1' hash={[...(notification.hash && notification.hash !== resolvedHash ? [notification.hash] : []), ...(resolvedHash ? [resolvedHash] : [])]} torrentID={notification.magnet} search={{ media: { id: notification.id }, episode: notification.episode }}/>
+                <button type='button' tabindex='-1' class='position-absolute n-safe-area top-0 right-0 h-50 bg-transparent border-0 shadow-none not-reactive z-1 w-90' use:click={() => {}}/>
+                {#if isValidNumber(notification.episode)}
+                  <button type='button' class='btn btn-square mr-5 z-1 d-flex align-items-center justify-content-center' use:click={() => {
+                    window.dispatchEvent(new CustomEvent('play-anime', { detail: { id: notification.id, episode: notification.episode, torrentOnly: true } }))
+                  }}>
+                    <Play size='1.7rem' strokeWidth='3'/>
+                  </button>
                 {/if}
                 <button type='button' class='read-button btn btn-square d-flex align-items-center justify-content-center z-1' class:not-allowed={completed} class:not-reactive={completed} use:click={() => { preventScroll(container.scrollTop, () => { notification.read = !notification.read; delete notification.prompt }) }}>
                   {#if notification.read}

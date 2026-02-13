@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('electron', {
   onMinimize: (callback) => ipcRenderer.on('electron:onMinimize', (event, isMinimized) => callback(isMinimized)),
   onFullScreen: (callback) => ipcRenderer.on('electron:onFullScreen', (event, isFullScreen) => callback(isFullScreen)),
   getYouTube: () => ipcRenderer.invoke('electron:getYouTube'),
+  getProxyPort: () => ipcRenderer.invoke('electron:getProxyPort'),
 })
 
 let _ports
