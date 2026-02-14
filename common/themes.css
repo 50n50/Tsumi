@@ -13,9 +13,9 @@
   --gray-color-light: hsl(var(--gray-color-light-hsl));
   --gray-color-light-hsl: var(--gray-color-base-hue), 10%, 28%;
   --gray-color-base-hue: 216;
-  --primary-color: var(--blue-color-dim);
-  --primary-color-light: var(--blue-color);
-  --primary-color-dim-hsl: var(--blue-color-base-hue), var(--blue-color-base-saturation), 40%;
+  --primary-color: #DA0101;
+  --primary-color-light: #FF4444;
+  --primary-color-dim-hsl: 0deg, 100%, 40%;
   --primary-color-dim: hsl(var(--primary-color-dim-hsl));
   --danger-color: var(--red-color-dim);
   --danger-color-light-hsl: var(--red-color-base-hue), var(--red-color-base-saturation), 50%;

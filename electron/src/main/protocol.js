@@ -4,14 +4,14 @@ import path from 'path'
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient('shiru', process.execPath, [path.resolve(process.argv[1])])
+    app.setAsDefaultProtocolClient('tsumi', process.execPath, [path.resolve(process.argv[1])])
   }
 } else {
-  app.setAsDefaultProtocolClient('shiru')
+  app.setAsDefaultProtocolClient('tsumi')
 }
 
 export default class Protocol {
-  // schema: shiru://key/value
+  // schema: tsumi://key/value
   protocolMap = {
     alauth: token => this.sendToken(token),
     malauth: token => this.sendMalToken(token),
@@ -24,7 +24,7 @@ export default class Protocol {
     show: () => ipcMain.emit('window-show')
   }
 
-  protocolRx = /shiru:\/\/([a-z0-9]+)\/(.*)/i
+  protocolRx = /tsumi:\/\/([a-z0-9]+)\/(.*)/i
 
   /**
    * @param {import('electron').BrowserWindow} window
@@ -32,7 +32,7 @@ export default class Protocol {
   constructor (window) {
     this.window = window
 
-    protocol.registerHttpProtocol('shiru', (req, cb) => {
+    protocol.registerHttpProtocol('tsumi', (req, cb) => {
       const token = req.url.slice(7)
       this.window.loadURL(development ? 'http://localhost:5000/app.html' + token : `file://${path.join(__dirname, '/app.html')}${token}`)
     })
@@ -111,7 +111,7 @@ export default class Protocol {
   handleProtocol (text) {
     if (!text) return
 
-    // Handle shiru:// scheme
+    // Handle tsumi:// scheme
     const match = text.match(this.protocolRx)
     if (match) this.protocolMap[match[1]]?.(match[2])
     return match

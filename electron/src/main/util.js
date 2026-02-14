@@ -46,7 +46,7 @@ app.setJumpList?.([
     items: [
       {
         type: 'task',
-        program: 'shiru://w2g/',
+        program: 'tsumi://w2g/',
         title: 'Watch Together',
         description: 'Create a New Watch Together Lobby'
       }

@@ -36,7 +36,7 @@ export default class Dialog {
       try {
         const { filePath, canceled } = await dialog.showSaveDialog({
           title: 'Select export location for the log file',
-          defaultPath: `shiru-log-${new Date().toISOString().replace(/[:.]/g, '-')}.log`,
+          defaultPath: `tsumi-log-${new Date().toISOString().replace(/[:.]/g, '-')}.log`,
           filters: [{ name: 'Log File', extensions: ['log'] }]
         })
         if (canceled || !filePath) return

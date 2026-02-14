@@ -12,11 +12,11 @@ export default class Discord {
         large_image: 'icon',
         large_text: 'https://github.com/50n50/Tsumi',
         small_image: 'sail',
-        small_text: 'Watching anime on Shiru'
+        small_text: 'Watching anime on Tsumi'
       },
       buttons: [
         {
-          label: 'Download Shiru',
+          label: 'Download Tsumi',
           url: 'https://github.com/50n50/Tsumi/releases/latest'
         }
       ],

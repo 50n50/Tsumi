@@ -40,7 +40,7 @@ export class W2GClient extends EventEmitter {
   peers = writable({ [this.self.id]: { user: this.self } })
 
   get inviteLink () {
-    return `shiru://w2g/${this.code}`
+    return `tsumi://w2g/${this.code}`
   }
 
   /**

@@ -164,7 +164,7 @@
 </SettingCard>
 
 <h4 class='mb-10 font-weight-bold'>External Player Settings</h4>
-<SettingCard title='Enable External Player' description='Tells Shiru to open a custom user-picked external video player to play video, instead of using the built-in one.'>
+<SettingCard title='Enable External Player' description='Tells Tsumi to open a custom user-picked external video player to play video, instead of using the built-in one.'>
   <div class='custom-switch'>
     <input type='checkbox' id='player-external-enabled' bind:checked={settings.enableExternal} />
     <label for='player-external-enabled'>{settings.enableExternal ? 'On' : 'Off'}</label>

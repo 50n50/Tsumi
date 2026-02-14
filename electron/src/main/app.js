@@ -247,7 +247,7 @@ export default class App {
           session.fromPartition(partitionName).clearStorageData()
         })
         authWindow.webContents.on('will-redirect', (event, url) => {
-          if (url.startsWith('shiru:')) {
+          if (url.startsWith('tsumi:')) {
             event.preventDefault()
             authWindow.destroy()
             ipcMain.emit('handle-protocol', {}, url)
@@ -338,14 +338,14 @@ export default class App {
   }
   createTray() {
     if (this.destroyed) return
-    this.tray.setToolTip('Shiru')
+    this.tray.setToolTip('Tsumi')
     this.setTrayMenu()
     this.tray.on('click', () => this.showAndFocus())
   }
   setTrayMenu() {
     if (this.destroyed || !this.tray || this.tray.isDestroyed()) return
     this.tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Shiru', enabled: false },
+      { label: 'Tsumi', enabled: false },
       ...(this.ready ? [
           { type: 'separator' },
           { label: 'Show', click: () => this.showAndFocus() },
