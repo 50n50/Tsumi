@@ -1,215 +1,215 @@
-<p align="center">
-	<a href="https://github.com/RockinChaos/Shiru">
-		<img src="../.github/docs/assets/logo_filled.svg" width="400" alt="Shiru">
-	</a>
-</p>
-<h4 align="center"><b>Manage your personal media library, organize your collection, and stream your content in real time, no waiting required!</b></h4>
+<div align="center">
+  <img src="https://github.com/50n50/Tsumi/blob/master/electron/buildResources/header.png?raw=true" alt="Tsumi" width="100%">
+</div>
 
-<p align="center">
-  <a href="https://github.com/RockinChaos/Shiru/wiki/">📚 Wiki</a> •
-  <a href="https://github.com/RockinChaos/Shiru/wiki/features/">✨ Features</a> •
-  <a href="https://github.com/RockinChaos/Shiru/wiki/faq/">❓ FAQ</a> •
-  <a href="#-building--development">🔧 Building & Development</a> •
-  <a href="https://github.com/RockinChaos/Shiru/releases/latest/">⬇️ Download</a>
-</p>
+#
 
-> [!IMPORTANT]
-> This application **does not host, distribute, or provide media content**.
-> 
-> Shiru is intended solely as a **personal media library manager** for organizing and playing content that you **legally own**. Please ensure that any media you use with this app is obtained **legally** and that you respect all applicable **copyright laws**.
+A modern, feature-rich anime streaming application. **Tsumi** is a fork of [Shiru](https://github.com/TechnicallySentient/Shiru) modified to use **Sora extensions** for seamless anime discovery and playback.
 
-https://github.com/user-attachments/assets/3ff100f0-e008-4ff5-88f5-ad4290863f96
+> **Note:** This project is a community fork focused on extension-based streaming. It's not affiliated with the original Shiru project.
 
-<p align="center">
-  <a href="https://github.com/RockinChaos/Shiru/releases/latest/"><img alt="Downloads" src="https://img.shields.io/github/downloads/RockinChaos/Shiru/total?style=flat-square"></a>
-  <a href="https://github.com/RockinChaos/Shiru/releases/latest/"><img alt="Latest Release" src="https://img.shields.io/github/v/release/RockinChaos/Shiru?style=flat-square"></a>
-  <a href="https://github.com/RockinChaos/Shiru/commits"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/RockinChaos/Shiru?style=flat-square"></a>
-  <a href="https://github.com/RockinChaos/Shiru/stargazers"><img alt="Stargazers" src="https://img.shields.io/github/stars/RockinChaos/Shiru?style=flat-square"></a>
-  <a href="../LICENSE"><img alt="License: GPLv3" src="https://img.shields.io/github/license/RockinChaos/Shiru?style=flat-square"></a>
-</p>
+## Features
 
-## 📃 **About**
+### 🎬 Streaming & Playback
+- **Extension-based streaming** - Supports Sora extensions for flexible anime source management
+- **Multi-server support** - Switch between different streaming servers without losing playback position
+- **Advanced player** - Built-in video player with:
+  - HLS/MP4 playback support
+  - Subtitle support (SRT, VTT, ASS, SSA)
+  - Keyboard shortcuts and playlist controls
+  - Download speed monitoring
+  - Auto-skip opening/ending detection
 
-**Shiru** is designed to enhance your personal media experience with a feature-rich environment and full mobile support. It provides a seamless way to organize, track, and play content you legally own.
+### 📚 Library Management
+- **Anime information** - Integrated with AniList and MyAnimeList
+- **Personal library** - Track your anime across multiple platforms
+- **Episode tracking** - Automatic progress saving and resume playback
+- **Smart search** - Find anime across all enabled extensions instantly
 
-Shiru lets you enjoy your collection in real time, with fast playback, high-quality video, and a clean, ad-free interface.
+### 🎨 Customization
+- **Dark theme** - Easy on the eyes for late-night anime sessions
+- **Customizable UI** - Adjustable fonts, colors, and layout options
+- **Multiple subtitle languages** - Choose your preferred subtitle language
+- **External player support** - Use your favorite external video player if desired
 
+### 🛠️ Advanced Features
+- **Watch parties** (W2G) - Stream anime together with friends
+- **Discord Rich Presence** - Show what you're watching to your friends
+- **Cross-platform** - Windows, macOS, and Linux support
+- **Offline progress** - Your anime history works offline and syncs when online
 
-### ✨ Key Features:
-- 🪄 **Anime integration with AniList & MyAnimeList**
-- 💬 **Full subtitle support** with softcoded and external files
-- ⏩ **Seamless video controls** and keyboard shortcuts
-- 🌐 **Real-time library playback** for fast access to content you own
+## Installation
 
----
+### Windows
 
-### 🎥 **Anime Features**:
-- 🪄 **Full AniList & MyAnimeList Integration:**
-    - Filter by name, genre, season, year, format, and status.
-    - Manage your watching & planning lists easily.
-    - Automatically mark episodes as completed after watching.
-    - Watch trailers and previews.
-    - Rate and score anime.
-    - Explore related anime.
+1. **Download** the latest installer from [Releases](https://github.com/50n50/Tsumi/releases)
+2. **Run** `Tsumi-v*.*.*.exe` and follow the installation wizard
+3. **Launch** Tsumi from your Start Menu or desktop shortcut
 
-- 🌐 **Advanced content fetching** (for legally owned media):
-    - Recognize content by series.
-    - Automatically detect episodes from file names.
-    - Support for custom feeds and resolution preferences.
-    - Stream your content in real time without waiting.
-    - Support for custom [extensions](https://github.com/RockinChaos/Shiru/wiki/Extensions).
-    - Adjustable network speeds.
+**Portable Version:**
+- Download the `Tsumi-Windows-v*.*.*-portable.exe`
+- No installation required, just run the executable
 
-- 🔔 **Dub & Sub Notifications**:
-    - Schedules and tracking for both dub and sub releases.
-    - Instant notifications on new episodes!
+### macOS
 
----
+1. **Download** the latest DMG from [Releases](https://github.com/50n50/Tsumi/releases)
+2. **Mount** the DMG file and drag Tsumi to your Applications folder
+3. **Launch** from Applications
 
-### 🎬 **Video Playback Features**:
-- 💬 **Full Subtitle Support**:
-    - Softcoded and external subtitles (VTT, SSA, ASS, SUB, TXT).
-    - Picture-in-Picture (PiP) mode for multitasking.
+> Note: On first launch, macOS may ask for permission. This is normal for unsigned apps.
 
-- 🎮 **Keybindings**:
-    - **S**: Skip opening (seek forward 90s).
-    - **R**: Seek backwards 90s.
-    - **→**: seek forwards 2 seconds.
-    - **←**: seek backwards 2 seconds.
-    - **↑**: increase volume.
-    - **↓**: decrease volume.
-    - **M**: Mute volume.
-    - **C**: Cycle through subtitle tracks.
-    - **F**: toggle fullscreen.
-    - **P**: toggle picture in picture.
-    - **N/B**: Next/previous episode.
-    - **O**: View anime details.
-    - **V**: Toggle volume limit increase.
-    - **[**: Increase playback speed.
-    - **]**: Decrease playback speed.
-    - **\\**: reset playback speed to 1.
-    - **I**: Show video stats.
-    - **`**: Open keybinds UI (edit keybinds by drag and dropping any key).
+### Linux
 
-- 👏 **Other Features**:
-    - Miniplayer and media session support.
-    - Pausing when window focus is lost.
-    - Autoplaying the next episode.
-    - Switching between multiple audios.
-    - Discord Rich Presence integration.
-    - Preview thumbnails and autoplay next episodes.
-    - Progress indicators visible on the seek bar
+#### AppImage (Recommended)
+1. **Download** `Linux-Tsumi-v*.*.*.AppImage` from [Releases](https://github.com/50n50/Tsumi/releases)
+2. **Make executable:**
+   ```bash
+   chmod +x Linux-Tsumi-v*.*.*.AppImage
+   ```
+3. **Run:**
+   ```bash
+   ./Linux-Tsumi-v*.*.*.AppImage
+   ```
 
-## ⚙️ **Installation**
+#### Debian/Ubuntu (DEB)
+1. **Download** `Linux-Tsumi-v*.*.*.deb` from [Releases](https://github.com/50n50/Tsumi/releases)
+2. **Install:**
+   ```bash
+   sudo dpkg -i Linux-Tsumi-v*.*.*.deb
+   ```
+3. **Launch:** Open Tsumi from your application menu
 
-### 🐧 **Linux Installation**:
+## First Time Setup
 
-#### Arch:
+### Adding Extensions
+
+1. Open **Settings** → **Extensions**
+2. Install Sora or compatible extensions
+3. Enable the extensions you want to use
+4. Set a default extension (recommended)
+
+### Configuring Playback
+
+1. Go to **Settings** → **Player**
+2. Adjust playback preferences:
+   - Set your preferred subtitle language
+   - Configure external player (optional)
+   - Adjust video quality settings
+
+### Syncing with AniList/MAL
+
+1. Open **Settings** → **Profiles**
+2. Connect your AniList or MyAnimeList account
+3. Your anime library will sync automatically
+
+## Usage
+
+### Finding Anime
+
+1. Use the **Search** tab to find anime
+2. Results from all enabled extensions appear instantly
+3. Click a result to load episodes
+
+### Watching Anime
+
+1. Select an episode to start playback
+2. If multiple servers available, choose your preferred one
+3. Use keyboard shortcuts:
+   - **Space** - Play/Pause
+   - **F** - Fullscreen
+   - **C** - Cycle subtitles
+   - **M** - Mute
+   - **← →** - Skip/Rewind
+   - **↑ ↓** - Volume
+   - **P** - Picture-in-picture
+
+### Watch Parties
+
+1. Go to **Settings** → **W2G**
+2. Create a watch party session
+3. Share the generated link with friends
+4. Watch together in real-time
+
+## Building from Source
+
+### Requirements
+- Node.js 18+
+- pnpm (or npm)
+- Git
+
+### Setup
+
 ```bash
-paru -S shiru
+# Clone the repository
+git clone https://github.com/50n50/Tsumi.git
+cd Tsumi
+
+# Install dependencies
+pnpm install
+
+# Development mode
+pnpm run dev
+
+# Build for production
+cd electron
+pnpm run build
 ```
 
-Or if you use yay:
+## Troubleshooting
 
-```bash
-yay -S shiru
-```
+### "No stream available" error
+- Check that you have at least one extension enabled
+- Try a different extension or server
+- Some extensions may not have all anime
 
-#### Debian/Ubuntu:
-1. 🔗 Download the `linux-Shiru-version.deb` from the [releases page](https://github.com/RockinChaos/Shiru/releases/latest).
-2. 📦 Install using the package manager:
+### Subtitles not showing
+- Verify subtitle format is supported (SRT, VTT, ASS, SSA)
+- Check subtitle language matches available tracks
+- Try "Add Subtitles" to manually load a file
 
-    ```bash
-    apt install linux-Shiru-*.deb
-    ```
+### Playback issues on Linux
+- Install FFMPEG: `sudo apt install ffmpeg`
+- Some distributions may need additional codecs
 
----
+### Performance issues
+- Close unnecessary browser tabs
+- Lower video quality settings
+- Update GPU drivers
 
-### 🖥️ Windows Installation:
-#### Option 1: 💨 Install via Winget
-For Windows 10 **1809** or later, or Windows 11:
-```bash
-winget install shiru
-```
+## Project Structure
 
-#### Option 2: 🔄 Installer or Portable Version
-1. 🔗 Download from the [releases page](https://github.com/RockinChaos/Shiru/releases/latest):
-   - **Installer:** `win-Shiru-vx.x.x-installer.exe`
-   - **Portable:** `win-Shiru-vx.x.x-portable.exe` *(No installation required, just run it)*
+- `common/` - Shared UI components and utilities
+- `electron/` - Desktop app (Windows, macOS, Linux)
+- `capacitor/` - Mobile app framework (Android)
+- `extensions/` - Example extensions and extension system
+- `client/` - Client library for torrenting (legacy)
 
-## 🔧 Building & Development
+## Contributing
 
-Credit to [NoCrypt](https://github.com/NoCrypt) for doing the legwork on this.
+Contributions are welcome! This is a community project. Whether it's bug fixes, features, or translations:
 
-### 📋 Requirements:
-- PNPM (or any package manager)
-- NodeJS 22.21.1
-- Visual Studio 2022 (if on Windows)
-- Docker (with WSL on Windows)
-- ADB & Android Studio (SDK 34)
-- Java 21 (JDK)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-###  💻 Building for PC (Electron):
-1. Navigate to the Electron directory:
-   ```bash
-   cd electron
-   ```
-2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-3. Start development:
-   ```bash
-   pnpm start
-   ```
-4. Build for release:
-   ```bash
-   pnpm build
-   ```
+## License
 
----
+GPL-3.0-or-later - See [LICENSE](LICENSE) file for details
 
-### 📱 Building for Android (Capacitor):
-1. Navigate to the Capacitor directory:
-   ```bash
-   cd capacitor
-   ```
-2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-3. Run the doctor to check for missing dependencies:
-   ```bash
-   pnpm exec cap doctor
-   ```
-4. (First time only) Build native code:
-   - Windows:
-     ```bash
-     pnpm build:native-win
-     ```
-   - Linux:
-     ```bash
-     pnpm build:native
-     ```
-5. (Optional) Generate assets:
-   ```bash
-   pnpm build:assets
-   ```
-6. Open the Android project:
-   ```bash
-   pnpm exec cap open android
-   ```
-7. Connect your device with ADB and start development:
-   ```bash
-   pnpm dev:start
-   ```
-8. Build the app for release (APK will not be [signed](https://github.com/NoCrypt/sign-android)):
-   ```bash
-   pnpm build:app
-   ```
+## Credits
 
----
+- **Original Project:** [Shiru](https://github.com/RockinChaos/Shiru) by RockinChaos
+- **This Fork:** Modified to use Sora extensions and community improvements
 
-## 📜 License
+## Disclaimer
 
-This project follows the [GPLv3 License](../LICENSE).
+The developer(s) of this application does not have any affiliation with the content providers available, and this application hosts zero content.
+
+## Support
+
+- **Issues:** [GitHub Issues](https://github.com/50n50/Tsumi/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/50n50/Tsumi/discussions)
+- **Discord:** Join our community (link in repo)
+
+
