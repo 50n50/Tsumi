@@ -159,7 +159,7 @@ export function parseStreamResponse(response) {
     return {
       url: firstStream.streamUrl,
       headers: firstStream.headers || {},
-      subtitle: response.subtitle || null,
+      subtitle: response.subtitles || response.subtitle || null,
       alternatives: response.streams.slice(1),
       servers: response.streams
     }
@@ -169,7 +169,7 @@ export function parseStreamResponse(response) {
     return {
       url: response.streamUrl,
       headers: response.headers || {},
-      subtitle: response.subtitle || null,
+      subtitle: response.subtitles || response.subtitle || null,
       alternatives: [],
       servers: [{ title: 'Server', streamUrl: response.streamUrl, headers: response.headers || {} }]
     }

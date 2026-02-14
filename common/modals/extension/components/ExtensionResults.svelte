@@ -2,7 +2,7 @@
   import { settings } from '@/modules/settings.js'
   import { extensionManager, callExtensionFunction } from '@/modules/extension.js'
   import { files, nowPlaying as currentMedia } from '@/components/MediaHandler.svelte'
-  import { page } from '@/modules/navigation.js'
+  import { page, modal } from '@/modules/navigation.js'
   import { anilistClient } from '@/modules/anilist.js'
   import { click } from '@/modules/click.js'
   import { toast } from 'svelte-sonner'
@@ -106,34 +106,57 @@
 
       if (!streamData?.url) {
         toast.error('No stream URL found for this episode')
-        playingEpisode = null
+        playingResult = null
         return
       }
 
-      $currentMedia = { media: search.media, episode: targetEp.number || search.episode }
+      // Show server selector modal if multiple servers available
+      if (streamData.servers && streamData.servers.length > 1) {
+        const episodeNum = targetEp.number || search.episode
+        const capturedStreamData = streamData
+        playingResult = null
+        modal.open(modal.SERVER_SELECTOR, {
+          servers: capturedStreamData.servers,
+          onSelect: (serverIndex) => {
+            const server = capturedStreamData.servers[serverIndex]
+            launchPlayer(capturedStreamData, episodeNum, serverIndex, server)
+          },
+          onBack: () => {}
+        })
+        return
+      }
 
       const episodeNum = targetEp.number || search.episode
-      files.set([{
-        name: `${anilistClient.title(search.media)} - Episode ${episodeNum}.mp4`,
-        url: streamData.url,
-        streamHeaders: streamData.headers || {},
-        streamServers: streamData.servers || [],
-        subtitle: streamData.subtitle || null,
-        length: 0,
-        media: {
-          media: search.media,
-          episode: episodeNum,
-          parseObject: { anime_title: anilistClient.title(search.media), episode_number: episodeNum }
-        }
-      }])
-
-      page.navigateTo(page.PLAYER)
-      close()
+      launchPlayer(streamData, episodeNum, 0)
     } catch (error) {
       debug('Failed to get stream URL:', error)
       toast.error('Stream failed: ' + (error?.message || error))
       playingResult = null
     }
+  }
+
+  function launchPlayer(streamData, episodeNum, serverIndex = 0, server = null) {
+    const url = server?.streamUrl || streamData.url
+    const headers = server?.headers || streamData.headers || {}
+
+    $currentMedia = { media: search.media, episode: episodeNum }
+    files.set([{
+      name: `${anilistClient.title(search.media)} - Episode ${episodeNum}.mp4`,
+      url,
+      streamHeaders: headers,
+      streamServers: streamData.servers || [],
+      subtitle: streamData.subtitle || null,
+      length: 0,
+      media: {
+        media: search.media,
+        episode: episodeNum,
+        parseObject: { anime_title: anilistClient.title(search.media), episode_number: episodeNum }
+      },
+      activeServerIndex: serverIndex
+    }])
+
+    page.navigateTo(page.PLAYER)
+    close()
   }
 
   $: if (search) searchExtensions()

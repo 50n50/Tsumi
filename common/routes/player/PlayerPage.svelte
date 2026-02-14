@@ -206,6 +206,21 @@
     subHeaders = subs?.headers
   }
 
+  async function loadExternalSubtitleUrl (url) {
+    if (!subs || !url) return
+    try {
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const text = await res.text()
+      const ext = url.split(/[?#]/)[0].split('.').pop()?.toLowerCase() || 'vtt'
+      const fileName = `Subtitles.${ext}`
+      const file = new File([text], fileName, { type: 'text/plain' })
+      await subs.addSingleSubtitleFile(file)
+    } catch (err) {
+      debug('Failed to fetch subtitle from URL:', url, err)
+    }
+  }
+
   function updateFiles (files) {
     if (files?.length) {
       videos = files.filter(file => videoRx.test(file.name))
@@ -295,7 +310,7 @@
       stopStream(video)
       const isHLS = file.url?.toLowerCase()?.includes('.m3u8')
       streamServers = file.streamServers || []
-      activeServerIndex = 0
+      activeServerIndex = file.activeServerIndex || 0
       try {
         await waitForVideo()
         await loadStream(video, file.url, { headers: file.streamHeaders || {} })
@@ -306,6 +321,10 @@
       if (video) {
         subs = new Subtitles(video, files, current, handleHeaders)
         if (!isHLS) video.load()
+        // Load external subtitle URL from extension stream response
+        if (file.subtitle) {
+          loadExternalSubtitleUrl(file.subtitle).catch(err => debug('Failed to load subtitle:', err))
+        }
       }
       await loadAnimeProgress()
     } else externalPlaying = false

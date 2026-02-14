@@ -39,6 +39,7 @@ const debug = Debug('ui:history')
  * @property {string} NOTIFICATIONS
  * @property {string} PROFILE
  * @property {string} EXTENSION_MENU
+ * @property {string} SERVER_SELECTOR
  * @property {string} TRAILER
  * @property {string} ANIME_DETAILS
  */
@@ -138,6 +139,13 @@ export const modal = (() => {
       priority: 7,
       get siblings() {
         return [MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.ANIME_DETAILS]
+      }
+    },
+    SERVER_SELECTOR: {
+      id: 'server_selector',
+      priority: 6,
+      get siblings() {
+        return [MODALS.EXTENSION_MENU, MODALS.ANIME_DETAILS]
       }
     },
     TRAILER: {
