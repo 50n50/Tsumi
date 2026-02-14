@@ -2,11 +2,18 @@
   import SoftModal from '@/components/modals/SoftModal.svelte'
   import ExtensionResults from '@/modals/extension/components/ExtensionResults.svelte'
   import { page, modal } from '@/modules/navigation.js'
+  import { settings } from '@/modules/settings.js'
 
   export function playAnime (media, episode = 1, force = false) {
     episode = Number(episode)
     episode = isNaN(episode) ? 1 : episode
-    modal.open(modal.EXTENSION_MENU, { media, episode })
+
+    // Use compact loading dialog when a default extension is set
+    if (settings.value.defaultExtension && !force) {
+      modal.open(modal.DEFAULT_LOADING, { media, episode })
+    } else {
+      modal.open(modal.EXTENSION_MENU, { media, episode })
+    }
   }
 </script>
 

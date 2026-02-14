@@ -686,54 +686,9 @@
   }
   $: updatePiPState(paused)
   function togglePopout () {
-    if (video.readyState) {
-      if (!subs?.renderer) {
-        if (video !== document.pictureInPictureElement) {
-          video.requestPictureInPicture()
-          resetImmerse()
-          pip = true
-        } else {
-          document.exitPictureInPicture()
-          pip = false
-        }
-      } else {
-        if (document.pictureInPictureElement && !document.pictureInPictureElement.id) {
-          // only exit if pip is the custom one, else overwrite existing pip with custom
-          document.exitPictureInPicture()
-          pip = false
-        } else {
-          const canvasVideo = document.createElement('video')
-          const { stream, destroy } = getBurnIn()
-          const cleanup = () => {
-            pip = false
-            destroy()
-            canvasVideo.remove()
-          }
-          pip = true
-          resetImmerse()
-          canvasVideo.srcObject = stream
-          canvasVideo.onloadedmetadata = () => {
-            canvasVideo.play()
-            if (pip) {
-              if (paused) canvasVideo.pause()
-              canvasVideo.requestPictureInPicture().then(pipwindow => {
-                pipwindow.onresize = () => {
-                  const { width, height } = pipwindow
-                  if (isNaN(width) || isNaN(height)) return
-                  if (!isFinite(width) || !isFinite(height)) return
-                  subs.renderer.resize(width, height)
-                }
-              }).catch(e => {
-                cleanup()
-                debug('Failed To Burn In Subtitles ' + e)
-              })
-            } else {
-              cleanup()
-            }
-          }
-          canvasVideo.onleavepictureinpicture = cleanup
-        }
-      }
+    if (video.readyState && $page === page.PLAYER) {
+      resetImmerse()
+      page.navigateTo(page.HOME)
     }
   }
   let fitWidth = false

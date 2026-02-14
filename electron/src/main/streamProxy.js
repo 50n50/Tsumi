@@ -27,7 +27,10 @@ export async function startStreamProxy() {
 
           const fetchOptions = {
             method: (method || 'GET').toUpperCase(),
-            headers: reqHeaders || {}
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+              ...(reqHeaders || {})
+            }
           }
 
           if (reqBody != null && fetchOptions.method !== 'GET' && fetchOptions.method !== 'HEAD') {

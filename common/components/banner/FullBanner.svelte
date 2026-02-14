@@ -12,6 +12,7 @@
   import Helper from '@/modules/helper.js'
   import { Play, Heart } from 'lucide-svelte'
   import { modal } from '@/modules/navigation.js'
+  import { fade } from 'svelte/transition'
 
   export let mediaList
 
@@ -51,7 +52,7 @@
 </script>
 
 {#key currentStatic}
-  <div class='position-absolute h-full w-full overflow-hidden z--1'>
+  <div class='position-absolute h-full w-full overflow-hidden z--1' in:fade={{ duration: 800 }} out:fade={{ duration: 800 }}>
     <SmartImage class={`img-cover position-absolute h-full w-full ${(!(currentStatic.bannerImage || currentStatic.trailer?.id) && settings.value.adult === 'hentai' && settings.value.hentaiBanner) ? 'banner-rotated' : ''}`} images={[currentStatic.bannerImage, ...(currentStatic.trailer?.id ? [`https://i.ytimg.com/vi/${currentStatic.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${currentStatic.trailer.id}/hqdefault.jpg`] : []), currentStatic.coverImage?.extraLarge, './404_banner.png']}/>
   </div>
 {/key}
@@ -180,7 +181,7 @@
     max-width: 100%;
     text-shadow: 2px 2px 4px hsla(var(--black-color-hsl), 1);
   }
-  .banner, img {
+  .banner {
     animation: fadeIn ease .8s;
     will-change: opacity;
   }

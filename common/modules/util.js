@@ -640,7 +640,8 @@ export const defaults = {
     atob('aHR0cDovL3RyYWNrZXIuYW5pcmVuYS5jb206ODAvYW5ub3VuY2U=')
   ],
   extensions: {},
-  defaultExtension: null
+  defaultExtension: null,
+  starredExtension: null
 }
 
 /**

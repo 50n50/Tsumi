@@ -21,7 +21,7 @@
   }
 </script>
 
-<div class='w-full h-400 position-relative'>
+<div class='w-full position-relative' style='height: 50rem'>
   {#await data}
     <BannerSk />
   {:then res}

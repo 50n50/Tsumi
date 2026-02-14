@@ -6,17 +6,17 @@ export default class Discord {
   defaultStatus = {
     activity: {
       timestamps: { start: Date.now() },
-      details: 'Streaming anime instantly',
-      state: 'Enjoying an anime episode...',
+      details: 'Watching anime on Tsumi',
+      state: 'Browsing the library',
       assets: {
         large_image: 'icon',
-        large_text: 'https://github.com/50n50/Tsumi',
+        large_text: 'Tsumi — Anime Streaming',
         small_image: 'sail',
-        small_text: 'Watching anime on Tsumi'
+        small_text: 'github.com/50n50/Tsumi'
       },
       buttons: [
         {
-          label: 'Download Tsumi',
+          label: 'Get Tsumi',
           url: 'https://github.com/50n50/Tsumi/releases/latest'
         }
       ],
@@ -25,7 +25,7 @@ export default class Discord {
     }
   }
 
-  discord = new Client({ transport: { type: 'ipc' }, clientId: '1301772260780019742' })
+  discord = new Client({ transport: { type: 'ipc' }, clientId: '1472362790013505607' })
 
   /** @type {string} */
   enableRPC = 'disabled'

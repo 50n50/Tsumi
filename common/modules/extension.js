@@ -43,38 +43,84 @@ async function getExtension(url, isJson = false) {
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
 function buildFetchv2Polyfill(proxyPort) {
+  const normAndWrap = `
+function __normArgs(url, headers, method, body) {
+  let h = headers || {};
+  let m = method;
+  let b = body;
+  // Handle options-object style: fetchv2(url, { headers, method, body })
+  if (h.headers && typeof h.headers === 'object') {
+    m = m || h.method;
+    b = b !== undefined ? b : h.body;
+    h = h.headers;
+  }
+  return { url, headers: h, method: (m || 'GET').toUpperCase(), body: b };
+}
+function __wrapResponse(response) {
+  const plain = {};
+  response.headers.forEach(function(v, k) { plain[k] = v; });
+  if (plain['x-set-cookie']) {
+    try {
+      var cookies = JSON.parse(plain['x-set-cookie']);
+      var val = Array.isArray(cookies) ? cookies.join(', ') : cookies;
+      plain['set-cookie'] = val;
+      plain['Set-Cookie'] = val;
+    } catch(_) {
+      plain['set-cookie'] = plain['x-set-cookie'];
+      plain['Set-Cookie'] = plain['x-set-cookie'];
+    }
+  }
+  return {
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+    headers: plain,
+    text: function() { return response.text(); },
+    json: function() { return response.json(); },
+    arrayBuffer: function() { return response.arrayBuffer(); },
+    blob: function() { return response.blob(); }
+  };
+}
+`
+
   if (!proxyPort) {
     // Fallback: direct fetch (User-Agent and other forbidden headers won't work)
     return `
+${normAndWrap}
 async function fetchv2(url, headers, method, body) {
-  const options = {
-    method: (method || 'GET').toUpperCase(),
-    headers: headers || {}
+  var args = __normArgs(url, headers, method, body);
+  var options = {
+    method: args.method,
+    headers: args.headers
   };
-  if (body != null && options.method !== 'GET' && options.method !== 'HEAD') {
-    options.body = typeof body === 'string' ? body : JSON.stringify(body);
+  if (args.body != null && args.method !== 'GET' && args.method !== 'HEAD') {
+    options.body = typeof args.body === 'string' ? args.body : JSON.stringify(args.body);
   }
-  return await fetch(url, options);
+  var response = await fetch(args.url, options);
+  return __wrapResponse(response);
 }
 `
   }
 
   // Route through the Node.js proxy so all headers (User-Agent, Cookie, Referer) work
   return `
+${normAndWrap}
 async function fetchv2(url, headers, method, body) {
-  const proxyBody = {
-    url: url,
-    headers: headers || {},
-    method: (method || 'GET').toUpperCase()
+  var args = __normArgs(url, headers, method, body);
+  var proxyBody = {
+    url: args.url,
+    headers: args.headers,
+    method: args.method
   };
-  if (body != null) {
-    proxyBody.body = body;
+  if (args.body != null) {
+    proxyBody.body = args.body;
   }
-  return await fetch('http://localhost:${proxyPort}/fetch', {
+  var response = await fetch('http://localhost:${proxyPort}/fetch', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(proxyBody)
   });
+  return __wrapResponse(response);
 }
 `
 }
@@ -241,8 +287,26 @@ class ExtensionManager {
   }
 
   unsetDefault() {
-    const { defaultExtension, ...rest } = settings.value
-    settings.set(rest)
+    settings.set({
+      ...settings.value,
+      defaultExtension: null
+    })
+    this.notify()
+  }
+
+  setStar(key) {
+    settings.set({
+      ...settings.value,
+      starredExtension: key
+    })
+    this.notify()
+  }
+
+  unsetStar() {
+    settings.set({
+      ...settings.value,
+      starredExtension: null
+    })
     this.notify()
   }
 
@@ -313,6 +377,8 @@ export const manager = {
   toggleExtension: (key, enabled) => extensionManager.toggleExtension(key, enabled),
   setDefault: (key) => extensionManager.setDefault(key),
   unsetDefault: () => extensionManager.unsetDefault(),
+  setStar: (key) => extensionManager.setStar(key),
+  unsetStar: () => extensionManager.unsetStar(),
   getEnabled: () => extensionManager.getEnabled(),
   callDefault: (...args) => extensionManager.callDefault(...args),
   callAll: (...args) => extensionManager.callAll(...args)

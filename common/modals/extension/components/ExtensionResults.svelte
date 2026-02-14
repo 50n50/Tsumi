@@ -7,7 +7,7 @@
   import { click } from '@/modules/click.js'
   import { toast } from 'svelte-sonner'
   import { parseStreamResponse } from '@/modules/streaming.js'
-  import { X, Loader, Play } from 'lucide-svelte'
+  import { X, Loader, Play, AlertTriangle } from 'lucide-svelte'
   import Debug from 'debug'
   const debug = Debug('ui:streams')
 
@@ -36,10 +36,17 @@
   let groupedResults = []
   let playingResult = null
   let expandedGroups = {}
+  let autoPlayActive = false
+  let autoPlayError = null
+
+  $: defaultFailed = search?.defaultFailed
+  $: failReason = search?.failReason
 
   async function searchExtensions () {
     loading = true
     groupedResults = []
+    autoPlayActive = false
+    autoPlayError = null
     const title = anilistClient.title(search?.media)
     if (!title) { loading = false; return }
 
@@ -47,9 +54,19 @@
     if (!enabled.length) { loading = false; return }
 
     const defaultKey = settings.value.defaultExtension
-    const sorted = defaultKey
-      ? [...enabled].sort((a, b) => (a.key === defaultKey ? -1 : b.key === defaultKey ? 1 : 0))
-      : enabled
+    const starredKey = settings.value.starredExtension
+
+    // Default extension auto-play is now handled by DefaultLoadingModal.
+    // If we get here with defaultFailed, skip auto-play and do normal search.
+    // If we get here without defaultFailed but with a default set, it means
+    // playAnime was called with force=true, so also do normal search.
+
+    // Normal flow: search all extensions, starred first
+    const sorted = [...enabled].sort((a, b) => {
+      if (a.key === starredKey && b.key !== starredKey) return -1
+      if (b.key === starredKey && a.key !== starredKey) return 1
+      return 0
+    })
 
     const searches = sorted.map(ext => callExtensionFunction(ext, 'searchResults', title)
       .then(raw => {
@@ -66,7 +83,7 @@
             extensionKey: ext.key,
             extensionName: ext.manifest?.sourceName || ext.key,
             extensionIcon: ext.manifest?.iconUrl,
-            isDefault: ext.key === defaultKey,
+            isStarred: ext.key === starredKey,
             results: scored
           }]
         }
@@ -199,6 +216,15 @@
 </div>
 
 <div class='mt-10 mb-sm-10 px-30'>
+  {#if defaultFailed}
+    <div class='d-flex align-items-center bg-dark-light rounded p-15 mb-20'>
+      <AlertTriangle size='2rem' class='text-warning mr-15 flex-shrink-0' />
+      <div>
+        <span class='font-weight-bold text-white font-scale-16'>Default extension failed</span>
+        <span class='text-muted font-scale-14 d-block mt-3'>{failReason || 'Unable to auto-play from your default extension.'} Showing all results instead.</span>
+      </div>
+    </div>
+  {/if}
   {#if loading}
       <div class='d-flex flex-column align-items-center justify-content-center mt-80'>
         <Loader size='4rem' class='spinning text-muted' />
@@ -223,8 +249,8 @@
               <img class='ext-icon mr-5' src={group.extensionIcon} alt='' />
             {/if}
             <span class='font-weight-bold font-scale-18 text-white'>{group.extensionName}</span>
-            {#if group.isDefault}
-              <span class='badge bg-primary border-0 ml-10 font-scale-12'>Default</span>
+            {#if group.isStarred}
+              <span class='badge bg-warning border-0 ml-10 font-scale-12'>Starred</span>
             {/if}
             <span class='text-muted ml-10 font-scale-14'>{group.results.length} result{group.results.length === 1 ? '' : 's'}</span>
           </div>

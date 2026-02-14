@@ -40,6 +40,7 @@ const debug = Debug('ui:history')
  * @property {string} PROFILE
  * @property {string} EXTENSION_MENU
  * @property {string} SERVER_SELECTOR
+ * @property {string} DEFAULT_LOADING
  * @property {string} TRAILER
  * @property {string} ANIME_DETAILS
  */
@@ -145,7 +146,14 @@ export const modal = (() => {
       id: 'server_selector',
       priority: 6,
       get siblings() {
-        return [MODALS.EXTENSION_MENU, MODALS.ANIME_DETAILS]
+        return [MODALS.EXTENSION_MENU, MODALS.DEFAULT_LOADING, MODALS.ANIME_DETAILS]
+      }
+    },
+    DEFAULT_LOADING: {
+      id: 'default_loading',
+      priority: 7,
+      get siblings() {
+        return [MODALS.NOTIFICATIONS, MODALS.PROFILE, MODALS.ANIME_DETAILS]
       }
     },
     TRAILER: {

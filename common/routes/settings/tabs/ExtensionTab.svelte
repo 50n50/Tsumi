@@ -2,7 +2,7 @@
   import { click } from '@/modules/click.js'
   import ConfirmButton from '@/components/inputs/ConfirmButton.svelte'
   import { manager } from '@/modules/extension.js'
-  import { TriangleAlert, FileQuestion, Trash2, CircleX, Plus, Star, SquarePlus } from 'lucide-svelte'
+  import { TriangleAlert, FileQuestion, Trash2, CircleX, Plus, Star, SquarePlus, GripVertical, Crown, X } from 'lucide-svelte'
 
   export let settings
 
@@ -15,8 +15,18 @@
     manifest: config.manifest
   }))
 
+  $: defaultExt = settings.defaultExtension ? allExtensions.find(e => e.key === settings.defaultExtension) : null
+  $: otherExtensions = allExtensions
+    .filter(e => e.key !== settings.defaultExtension)
+    .sort((a, b) => {
+      if (a.key === settings.starredExtension && b.key !== settings.starredExtension) return -1
+      if (b.key === settings.starredExtension && a.key !== settings.starredExtension) return 1
+      return 0
+    })
+
   let sourceUrl = ''
   let showAddDialog = false
+  let dragOverDefault = false
 
   async function addSource () {
     if (!sourceUrl?.length || pendingSource) return
@@ -35,14 +45,40 @@
   async function removeSource (key) {
     if (pendingSource) return
     pendingSource = true
+    if (settings.defaultExtension === key) manager.unsetDefault()
+    if (settings.starredExtension === key) manager.unsetStar()
     await manager.removeExtension(key)
     pendingSource = false
   }
 
-  function toggleDefault (key) {
-    if (settings.defaultExtension === key) {
-      manager.unsetDefault()
+  function toggleStar (key) {
+    if (settings.starredExtension === key) {
+      manager.unsetStar()
     } else {
+      manager.setStar(key)
+    }
+  }
+
+  function handleDragStart (e, key) {
+    e.dataTransfer.setData('text/plain', key)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  function handleDragOver (e) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    dragOverDefault = true
+  }
+
+  function handleDragLeave () {
+    dragOverDefault = false
+  }
+
+  function handleDrop (e) {
+    e.preventDefault()
+    dragOverDefault = false
+    const key = e.dataTransfer.getData('text/plain')
+    if (key && allExtensions.some(ext => ext.key === key)) {
       manager.setDefault(key)
     }
   }
@@ -103,10 +139,61 @@
       </div>
     </div>
   {:else}
-    {#each allExtensions as ext}
-      {@const isDefault = settings.defaultExtension === ext.key}
-      <div class='card m-0 p-15 mb-10 bg-dark-light border position-relative' class:extension-disabled={!ext.enabled} style='border-color: {isDefault ? "var(--primary-color)" : "var(--dark-color-light)"} !important'>
+    <!-- Default Extension Section -->
+    <div class='mb-20'>
+      <div class='d-flex align-items-center mb-5'>
+        <Crown size='1.6rem' class='mr-5' style='color: var(--primary-color)' />
+        <span class='font-weight-bold font-scale-16'>Default Extension</span>
+      </div>
+      <div class='text-muted font-scale-14 mb-10'>Drag an extension here to set it as default. The default extension is used automatically — Tsumi will pick the best match and start playing without manual selection.</div>
+
+      {#if defaultExt}
+        <div class='card m-0 p-15 mb-10 bg-dark-light border position-relative default-card' class:extension-disabled={!defaultExt.enabled} role='region' on:dragover={handleDragOver} on:dragleave={handleDragLeave} on:drop={handleDrop}>
+          <div class='d-flex'>
+            {#if defaultExt.manifest?.iconUrl}
+              <img class='w-43 h-43 rounded' src={defaultExt.manifest.iconUrl} alt={defaultExt.manifest.sourceName} title={defaultExt.manifest.sourceName} />
+            {:else}
+              <FileQuestion size='4.3rem' />
+            {/if}
+            <div class='ml-10 mb-5 mb-md-0 overflow-hidden'>
+              <div class='font-size-18 font-weight-bold text-truncate'>{defaultExt.manifest?.sourceName || defaultExt.key}</div>
+              {#if defaultExt.manifest?.language}<div class='text-muted pre-wrap'>{defaultExt.manifest.language}</div>{/if}
+              <div class='text-muted font-scale-12 text-truncate'>{defaultExt.url}</div>
+            </div>
+            <div class='d-flex align-items-center ml-auto gap-10'>
+              <button type='button' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 p-0' use:click={() => manager.unsetDefault()} title='Remove as Default'>
+                <X size='1.8rem' color='var(--gray-color-very-dim)' />
+              </button>
+            </div>
+          </div>
+          <div class='d-flex flex-wrap align-items-end'>
+            {#if defaultExt.manifest?.version}<span class='badge border-0 bg-light pl-10 pr-10 mt-10 font-scale-16'>{defaultExt.manifest.version}</span>{/if}
+            {#if defaultExt.manifest?.streamType}<span class='badge border-0 bg-light pl-10 pr-10 ml-10 mt-10 font-scale-16'>{defaultExt.manifest.streamType}</span>{/if}
+          </div>
+        </div>
+      {:else}
+        <div class='drop-zone rounded-2 p-20 d-flex align-items-center justify-content-center mb-10'
+          class:drop-zone-active={dragOverDefault}
+          role='region'
+          on:dragover={handleDragOver}
+          on:dragleave={handleDragLeave}
+          on:drop={handleDrop}>
+          <span class='text-muted font-scale-14'>Drag an extension here to set it as default</span>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Extensions List -->
+    <div class='d-flex align-items-center mb-10'>
+      <span class='font-weight-bold font-scale-16'>Extensions</span>
+    </div>
+    {#each otherExtensions as ext}
+      {@const isStarred = settings.starredExtension === ext.key}
+      <div class='card m-0 p-15 mb-10 bg-dark-light border position-relative' class:extension-disabled={!ext.enabled} style='border-color: {isStarred ? "var(--warning-color)" : "var(--dark-color-light)"} !important' draggable='true' role='listitem' on:dragstart={(e) => handleDragStart(e, ext.key)}>
         <div class='d-flex'>
+          <div class='d-flex align-items-center mr-10 drag-handle' title='Drag to set as default'>
+            <GripVertical size='1.6rem' color='var(--gray-color-very-dim)' />
+          </div>
           {#if ext.manifest?.iconUrl}
             <img class='w-43 h-43 rounded' src={ext.manifest.iconUrl} alt={ext.manifest.sourceName} title={ext.manifest.sourceName} />
           {:else}
@@ -118,8 +205,8 @@
             <div class='text-muted font-scale-12 text-truncate'>{ext.url}</div>
           </div>
           <div class='d-flex align-items-center ml-auto gap-10'>
-            <button type='button' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 p-0' use:click={() => toggleDefault(ext.key)} title={isDefault ? 'Remove as Default' : 'Set as Default'}>
-              <Star size='1.8rem' fill={isDefault ? 'var(--warning-color)' : 'none'} color={isDefault ? 'var(--warning-color)' : 'var(--gray-color-very-dim)'} />
+            <button type='button' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 p-0' use:click={() => toggleStar(ext.key)} title={isStarred ? 'Unstar' : 'Star — always show at the top of search results'}>
+              <Star size='1.8rem' fill={isStarred ? 'var(--warning-color)' : 'none'} color={isStarred ? 'var(--warning-color)' : 'var(--gray-color-very-dim)'} />
             </button>
             <ConfirmButton click={() => removeSource(ext.key)} title='Delete Extension' class='btn btn-square d-flex align-items-center justify-content-center bg-transparent shadow-none border-0 {pendingSource ? "cursor-wait" : ""} text-danger' disabled={pendingSource} primaryClass='' confirmText='' cancelText='' confirmClass='btn-square text-success w-auto' cancelClass='ml-10 text-muted w-auto' actionClass='d-inline-flex flex-row-reverse'>
               <Trash2 size='1.8rem' />
@@ -157,9 +244,6 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
-  .w-150 {
-    width: 15rem;
-  }
   .solid-border {
     border: .1rem solid;
   }
@@ -188,6 +272,24 @@
   .add-popup {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     animation: popupFadeIn 0.2s ease-in-out;
+  }
+  .drop-zone {
+    border: 2px dashed var(--gray-color-very-dim);
+    min-height: 6rem;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .drop-zone-active {
+    border-color: var(--primary-color);
+    background-color: hsla(var(--primary-color-dim-hsl), 0.1);
+  }
+  .default-card {
+    border-color: var(--primary-color) !important;
+  }
+  .drag-handle {
+    cursor: grab;
+  }
+  .drag-handle:active {
+    cursor: grabbing;
   }
   @keyframes overlayFadeIn {
     from { opacity: 0; }
