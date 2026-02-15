@@ -117,12 +117,7 @@
           <SquarePlus class='mr-5' size='1.6rem' /><span>Add</span>
         </button>
       </div>
-      {#if !allExtensions.length}
-        <button type='button' class='btn bg-dark-light rounded-2 p-10 w-full d-flex align-items-center font-scale-16 mt-10' use:click={() => { sourceUrl = './extensions/example.json'; addSource() }}>
-          <SquarePlus size='1.8rem' class='mr-10' style='color: var(--success-color)' />
-          <span>Try the built-in example extension</span>
-        </button>
-      {/if}
+
     </div>
   </div>
 {/if}
