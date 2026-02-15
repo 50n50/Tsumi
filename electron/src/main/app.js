@@ -177,12 +177,18 @@ export default class App {
       process.on('message', data => {
         if (data === 'graceful-exit') this.destroy()
       })
-      electronShutdownHandler?.setWindowHandle(this.mainWindow.getNativeWindowHandle())
-      electronShutdownHandler?.blockShutdown('Shutting down...')
-      electronShutdownHandler?.on('shutdown', async () => {
-        await this.destroy()
-        electronShutdownHandler.releaseShutdown()
-      })
+      try {
+        if (electronShutdownHandler && typeof electronShutdownHandler.setWindowHandle === 'function') {
+          electronShutdownHandler.setWindowHandle(this.mainWindow.getNativeWindowHandle())
+          electronShutdownHandler.blockShutdown('Shutting down...')
+          electronShutdownHandler.on('shutdown', async () => {
+            await this.destroy()
+            electronShutdownHandler.releaseShutdown()
+          })
+        }
+      } catch (e) {
+        console.warn('electron-shutdown-handler failed to initialize:', e.message)
+      }
     } else {
       process.on('SIGTERM', () => this.destroy())
     }
