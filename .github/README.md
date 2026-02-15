@@ -8,6 +8,10 @@ A modern, feature-rich anime streaming application. **Tsumi** is a fork of [Shir
 
 > **Note:** This project is a community fork focused on extension-based streaming. It's not affiliated with the original Shiru project.
 
+#
+
+**For any issues or support please join the [Discord server!](https://discord.gg/tKNhqkDnW2)**
+
 ## Features
 
 ### 🎬 Streaming & Playback
