@@ -142,12 +142,13 @@
         streamingEpisode.title = (titleParts?.[0]?.trim() === titleParts?.[1]?.trim()) ? titleParts?.[0]?.trim() : streamingEpisode.title
       }
 
+      const foundEpisodeTitle = (streamingEpisode && (episodeRx.exec(streamingEpisode.title)?.[2] || episodeRx.exec(streamingEpisode.title))) || ((media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1) ? 'The Movie' : '')
       const details = {
         title: anilistClient.title(media) || parseObject?.anime_title || parseObject?.file_name,
         zeroEpisode,
         episode: ep,
         episodeRange,
-        episodeTitle: (streamingEpisode && (episodeRx.exec(streamingEpisode.title)?.[2] || episodeRx.exec(streamingEpisode.title))) || ((media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1) ? 'The Movie' : ''),
+        episodeTitle: foundEpisodeTitle && media?.episodes === 1 && (foundEpisodeTitle.match(/ web|web |movie/i) || foundEpisodeTitle.toLowerCase() === 'web') ? 'The Movie' : foundEpisodeTitle,
         thumbnail: media?.coverImage?.extraLarge
       }
 

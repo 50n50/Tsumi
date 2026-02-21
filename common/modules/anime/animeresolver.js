@@ -435,8 +435,8 @@ export default new class AnimeResolver {
       debug(`${failed || !(media?.title?.userPreferred) ? `Failed to resolve` : `Resolved`} ${parseObj.anime_title} ${parseObj.episode_number} ${episode} ${media?.id}:${media?.title?.userPreferred}`)
       const guessedEpisode = isValidNumber(episode) ? episode : episode ? episode : isValidNumber(parseObj.episode_number) ? parseObj.episode_number : parseObj.episode_number ? parseObj.episode_number : media?.episodes === 1 ? 1 : media?.format === 'MOVIE' && (media?.episodes ?? 0) <= 1 ? 1 : null
       fileAnimes.push({
-        episode: isValidNumber(guessedEpisode) ? Math.abs(guessedEpisode) : guessedEpisode,
-        ...(!media || media?.format !== 'MOVIE' || parseObj?.anime_season ? {season: parseObj?.anime_season ? Number(parseObj.anime_season) : 1} : {}),
+        episode: isValidNumber(guessedEpisode) ? Math.abs(guessedEpisode) === 0 && media?.episodes === 1 ? 1 : Math.abs(guessedEpisode) : guessedEpisode,
+        ...(!media || media?.format !== 'MOVIE' || parseObj?.anime_season ? { season: parseObj?.anime_season ? Number(parseObj.anime_season) : 1 } : {}),
         parseObject: parseObj,
         media,
         failed: failed || !(media?.title?.userPreferred) || (isValidNumber(guessedEpisode) && Number(guessedEpisode) < 0)
