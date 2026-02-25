@@ -1063,3 +1063,15 @@ img[src=''], img[src=' '] {
     scale: 1.01;
   }
 }
+
+@media (min-width: 577px) {
+  .pl-sm-30 {
+    padding-left: 3rem !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .pl-md-80 {
+    padding-left: 8rem !important;
+  }
+}

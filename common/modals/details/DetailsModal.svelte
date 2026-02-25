@@ -277,6 +277,11 @@
     }
   }
 
+  let modalHideBanner = false;
+  function handleScroll(e) {
+    modalHideBanner = e.target.scrollTop > 100;
+  }
+
   onDestroy(() => resizeObserver?.disconnect());
 </script>
 
@@ -291,16 +296,17 @@
   <div
     class="h-full modal-content bg-dark p-0 overflow-y-auto position-relative"
     bind:this={container}
+    on:scroll={handleScroll}
   >
     {#if staticMedia}
       <button
-        class="close pointer z-30 bg-dark-light top-20 right-0 position-fixed"
+        class="close pointer z-30 bg-dark-light top-20 right-0 position-fixed mr-30"
         type="button"
         use:click={() => close()}
       >
         &times;
       </button>
-      <div class="detail-banner-layer">
+      <div class="detail-banner-layer" class:opacity-low={modalHideBanner}>
         <SmartImage
           class="img-cover position-absolute h-full w-full"
           images={[
@@ -316,7 +322,7 @@
           ]}
         />
       </div>
-      <div class="row px-20">
+      <div class="row px-sm-30 px-md-80">
         <div class="col-lg-7 col-12 pb-10">
           <div bind:this={leftColumn}>
             <div
@@ -495,7 +501,7 @@
             <Details media={staticMedia} alt={recommendations} />
             <div
               bind:this={scrollTags}
-              class="m-0 px-20 pb-0 pt-10 d-flex flex-row text-nowrap overflow-x-scroll text-capitalize align-items-start"
+              class="m-0 px-sm-30 px-md-80 pb-0 pt-10 d-flex flex-row text-nowrap overflow-x-scroll text-capitalize align-items-start"
             >
               {#each staticMedia.tags as tag}
                 <div
@@ -509,7 +515,7 @@
             </div>
             <div
               bind:this={scrollGenres}
-              class="m-0 px-20 pb-0 pt-10 d-flex flex-row text-nowrap overflow-x-scroll text-capitalize align-items-start"
+              class="m-0 px-sm-30 px-md-80 pb-0 pt-10 d-flex flex-row text-nowrap overflow-x-scroll text-capitalize align-items-start"
             >
               {#each staticMedia.genres as genre}
                 <div
@@ -530,7 +536,7 @@
               >
                 <hr class="w-full" />
                 <div
-                  class="font-size-18 font-weight-semi-bold px-20 text-white"
+                  class="font-size-18 font-weight-semi-bold px-sm-30 px-md-80 text-white"
                 >
                   Synopsis
                 </div>
@@ -741,6 +747,11 @@
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+  .detail-banner-layer.opacity-low {
+    opacity: 0;
   }
   .detail-banner-layer::after {
     content: "";

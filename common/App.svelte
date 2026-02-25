@@ -87,14 +87,6 @@
   <Menubar />
   <Sidebar />
   <Navbar />
-  {#if $bannerImages && $page === page.HOME && !$modal[modal.ANIME_DETAILS]}
-    <div class="banner-image-layer" class:opacity-low={$hideBanner}>
-      <SmartImage
-        class={`img-cover position-absolute h-full w-full ${$bannerImages.rotated ? "banner-rotated" : ""}`}
-        images={$bannerImages.images}
-      />
-    </div>
-  {/if}
   <div
     class="content-wrapper h-full"
     class:status-transition={$statusTransition}
@@ -132,37 +124,8 @@
     z-index: 1;
   }
   .page-wrapper > .content-wrapper {
-    margin-left: var(--sidebar-minimised) !important;
-    width: calc(100% - var(--sidebar-minimised)) !important;
+    margin-left: 0 !important;
+    width: 100% !important;
     height: calc(100% - var(--wrapper-offset, 0rem)) !important;
-  }
-  .banner-image-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 80vh;
-    overflow: hidden;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-  }
-  .banner-image-layer.opacity-low {
-    opacity: 0;
-  }
-  .banner-image-layer::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-      74% 66% at 60% 35%,
-      rgba(0, 0, 0, 0.15) 31%,
-      rgba(0, 0, 0, 1) 100%
-    );
-    z-index: 1;
   }
 </style>

@@ -99,8 +99,14 @@
   style="width: 4rem; height: 4rem"
   alt="ico"
 />
+<div class="banner-image-layer" class:opacity-low={$hideBanner}>
+  <SmartImage
+    class={`img-cover position-absolute h-full w-full ${$bannerImages?.rotated ? "banner-rotated" : ""}`}
+    images={$bannerImages?.images || []}
+  />
+</div>
 <div
-  class="pl-20 pb-20 justify-content-end d-flex flex-column h-full banner mw-full grab"
+  class="pl-sm-30 pl-md-80 pb-20 justify-content-end d-flex flex-column h-full banner mw-full grab"
   use:drag={swipeMedia}
 >
   <div class="text-white font-weight-bold font-scale-40">
@@ -244,6 +250,35 @@
   }
   .progress-badge {
     transition: width 0.8s ease;
+  }
+  .banner-image-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+  .banner-image-layer.opacity-low {
+    opacity: 0;
+  }
+  .banner-image-layer::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      74% 66% at 60% 35%,
+      rgba(0, 0, 0, 0.15) 31%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    z-index: 1;
   }
   .progress-badge.active .progress-content {
     animation: fill 15s ease-out;

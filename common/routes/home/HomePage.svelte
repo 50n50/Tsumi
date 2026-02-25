@@ -228,7 +228,7 @@
   bind:this={scrollContainer}
 >
   <Banner data={$bannerData} />
-  <div class="d-flex flex-column h-full w-full mt-15">
+  <div class="d-flex flex-column h-full w-full mt-15 pl-sm-30 pl-md-80">
     {#each manager.sections as section, i (i)}
       {#if !section.hide}
         <HomeSection bind:opts={section} lastEpisode={isPreviousRSS(i)} />
