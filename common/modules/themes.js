@@ -16,9 +16,12 @@ variables.subscribe(value => {
 })
 
 export function setStyle(value) {
-  document.documentElement.setAttribute('data-theme', settings.value.presetTheme)
+  if (settings.value.presetTheme !== 'default-amoled') {
+    settings.update(s => ({ ...s, presetTheme: 'default-amoled' }))
+  }
+  document.documentElement.setAttribute('data-theme', 'default-amoled')
   document.querySelector('meta[name="theme-color"]').setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim())
-  style.textContent = `:root[data-theme='${settings.value.presetTheme}']{${(value || variables.value).replace(/{|}/g, '')}}`
+  style.textContent = `:root[data-theme='default-amoled']{${(value || variables.value).replace(/{|}/g, '')}}`
 }
 
 export function setScale() {

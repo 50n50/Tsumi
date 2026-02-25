@@ -28,12 +28,7 @@
 {/if}
 
 <h4 class='mb-10 font-weight-bold'>Interface Settings</h4>
-<SettingCard title='Theme' description='Select how the app looks and feels, including colors, layouts, and other visual styles.'>
-  <select class='form-control bg-dark w-160 mw-full text-truncate' bind:value={settings.presetTheme} on:change={() => setStyle()}>
-    <option value='default-dark' selected>Default (Dark)</option>
-    <option value='default-amoled'>Default (AMOLED)</option>
-  </select>
-</SettingCard>
+
 <SettingCard title='Scale' description='Adjust the size of text, buttons, and other interface elements to match your preference and screen size.'>
   <div class='form-group w-160 flex-shrink-0 my-auto'>
     <input class='w-full p-2 bg-dark-light' type='range' id='ui-scale' min='0.5' max='2' step='0.05' bind:value={settings.uiScale} on:change={() => setScale()}/>
