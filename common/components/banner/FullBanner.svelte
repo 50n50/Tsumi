@@ -109,7 +109,7 @@
   class="pl-sm-30 pl-md-80 pb-20 justify-content-end d-flex flex-column h-full banner mw-full grab"
   use:drag={swipeMedia}
 >
-  <div class="pl-20 flex-column d-flex overflow-hidden">
+  <div class="pl-15 pl-md-20 flex-column d-flex overflow-hidden">
     <div class="text-white font-weight-bold font-scale-40">
       <span class="default-cursor title overflow-hidden d-inline-block pr-5"
         >{anilistClient.title(currentStatic)}</span
@@ -289,16 +289,19 @@
     z-index: 1;
   }
   .progress-badge.active .progress-content {
-    animation: fill 15s ease-out;
-    will-change: width;
+    animation: fill 15s linear;
+    will-change: transform;
+    transform-origin: left;
+    width: 100%;
+    height: 100%;
   }
 
   @keyframes fill {
     from {
-      width: 0;
+      transform: scaleX(0);
     }
     to {
-      width: 100%;
+      transform: scaleX(1);
     }
   }
   .banner-gradient::after {
