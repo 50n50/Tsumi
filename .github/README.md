@@ -4,7 +4,7 @@
 
 #
 
-A modern, feature-rich anime streaming application. **Tsumi** is a fork of [Shiru](https://github.com/TechnicallySentient/Shiru) modified to use **Sora extensions** for seamless anime discovery and playback.
+A modern, feature-rich anime streaming application. **Tsumi** is an old fork of [Hayase](https://hayase.watch/) by ThaUnknown, modified to use **Sora extensions** for seamless anime discovery and playback.
 
 > **Note:** This project is a community fork focused on extension-based streaming. It's not affiliated with the original Shiru project.
 
