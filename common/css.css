@@ -1048,6 +1048,15 @@ img[src=' '] {
   padding-left: 4rem;
 }
 
+.pl-20 {
+  padding-left: 2rem;
+}
+
+.px-20 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
 .py-30 {
   padding-top: 3rem;
   padding-bottom: 3rem;

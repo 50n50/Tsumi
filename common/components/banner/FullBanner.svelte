@@ -109,135 +109,143 @@
   class="pl-sm-30 pl-md-80 pb-20 justify-content-end d-flex flex-column h-full banner mw-full grab"
   use:drag={swipeMedia}
 >
-  <div class="text-white font-weight-bold font-scale-40">
-    <span class="default-cursor title overflow-hidden d-inline-block pr-5"
-      >{anilistClient.title(currentStatic)}</span
+  <div class="pl-20 flex-column d-flex overflow-hidden">
+    <div class="text-white font-weight-bold font-scale-40">
+      <span class="default-cursor title overflow-hidden d-inline-block pr-5"
+        >{anilistClient.title(currentStatic)}</span
+      >
+    </div>
+    <div
+      class="details text-white text-capitalize pt-10 pb-10 d-flex w-600 mw-full default-cursor"
     >
-  </div>
-  <div
-    class="details text-white text-capitalize pt-10 pb-10 d-flex w-600 mw-full default-cursor"
-  >
-    <span class="text-nowrap d-flex align-items-center">
-      {#if currentStatic.format}
-        {formatMap[currentStatic.format]}
-      {/if}
-    </span>
-    {#if currentStatic.episodes && currentStatic.episodes !== 1}
       <span class="text-nowrap d-flex align-items-center">
-        {#if current.mediaListEntry?.status === "CURRENT" && current.mediaListEntry?.progress}
-          {current.mediaListEntry.progress} / {currentStatic.episodes} Episodes
-        {:else}
-          {currentStatic.episodes} Episodes
+        {#if currentStatic.format}
+          {formatMap[currentStatic.format]}
         {/if}
       </span>
-    {:else if currentStatic.duration}
-      <span class="text-nowrap d-flex align-items-center">
-        {currentStatic.duration + " Minutes"}
-      </span>
-    {/if}
-    {#if settings.value.cardAudio}
-      <span class="text-nowrap d-flex align-items-center">
-        <AudioLabel bind:media={currentStatic} banner={true} />
-      </span>
-    {/if}
-    {#if currentStatic.isAdult}
-      <span class="text-nowrap d-flex align-items-center"> Rated 18+ </span>
-    {/if}
-    {#if currentStatic.season || currentStatic.seasonYear}
-      <span class="text-nowrap d-flex align-items-center">
-        {[currentStatic.season?.toLowerCase(), currentStatic.seasonYear]
-          .filter((s) => s)
-          .join(" ")}
-      </span>
-    {/if}
-  </div>
-  <div class="h-100">
-    <div class="text-muted line-4 overflow-hidden w-600 mw-full default-cursor">
-      {currentStatic.description
-        ?.replace(/<[^>]*>/g, "")
-        .replace(/\s+/g, " ")
-        .trim() || ""}
+      {#if currentStatic.episodes && currentStatic.episodes !== 1}
+        <span class="text-nowrap d-flex align-items-center">
+          {#if current.mediaListEntry?.status === "CURRENT" && current.mediaListEntry?.progress}
+            {current.mediaListEntry.progress} / {currentStatic.episodes} Episodes
+          {:else}
+            {currentStatic.episodes} Episodes
+          {/if}
+        </span>
+      {:else if currentStatic.duration}
+        <span class="text-nowrap d-flex align-items-center">
+          {currentStatic.duration + " Minutes"}
+        </span>
+      {/if}
+      {#if settings.value.cardAudio}
+        <span class="text-nowrap d-flex align-items-center">
+          <AudioLabel bind:media={currentStatic} banner={true} />
+        </span>
+      {/if}
+      {#if currentStatic.isAdult}
+        <span class="text-nowrap d-flex align-items-center"> Rated 18+ </span>
+      {/if}
+      {#if currentStatic.season || currentStatic.seasonYear}
+        <span class="text-nowrap d-flex align-items-center">
+          {[currentStatic.season?.toLowerCase(), currentStatic.seasonYear]
+            .filter((s) => s)
+            .join(" ")}
+        </span>
+      {/if}
     </div>
-  </div>
-  <div
-    class="details text-white text-capitalize pt-15 pb-10 d-flex w-600 mw-full default-cursor"
-  >
-    {#each currentStatic.genres as genre}
-      <span class="text-nowrap d-flex align-items-center">
-        {genre}
-      </span>
-    {/each}
-  </div>
-  <div class="d-flex flex-row pb-10 w-600 mw-full default-cursor">
-    <button
-      class="btn bg-dark-light px-20 shadow-none border-0 d-flex align-items-center justify-content-center"
-      title="Watch"
-      use:click={() => playMedia(currentStatic)}
-    >
-      <Play class="mr-10" size="1.7rem" />
-      <span
-        >{current.mediaListEntry?.progress
-          ? current.mediaListEntry?.status === "COMPLETED"
-            ? "Rewatch Now"
-            : "Continue Now"
-          : "Watch Now"}</span
-      >
-    </button>
-    <button
-      class="btn bg-dark-light ml-10 px-20 shadow-none border-0 d-flex align-items-center justify-content-center"
-      title="View Details"
-      use:click={() => modal.open(modal.ANIME_DETAILS, current)}
-    >
-      <span>View Details</span>
-    </button>
-    {#if Helper.isAuthorized()}
-      <Scoring media={current} />
-    {/if}
-    {#if Helper.isAniAuth()}
-      <button
-        class="btn bg-dark-light btn-square ml-10 d-flex align-items-center justify-content-center shadow-none border-0"
-        data-toggle="tooltip"
-        data-placement="top"
-        data-target-breakpoint="md"
-        data-title={current.isFavourite ? "Unfavourite" : "Favourite"}
-        use:click={toggleFavourite}
-        disabled={!Helper.isAniAuth()}
-      >
-        <div class="favourite d-flex align-items-center justify-content-center">
-          <Heart
-            color={current.isFavourite
-              ? "var(--tertiary-color)"
-              : "currentColor"}
-            fill={current.isFavourite ? "var(--tertiary-color)" : "transparent"}
-            size="1.7rem"
-          />
-        </div>
-      </button>
-    {/if}
-  </div>
-  <div class="d-flex">
-    {#each mediaList as media}
-      {@const active = currentStatic?.id === media?.id}
-      {@const disabled = active || null}
+    <div class="h-100">
       <div
-        class="pt-10 pb-10 badge-wrapper"
-        aria-hidden="true"
-        {disabled}
-        class:pointer={!active}
-        class:default-cursor={active}
-        use:click={() => setCurrent(media)}
+        class="text-muted line-4 overflow-hidden w-600 mw-full default-cursor"
       >
-        <div
-          class="rounded bg-dark-light mr-10 progress-badge overflow-hidden progressive"
-          {disabled}
-          class:active
-          style="height: 3px;"
-          style:width={active ? "5rem" : "2.7rem"}
-        >
-          <div class="progress-content h-full" class:bg-white={active} />
-        </div>
+        {currentStatic.description
+          ?.replace(/<[^>]*>/g, "")
+          .replace(/\s+/g, " ")
+          .trim() || ""}
       </div>
-    {/each}
+    </div>
+    <div
+      class="details text-white text-capitalize pt-15 pb-10 d-flex w-600 mw-full default-cursor"
+    >
+      {#each currentStatic.genres as genre}
+        <span class="text-nowrap d-flex align-items-center">
+          {genre}
+        </span>
+      {/each}
+    </div>
+    <div class="d-flex flex-row pb-10 w-600 mw-full default-cursor">
+      <button
+        class="btn bg-dark-light px-20 shadow-none border-0 d-flex align-items-center justify-content-center"
+        title="Watch"
+        use:click={() => playMedia(currentStatic)}
+      >
+        <Play class="mr-10" size="1.7rem" />
+        <span
+          >{current.mediaListEntry?.progress
+            ? current.mediaListEntry?.status === "COMPLETED"
+              ? "Rewatch Now"
+              : "Continue Now"
+            : "Watch Now"}</span
+        >
+      </button>
+      <button
+        class="btn bg-dark-light ml-10 px-20 shadow-none border-0 d-flex align-items-center justify-content-center"
+        title="View Details"
+        use:click={() => modal.open(modal.ANIME_DETAILS, current)}
+      >
+        <span>View Details</span>
+      </button>
+      {#if Helper.isAuthorized()}
+        <Scoring media={current} />
+      {/if}
+      {#if Helper.isAniAuth()}
+        <button
+          class="btn bg-dark-light btn-square ml-10 d-flex align-items-center justify-content-center shadow-none border-0"
+          data-toggle="tooltip"
+          data-placement="top"
+          data-target-breakpoint="md"
+          data-title={current.isFavourite ? "Unfavourite" : "Favourite"}
+          use:click={toggleFavourite}
+          disabled={!Helper.isAniAuth()}
+        >
+          <div
+            class="favourite d-flex align-items-center justify-content-center"
+          >
+            <Heart
+              color={current.isFavourite
+                ? "var(--tertiary-color)"
+                : "currentColor"}
+              fill={current.isFavourite
+                ? "var(--tertiary-color)"
+                : "transparent"}
+              size="1.7rem"
+            />
+          </div>
+        </button>
+      {/if}
+    </div>
+    <div class="d-flex">
+      {#each mediaList as media}
+        {@const active = currentStatic?.id === media?.id}
+        {@const disabled = active || null}
+        <div
+          class="pt-10 pb-10 badge-wrapper"
+          aria-hidden="true"
+          {disabled}
+          class:pointer={!active}
+          class:default-cursor={active}
+          use:click={() => setCurrent(media)}
+        >
+          <div
+            class="rounded bg-dark-light mr-10 progress-badge overflow-hidden progressive"
+            {disabled}
+            class:active
+            style="height: 3px;"
+            style:width={active ? "5rem" : "2.7rem"}
+          >
+            <div class="progress-content h-full" class:bg-white={active} />
+          </div>
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
