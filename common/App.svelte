@@ -87,7 +87,7 @@
   <Menubar />
   <Sidebar />
   <Navbar />
-  {#if $bannerImages && !$modal[modal.ANIME_DETAILS]}
+  {#if $bannerImages && $page === page.HOME && !$modal[modal.ANIME_DETAILS]}
     <div class="banner-image-layer" class:opacity-low={$hideBanner}>
       <SmartImage
         class={`img-cover position-absolute h-full w-full ${$bannerImages.rotated ? "banner-rotated" : ""}`}
