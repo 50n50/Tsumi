@@ -1,7 +1,7 @@
 <script>
   import { settings } from "@/modules/settings.js";
   import { cache, caches } from "@/modules/cache.js";
-  import { page, modal, playPage } from "@/modules/navigation.js";
+  import { page, modal, playPage, goBack } from "@/modules/navigation.js";
   import {
     getAnimeProgress,
     setAnimeProgress,
@@ -87,7 +87,10 @@
     }
     nowPlaying.set({});
     filesStore.set([]);
-    if ($page === page.PLAYER) page.navigateTo(page.HOME);
+    if ($page === page.PLAYER) {
+      if (document.fullscreenElement) document.exitFullscreen();
+      goBack();
+    }
   }
 
   w2gEmitter.on("playerupdate", (detail) => {

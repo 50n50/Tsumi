@@ -332,6 +332,8 @@ class HistoryManager {
     const filteredModals = { ...modal.value }
     delete filteredModals[modal.MINIMIZE_PROMPT]
     delete filteredModals[modal.UPDATE_PROMPT]
+    delete filteredModals[modal.DEFAULT_LOADING]
+    delete filteredModals[modal.EXTENSION_MENU]
     if (Object.keys(filteredModals).length > 0) {
       debug('Page navigation with open modals, logging modal state first', JSON.stringify(filteredModals))
       this.addHistoryEntry('modal', filteredModals)
@@ -473,6 +475,8 @@ class HistoryManager {
       const filteredValue = { ...value }
       delete filteredValue[modal.MINIMIZE_PROMPT]
       delete filteredValue[modal.UPDATE_PROMPT]
+      delete filteredValue[modal.DEFAULT_LOADING]
+      delete filteredValue[modal.EXTENSION_MENU]
       const previousEntry = this.history[this.currentIndex]
       const previousValue = previousEntry?.type === 'modal' ? { ...previousEntry.value } : {}
       if (previousEntry?.type === 'modal' && JSON.stringify(filteredValue) === JSON.stringify(previousValue)) {
