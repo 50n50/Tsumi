@@ -44,6 +44,22 @@
   $: position = cache.getEntry(caches.GENERAL, 'posMiniplayer') || 'bottom right'
   $: if (!dragging) cache.setEntry(caches.GENERAL, 'posMiniplayer', position)
   $: minWidthRatio = $isSuperSmall ? 0.25 : 0.15
+  $: playerPage = $page === page.PLAYER && (!$modal || !modal.length || !modal.exists(modal.ANIME_DETAILS))
+  $: shelveTabLeft = shelved ? shelveLeft : !!(position + draggingPos).match(/left/i)
+  $: {
+    if (active) idleShelve(playbackPaused, $settings.autoHideMiniplayer)
+    else if (shelved) unshelve()
+  }
+  $: paddingTop = (() => {
+    if (!active || (!position.match(/top/i) && !draggingPos.match(/top/i))) return padding
+    if ($page === page.SETTINGS && (!$modal || !modal.length)) return $isLg ? SUPPORTS.isAndroid ? padding : '4rem' : SUPPORTS.isAndroid ? '9rem' : '13rem'
+    return SUPPORTS.isAndroid ? padding : '4rem'
+  })()
+  $: paddingLeft = (() => {
+    if (!active || (!position.match(/left/i) && !draggingPos.match(/left/i))) return padding
+    if ($page === page.SETTINGS && (!$modal || !modal.length) && $isLg) return '32rem'
+    return padding
+  })()
 
   function draggable(node) {
     const initial = { x: 0, y: 0 }
@@ -208,11 +224,56 @@
   onDestroy(() => window.removeEventListener('resize', calculateWidth))
 </script>
 
-<div class='miniplayer-container {active && (position.match(/top/i) || draggingPos.match(/top/i)) ? $page === page.SETTINGS && (!$modal || !modal.length) ? `mt-100 mt-lg-20` : `mt-20` : ``} {active && (position.match(/left/i) || draggingPos.match(/left/i)) && $page === page.SETTINGS && (!$modal || !modal.length) ? `ml-lg-280` : ``} {position} {$$restProps.class}' class:active class:animate={!dragging} class:custompos={!position}
-     style:--left={left} style:--top={top} style:--height={height} style:--width={width} style:--padding={padding} style:--maxwidth={maxWidth} style:--minwidth={minWidth}
-     role='group' bind:this={container} on:dragstart|preventDefault|self>
-  <div class='resize resize-{position ? (position.match(/top/i) ? `b` : `t`) + (position.match(/left/i) ? `r` : `l`) : `tl`}' class:d-none={!resize || !active} use:resizable />
-  <slot />
+<div
+  class='miniplayer-container z-55 {position} {$$restProps.class}'
+  class:active
+  class:animate={!dragging && !shelved}
+  class:custompos={!position}
+  class:shelved
+  class:shelved-left={shelved && shelveLeft}
+  class:shelved-right={shelved && !shelveLeft}
+  class:miniplayer-border={!shelved}
+  class:player-page={playerPage}
+  class:bouncing
+  style:--left={left}
+  style:--top={top}
+  style:--height={height}
+  style:--width={width}
+  style:--padding-top={paddingTop}
+  style:--padding-left={paddingLeft}
+  style:--padding-bottom={padding}
+  style:--padding-right={padding}
+  style:--maxwidth={maxWidth}
+  style:--minwidth={minWidth}
+  class:z-5={$page === page.SETTINGS && !dragging && (!$modal || !modal.length)}
+  role='group'
+  bind:this={container}
+  use:swipeShelve
+  on:dragstart|preventDefault|self
+  on:mouseenter={handleEdgeEnter}
+  on:mouseleave={handleEdgeLeave}
+  on:focusout={event => { if (!container.contains(event.relatedTarget)) handleEdgeLeave() }}>
+  {#if active}
+    <div
+      class='shelf-tab position-absolute top-0 bottom-0 d-flex z-5 align-items-center justify-content-center not-reactive'
+      class:pointer-events-none={!playbackPaused}
+      class:shelf-tab-left={shelveTabLeft}
+      class:shelf-tab-right={!shelveTabLeft}
+      class:shelf-tab-visible={shelved}
+      class:shelf-tab-ghost={!shelved}
+      class:shelf-pointer-left={((shelved && !shelveTabLeft) || (!shelved && shelveTabLeft)) && playbackPaused}
+      class:shelf-pointer-right={((shelved && shelveTabLeft) || (!shelved && !shelveTabLeft)) && playbackPaused}
+      role='button'
+      tabindex='0'
+      aria-label={shelved ? 'Show miniplayer' : 'Shelve miniplayer'}
+      on:focus={handleEdgeEnter}
+      use:click|stopPropagation={handleShelfTap}
+      on:keydown={event => event.key === 'Enter' && handleShelfTap()}>
+      <div class='shelf-grip d-flex flex-column align-items-center justify-content-center pointer-events-none'/>
+    </div>
+  {/if}
+  <div class='resize resize-{position ? (position.match(/top/i) ? `b` : `t`) + (position.match(/left/i) ? `r` : `l`) : `tl`}' class:d-none={!resize || !active || shelved} use:resizable/>
+  <slot/>
   <div class='miniplayer-footer touch-none' class:dragging use:draggable tabindex='-1'>::::</div>
   <div class='h-20 w-full position-absolute'/>
 </div>

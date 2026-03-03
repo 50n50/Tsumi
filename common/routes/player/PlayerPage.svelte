@@ -2297,14 +2297,8 @@
       on:keydown={handleSeekbarKey}
     >
       <Seekbar
-        accentColor={completed ||
-        (media?.media &&
-          ($mediaCache[media.media.id] || media.media)?.mediaListEntry
-            ?.progress ===
-            (media.episodeRange ? media.episodeRange.last : media.episode))
-          ? `var(--completed-color-dim)`
-          : `var(--accent-color)`}
-        class="font-size-20"
+        accentColor='{completed || (media?.media && ((($mediaCache[media.media.id] || media.media)?.mediaListEntry?.progress - (media?.zeroEpisode ? 1 : 0)) >= (media.episodeRange ? media.episodeRange.last : media.episode))) ? `var(--completed-color-dim)` : `var(--accent-color)`}'
+        class='font-size-20'
         length={safeduration}
         {buffer}
         bind:progress
