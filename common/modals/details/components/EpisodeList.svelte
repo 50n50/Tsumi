@@ -3,7 +3,10 @@
   import { malDubs } from '@/modules/anime/animedubs.js'
   import { settings } from '@/modules/settings.js'
   import { SUPPORTS } from '@/modules/support.js'
-  import { past } from '@/modules/util.js'
+  import { past, since as sinceUtil, createListener } from '@/modules/util.js'
+
+  const { reactive, init } = createListener(['episode-card'])
+  init(true)
 
   const episodeRx = /Episode (\d+) - (.*)/
 
@@ -20,14 +23,14 @@
       const numberOfEpisodes = entry.subtractedEpisodeNumber || 1
       if (entry.episodeDate && entry.episodeNumber <= episode) {
         const airDate = past(new Date(airingSchedule.airingAt), entry.episodeNumber >= episode ? 0 : episode - entry.episodeNumber, true)
-        return { airdate: airDate, text: `${entry.delayedIndefinitely ? 'Suspended' : entry.delayedIndefinitely ? 'Not Planned' : ((episode > entry.episodeNumber) && (numberOfEpisodes > 4) && !entry.unaired) ? 'In Production' : since(airDate) + (delayed ? ` (${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed }
+        return { airdate: airDate, text: `${entry.delayedIndefinitely ? 'Suspended' : entry.delayedIndefinitely ? 'Not Planned' : ((episode > entry.episodeNumber) && (numberOfEpisodes > 4) && !entry.unaired) ? 'In Production' : sinceUtil(airDate) + (delayed ? ` (${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed }
       } else if (airingSchedule && airingSchedule.episode <= episode) {
-        return { airdate: airingSchedule.airingAt, text: `${since(new Date(airingSchedule.airingAt))} ${(delayed ? `(${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed && !entry.delayedIndefinitely }
+        return { airdate: airingSchedule.airingAt, text: `${sinceUtil(new Date(airingSchedule.airingAt))} ${(delayed ? `(${entry.delayedText || 'Delayed'})` : '')}`, delayed: delayed && !entry.delayedIndefinitely }
       } else {
         return { airdate: new Date().toISOString(), text: `Finished`, delayed: false }
       }
     } else if (episodeEntry) {
-      return { airdate: episodeEntry.episode.airedAt, text: `${since(new Date(episodeEntry.episode.airedAt))}`, delayed: false }
+      return { airdate: episodeEntry.episode.airedAt, text: `${sinceUtil(new Date(episodeEntry.episode.airedAt))}`, delayed: false }
     } else if ((await malDubs.dubLists.value)?.incomplete?.includes(media.idMal) && (await animeSchedule.dubAiredLists.value).find(entry => entry?.id === media.id && entry?.episode?.aired === 1)) {
       return { text: `Not Planned`, delayed: true, notPlanned: true }
     } else if (!entry && !episodeEntry && (media.seasonYear >= new Date().getFullYear()) && await malDubs.isDubMedia(media)) {
