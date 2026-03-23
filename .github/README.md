@@ -203,7 +203,7 @@ GPL-3.0-or-later - See [LICENSE](LICENSE) file for details
 
 ## Credits
 
-- **Original Project:** [Shiru](https://github.com/RockinChaos/Shiru) by RockinChaos
+- **Original Project:** [Hayase](https://hayase.watch/) by ThaUnknown
 - **This Fork:** Modified to use Sora extensions and community improvements
 
 ## Disclaimer
