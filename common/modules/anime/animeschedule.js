@@ -137,10 +137,10 @@ class AnimeSchedule {
                         delayed: true,
                         dub: true,
                         click_action: 'VIEW',
-                        button: [{ text: 'View Anime', activation: `shiru://anime/${media?.id}` }],
+                        button: [{ text: 'View Anime', activation: `tsumi://anime/${media?.id}` }],
                         activation: {
                           type: 'protocol',
-                          launch: `shiru://anime/${media?.id}`
+                          launch: `tsumi://anime/${media?.id}`
                         }
                     }
                 }))
@@ -196,10 +196,10 @@ class AnimeSchedule {
                                 format: media?.format,
                                 dub: type === 'Dub',
                                 click_action: 'VIEW',
-                                button: [{ text: 'View Anime', activation: `shiru://anime/${media?.id}` }],
+                                button: [{ text: 'View Anime', activation: `tsumi://anime/${media?.id}` }],
                                 activation: {
                                   type: 'protocol',
-                                  launch: `shiru://anime/${media?.id}`
+                                  launch: `tsumi://anime/${media?.id}`
                                 }
                             }
                         }))
@@ -404,10 +404,10 @@ class AnimeSchedule {
                                 format: media?.format,
                                 dub: type === 'Dub',
                                 click_action: 'PLAY',
-                                button: [{ text: 'View Anime', activation: `shiru://anime/${media?.id}` }],
+                                button: [{ text: 'View Anime', activation: `tsumi://anime/${media?.id}` }],
                                 activation: {
                                   type: 'protocol',
-                                  launch: `shiru://anime/${media?.id}`
+                                  launch: `tsumi://anime/${media?.id}`
                                 }
                             }
                         }))

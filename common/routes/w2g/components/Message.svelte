@@ -1,5 +1,5 @@
 <script>
-  /** @type {import("d:/Webdevelopment/shiru/common/modules/al").Viewer | {}} */
+  /** @type {import("d:/Webdevelopment/tsumi/common/modules/al").Viewer | {}} */
   export let user = {}
 
   /** @type {string[]} */

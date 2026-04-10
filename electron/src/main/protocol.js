@@ -24,7 +24,7 @@ export default class Protocol {
     show: () => ipcMain.emit('window-show')
   }
 
-  protocolRx = /tsumi:\/\/([a-z0-9]+)\/(.*)/i
+  protocolRx = /tsumi:\/\/([a-z0-9]+)[/#]?(.*)/i
 
   /**
    * @param {import('electron').BrowserWindow} window

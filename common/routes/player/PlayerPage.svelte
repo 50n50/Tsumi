@@ -1909,11 +1909,11 @@
       } else {
         activity.buttons = [
           {
-            label: "Watch on Shiru",
-            url: `shiru://anime/${np.media?.id}`,
+            label: "Watch on Tsumi",
+            url: `tsumi://anime/${np.media?.id}`,
           },
           {
-            label: "Download Shiru",
+            label: "Download Tsumi",
             url: "https://github.com/50n50/Tsumi/releases/latest",
           },
         ];
@@ -1927,11 +1927,11 @@
           large_image: "icon",
           large_text: "https://github.com/50n50/Tsumi",
           small_image: "searching",
-          small_text: "Browsing anime on Shiru",
+          small_text: "Browsing anime on Tsumi",
         },
         buttons: [
           {
-            label: "Download Shiru",
+            label: "Download Tsumi",
             url: "https://github.com/50n50/Tsumi/releases/latest",
           },
         ],

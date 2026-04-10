@@ -158,12 +158,12 @@ class RSSMediaManager {
             hash: hash,
             magnet: link,
             button: [
-              { text: `${!progress || progress === 0 ? 'Start Watching' : behind ? 'Continue Watching' : 'Watch Now'}`, activation: `${!progress || progress === 0 || behind ? 'shiru://search/' + media?.id : 'shiru://torrent/' + link}` },
-              { text: 'View Anime', activation: `shiru://anime/${media?.id}` }
+              { text: `${!progress || progress === 0 ? 'Start Watching' : behind ? 'Continue Watching' : 'Watch Now'}`, activation: `${!progress || progress === 0 || behind ? 'tsumi://search/' + media?.id : 'tsumi://torrent/' + link}` },
+              { text: 'View Anime', activation: `tsumi://anime/${media?.id}` }
             ],
             activation: {
               type: 'protocol',
-              launch: `shiru://anime/${media?.id}`
+              launch: `tsumi://anime/${media?.id}`
             }
           }
         }))

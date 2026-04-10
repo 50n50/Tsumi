@@ -41,10 +41,10 @@
         IPC.emit('notification', {
           title: 'Update Available!',
           message: `An update to v${version} ${SUPPORTS.isAndroid ? 'is available for download and installation' : 'has been downloaded and is ready for installation'}.`,
-          button: [{ text: 'Update Now', activation: 'shiru://update/' }, { text: `What's New`, activation: 'shiru://changelog/' }],
+          button: [{ text: 'Update Now', activation: 'tsumi://update/' }, { text: `What's New`, activation: 'tsumi://changelog/' }],
           activation: {
             type: 'protocol',
-            launch: 'shiru://show/'
+            launch: 'tsumi://show/'
           }
         })
       }

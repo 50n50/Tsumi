@@ -9,7 +9,7 @@
 <div class='{$$restProps.class}'>
   <div class='column px-20 px-sm-0'>
     <h4 class='mb-10 font-weight-bold'>Changelog</h4>
-    <div class='font-size-18 text-muted'>New updates and improvements to Shiru.</div>
+    <div class='font-size-18 text-muted'>New updates and improvements to Tsumi.</div>
     <div class='font-size-14 text-muted'>Your current App Version is <b>v{version}</b></div>
   </div>
   {#await changeLog}

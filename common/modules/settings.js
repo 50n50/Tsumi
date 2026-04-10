@@ -98,9 +98,9 @@ window.addEventListener('paste', ({ clipboardData }) => {
           const malMatch = text.match(malRegex)
           let protocol = text
           if (anilistMatch) {
-            protocol = `shiru://anime/${anilistMatch[1]}`
+            protocol = `tsumi://anime/${anilistMatch[1]}`
           } else if (malMatch) {
-            protocol = `shiru://malanime/${malMatch[1]}`
+            protocol = `tsumi://malanime/${malMatch[1]}`
           }
           IPC.emit('handle-protocol', protocol)
         }

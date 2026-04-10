@@ -46,14 +46,14 @@
   }
 
   function confirmAnilist () {
-    IPC.emit(SUPPORTS.isAndroid ? 'open' : 'open-auth', `https://anilist.co/api/v2/oauth/authorize?client_id=${atob('MjE3ODg=')}&response_type=token`) // Change redirect_url to shiru://alauth
+    IPC.emit(SUPPORTS.isAndroid ? 'open' : 'open-auth', `https://anilist.co/api/v2/oauth/authorize?client_id=${atob('MzU5NzE=')}&response_type=token`) // Change redirect_url to tsumi://alauth
   }
 
   function confirmMAL () {
     const state = generateRandomString(10)
     const challenge = generateRandomString(50)
     sessionStorage.setItem(state, challenge)
-    IPC.emit(SUPPORTS.isAndroid ? 'open' : 'open-auth', `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientID}&state=${state}&code_challenge=${challenge}&code_challenge_method=plain`) // Change redirect_url to shiru://malauth
+    IPC.emit(SUPPORTS.isAndroid ? 'open' : 'open-auth', `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${clientID}&state=${state}&code_challenge=${challenge}&code_challenge_method=plain`) // Change redirect_url to tsumi://malauth
   }
 
   IPC.on('auth-canceled', () => {
