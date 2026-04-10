@@ -40,27 +40,27 @@
     modal.close(modal.DEFAULT_LOADING)
   }
 
-  function fail (reason) {
+  function fail (reason, failMedia = media, failEpisode = episode) {
     close()
-    modal.open(modal.EXTENSION_MENU, { media, episode, defaultFailed: true, failReason: reason })
+    modal.open(modal.EXTENSION_MENU, { media: failMedia, episode: failEpisode, defaultFailed: true, failReason: reason })
   }
 
-  function launchPlayer (streamData, episodeNum, serverIndex = 0, server = null) {
+  function launchPlayer (streamData, episodeNum, capturedMedia, serverIndex = 0, server = null) {
     const url = server?.streamUrl || streamData.url
     const headers = server?.headers || streamData.headers || {}
 
-    $currentMedia = { media, episode: episodeNum }
+    $currentMedia = { media: capturedMedia, episode: episodeNum }
     files.set([{
-      name: `${anilistClient.title(media)} - Episode ${episodeNum}.mp4`,
+      name: `${anilistClient.title(capturedMedia)} - Episode ${episodeNum}.mp4`,
       url,
       streamHeaders: headers,
       streamServers: streamData.servers || [],
       subtitle: streamData.subtitle || null,
       length: 0,
       media: {
-        media,
+        media: capturedMedia,
         episode: episodeNum,
-        parseObject: { anime_title: anilistClient.title(media), episode_number: episodeNum }
+        parseObject: { anime_title: anilistClient.title(capturedMedia), episode_number: episodeNum }
       },
       activeServerIndex: serverIndex
     }])
@@ -72,22 +72,24 @@
   async function autoPlay () {
     if (running || !media) return
     running = true
+    const capturedMedia = media
+    const capturedEpisode = episode
     failed = false
     failReason = ''
     statusText = 'Connecting to extension...'
 
-    const title = anilistClient.title(media)
+    const title = anilistClient.title(capturedMedia)
     const defaultKey = settings.value.defaultExtension
     const defaultExt = extensionManager.getEnabled().find(e => e.key === defaultKey)
 
-    if (!defaultExt) { fail('Default extension not found or disabled'); return }
+    if (!defaultExt) { fail('Default extension not found or disabled', capturedMedia, capturedEpisode); return }
 
     try {
       statusText = 'Searching...'
       const raw = await callExtensionFunction(defaultExt, 'searchResults', title)
       const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
 
-      if (!Array.isArray(parsed) || !parsed.length) { fail('No results found from default extension'); return }
+      if (!Array.isArray(parsed) || !parsed.length) { fail('No results found from default extension', capturedMedia, capturedEpisode); return }
 
       const scored = parsed.map(r => ({
         ...r,
@@ -102,7 +104,7 @@
       const parsedEps = typeof rawEps === 'string' ? JSON.parse(rawEps) : rawEps
       const episodes = Array.isArray(parsedEps) ? parsedEps : []
 
-      if (!episodes.length) { fail('No episodes found for this title'); return }
+      if (!episodes.length) { fail('No episodes found for this title', capturedMedia, capturedEpisode); return }
 
       const targetEp = episodes.find(ep => ep.number === episode) || episodes[0]
       statusText = 'Loading stream...'
@@ -116,24 +118,24 @@
         if (url) streamData = { url, headers: {}, subtitle: null }
       }
 
-      if (!streamData?.url) { fail('No stream URL found'); return }
+      if (!streamData?.url) { fail('No stream URL found', capturedMedia, capturedEpisode); return }
 
       // Handle multiple servers
       if (streamData.servers && streamData.servers.length > 1) {
-        const episodeNum = targetEp.number || episode
+        const episodeNum = targetEp.number || capturedEpisode
         close()
         modal.open(modal.SERVER_SELECTOR, {
           servers: streamData.servers,
-          onSelect: (i) => launchPlayer(streamData, episodeNum, i, streamData.servers[i]),
+          onSelect: (i) => launchPlayer(streamData, episodeNum, capturedMedia, i, streamData.servers[i]),
           onBack: () => {}
         })
         return
       }
 
-      launchPlayer(streamData, targetEp.number || episode)
+      launchPlayer(streamData, targetEp.number || capturedEpisode, capturedMedia)
     } catch (error) {
       debug('Default extension auto-play failed:', error)
-      fail(error?.message || 'Stream failed')
+      fail(error?.message || 'Stream failed', capturedMedia, capturedEpisode)
     }
   }
 

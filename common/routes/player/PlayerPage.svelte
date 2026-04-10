@@ -170,8 +170,8 @@
       ? duration
       : currentTime;
   $: {
-    if (hidden) setDiscordRPC(media, video?.currentTime);
-    else setDiscordRPC(media, paused && $page !== page.PLAYER);
+    if (hidden) setDiscordRPC($nowPlaying, true);
+    else setDiscordRPC($nowPlaying, paused && $page !== page.PLAYER, $nowPlaying?.media || current?.media?.media);
   }
 
   window.addEventListener("fileEdit", () => {
@@ -1855,16 +1855,38 @@
     );
   }
 
-  function setDiscordRPC(np = media, browsing) {
-    if ((!np || Object.keys(np).length === 0) && !browsing) return;
+  function setDiscordRPC(np = media, browsing, fullMedia = current?.media?.media) {
+    if ((!np || Object.keys(np).length === 0) && !browsing && !fullMedia) return;
     if (hidden) {
       IPC.emit("discord-clear");
       return;
     }
+
+    /** @type {any} */
     let activity;
     if (!browsing) {
       const w2g = state.value?.code;
-      const details = np.title || undefined;
+      const currentParseObject = $nowPlaying?.parseObject || current?.media?.parseObject;
+      const cleanCurrentName = current?.name
+        ? AnimeResolver.cleanFileName(current.name)
+        : undefined;
+      let details =
+        ($nowPlaying?.title && !String($nowPlaying.title).includes('undefined') ? $nowPlaying.title : undefined) ||
+        (fullMedia ? anilistClient.title(fullMedia) : undefined) ||
+        ($nowPlaying?.media ? anilistClient.title($nowPlaying.media) : undefined) ||
+        currentParseObject?.title ||
+        currentParseObject?.anime_title ||
+        currentParseObject?.file_name ||
+        cleanCurrentName ||
+        "Watching Anime";
+
+      if (typeof details === 'string' && details.includes('undefined')) {
+        details = details.replace(/undefined\s*-\s*/g, '').replace('undefined', '').trim();
+      }
+
+      if (!details) {
+        return;
+      }
       const timeLeft = safeduration - targetTime;
       const timestamps = !paused
         ? {
@@ -1873,28 +1895,33 @@
           }
         : undefined;
       activity = {
-        details,
+        details: details || "Watching anime on Tsumi",
         state:
           details &&
-          (np.media?.format === "MOVIE" && (np.media?.episodes ?? 0) <= 1
+          ((($nowPlaying?.media ?? fullMedia)?.format === "MOVIE" && (($nowPlaying?.media ?? fullMedia)?.episodes ?? 0) <= 1)
             ? "The Movie"
-            : np.episode
+            : ($nowPlaying?.episode ?? current?.media?.episode)
               ? "Episode: " +
-                np.episode +
-                (np.media?.episodes ? " of " + np.media.episodes : "")
+                ($nowPlaying?.episode ?? current?.media?.episode) +
+                (($nowPlaying?.media?.episodes ?? fullMedia?.episodes) ? " of " + ($nowPlaying?.media?.episodes ?? fullMedia?.episodes) : "")
               : "Streaming the Universe"),
         timestamps,
         party: {
           size:
-            (np.episode &&
-              np.media?.episodes && [np.episode, np.media.episodes]) ||
+            (($nowPlaying?.episode ?? current?.media?.episode) &&
+              ($nowPlaying?.media?.episodes ?? fullMedia?.episodes) &&
+              [($nowPlaying?.episode ?? current?.media?.episode), ($nowPlaying?.media?.episodes ?? fullMedia?.episodes)]) ||
             undefined,
         },
         assets: {
-          large_text: np.title,
-          large_image: np.thumbnail,
-          small_image: !paused ? "playing" : "paused",
-          small_text: !paused ? "Playing" : "Paused",
+          large_text: details || "Watching anime on Tsumi",
+          large_image:
+            $nowPlaying?.media?.coverImage?.extraLarge ||
+            $nowPlaying?.media?.coverImage?.large ||
+            fullMedia?.coverImage?.extraLarge ||
+            fullMedia?.coverImage?.large ||
+            $nowPlaying?.thumbnail ||
+            "icon",
         },
         instance: true,
         type: 3,
@@ -1909,8 +1936,11 @@
       } else {
         activity.buttons = [
           {
-            label: "Watch on Tsumi",
-            url: `tsumi://anime/${np.media?.id}`,
+            label: "View Anime",
+            url:
+              ($nowPlaying?.media?.id ?? fullMedia?.id)
+                ? `https://anilist.co/anime/${$nowPlaying?.media?.id ?? fullMedia?.id}`
+                : "https://github.com/50n50/Tsumi",
           },
           {
             label: "Download Tsumi",
@@ -1921,17 +1951,15 @@
     } else {
       activity = {
         timestamps: { start: Date.now() },
-        details: "Streaming anime instantly",
-        state: "Exploring the anime library...",
+        details: "Watching anime on Tsumi",
+        state: "Browsing the library",
         assets: {
           large_image: "icon",
-          large_text: "https://github.com/50n50/Tsumi",
-          small_image: "searching",
-          small_text: "Browsing anime on Tsumi",
+          large_text: "Tsumi — Anime Streaming",
         },
         buttons: [
           {
-            label: "Download Tsumi",
+            label: "Get Tsumi",
             url: "https://github.com/50n50/Tsumi/releases/latest",
           },
         ],
@@ -2085,15 +2113,15 @@
     </span>
     <div class="stats col-4 d-title">
       <div class="font-weight-bold overflow-hidden text-truncate font-scale-23">
-        {#if media?.title}
-          {media?.title}
-        {:else if media?.media?.title}
+        {#if $nowPlaying?.title && !String($nowPlaying.title).includes('undefined')}
+          {$nowPlaying?.title}
+        {:else if $nowPlaying?.media?.title}
           <!-- useful when metadata is loading slowly... -->
-          {anilistClient.title(media?.media)}
+          {anilistClient.title($nowPlaying?.media)}
         {:else if current}
-          {AnimeResolver.cleanFileName(current.name)}
+          {AnimeResolver.cleanFileName(current.name).replace(/undefined\s*-\s*/g, '').replace('undefined', '').trim()}
         {/if}
-        {#if $nowPlaying?.episodeTitle}
+        {#if $nowPlaying?.episodeTitle && !String($nowPlaying.episodeTitle).includes('undefined')}
           <span class="ml-2 text-muted font-scale-16">- {$nowPlaying.episodeTitle}</span>
         {/if}
       </div>
@@ -2105,8 +2133,8 @@
         {:else if current && (videos?.length > 1)}
           Episode {videos.indexOf(current) + 1} of {videos.length} <!-- fallback for when the media fails to resolve and we also fail to resolve the episode numbers, best to indicate what file we are currently on. -->
         {/if}
-        {#if (media?.episode === 0 || media?.episode) && media?.media?.format !== 'MOVIE' && (media?.episodeTitle && !new RegExp(`(?<![\\d.])${media.episode}(?![\\d.])`).test(media.episodeTitle))}{' - '}{/if}
-        {#if media?.episodeTitle}{media.episodeTitle}{/if}
+        {#if (media?.episode === 0 || media?.episode) && media?.media?.format !== 'MOVIE' && (media?.episodeTitle && media?.episodeTitle !== 'undefined' && !new RegExp(`(?<![\\d.])${media.episode}(?![\\d.])`).test(media.episodeTitle))}{' - '}{/if}
+        {#if media?.episodeTitle && media.episodeTitle !== 'undefined'}{media.episodeTitle}{/if}
       </div>
     </div>
     <div class="d-flex justify-content-center bottom-0 col-4 d-title d-filler">

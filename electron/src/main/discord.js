@@ -10,9 +10,7 @@ export default class Discord {
       state: 'Browsing the library',
       assets: {
         large_image: 'icon',
-        large_text: 'Tsumi — Anime Streaming',
-        small_image: 'sail',
-        small_text: 'github.com/50n50/Tsumi'
+        large_text: 'Tsumi — Anime Streaming'
       },
       buttons: [
         {
@@ -74,8 +72,48 @@ export default class Discord {
     if (clearActivity) {
       if (this.discord?.user) this.discord.user.clearActivity(process.pid)
     } else if (this.discord.user && data && this.enableRPC !== 'disabled') {
-      data.pid = process.pid
-      this.discord.request('SET_ACTIVITY', data)
+      /** @type {(value: any, limit: number) => any} */
+      const toLimitedText = (value, limit) => typeof value === 'string' ? value.slice(0, limit) : value
+      /** @type {(value: any) => any} */
+      const normalizeImageField = (value, key) => {
+        if (typeof value !== 'string') return value
+        if (key === 'large_image') return value.slice(0, 512)
+        if (value.startsWith('mp:')) return toLimitedText(value, 1024)
+        if (/^https?:\/\//.test(value)) return `mp:${encodeURI(value).slice(0, 1024)}`
+        return toLimitedText(value, 128)
+      }
+      /** @type {any} */
+      const activity = data?.activity ? { ...data.activity } : null
+      if (!activity) return
+
+      activity.details = toLimitedText(activity.details, 128)
+      activity.state = toLimitedText(activity.state, 128)
+      if (activity.assets) {
+        activity.assets = {
+          ...activity.assets,
+          large_image: normalizeImageField(activity.assets.large_image, 'large_image'),
+          large_text: toLimitedText(activity.assets.large_text, 128)
+        }
+        if (activity.assets.small_image) delete activity.assets.small_image
+        if (activity.assets.small_text) delete activity.assets.small_text
+      }
+      if (Array.isArray(activity.buttons)) {
+        /** @type {any[]} */
+        const rpcButtons = activity.buttons
+        activity.buttons = rpcButtons
+          .filter((/** @type {any} */ button) => /^https?:\/\//.test(button?.url || ''))
+          .slice(0, 2)
+          .map((/** @type {any} */ button) => ({
+            ...button,
+            label: toLimitedText(button.label, 32),
+            url: toLimitedText(button.url, 512)
+          }))
+        if (!activity.buttons.length) activity.buttons = undefined
+      }
+
+      this.discord.request('SET_ACTIVITY', { pid: process.pid, activity }).catch((error) => {
+        console.warn('Discord RPC SET_ACTIVITY failed:', error?.message || error)
+      })
     }
   }
 }

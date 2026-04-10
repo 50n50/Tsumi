@@ -97,6 +97,8 @@
   async function selectResult (result) {
     if (playingResult) return
     playingResult = result
+    const capturedMedia = search?.media
+    const capturedEpisode = search?.episode
     const ext = extensionManager.extensions.get(result.extensionKey)
 
     try {
@@ -110,7 +112,7 @@
         return
       }
 
-      const targetEp = episodes.find(ep => ep.number === search?.episode) || episodes[0]
+      const targetEp = episodes.find(ep => ep.number === capturedEpisode) || episodes[0]
 
       const raw = await callExtensionFunction(ext, 'extractStreamUrl', targetEp.href)
       let streamData
@@ -129,22 +131,22 @@
 
       // Show server selector modal if multiple servers available
       if (streamData.servers && streamData.servers.length > 1) {
-        const episodeNum = targetEp.number || search.episode
+        const episodeNum = targetEp.number || capturedEpisode
         const capturedStreamData = streamData
         playingResult = null
         modal.open(modal.SERVER_SELECTOR, {
           servers: capturedStreamData.servers,
           onSelect: (serverIndex) => {
             const server = capturedStreamData.servers[serverIndex]
-            launchPlayer(capturedStreamData, episodeNum, serverIndex, server)
+            launchPlayer(capturedStreamData, episodeNum, capturedMedia, serverIndex, server)
           },
           onBack: () => {}
         })
         return
       }
 
-      const episodeNum = targetEp.number || search.episode
-      launchPlayer(streamData, episodeNum, 0)
+      const episodeNum = targetEp.number || capturedEpisode
+      launchPlayer(streamData, episodeNum, capturedMedia, 0)
     } catch (error) {
       debug('Failed to get stream URL:', error)
       toast.error('Stream failed: ' + (error?.message || error))
@@ -152,22 +154,22 @@
     }
   }
 
-  function launchPlayer(streamData, episodeNum, serverIndex = 0, server = null) {
+  function launchPlayer(streamData, episodeNum, capturedMedia, serverIndex = 0, server = null) {
     const url = server?.streamUrl || streamData.url
     const headers = server?.headers || streamData.headers || {}
 
-    $currentMedia = { media: search.media, episode: episodeNum }
+    $currentMedia = { media: capturedMedia, episode: episodeNum }
     files.set([{
-      name: `${anilistClient.title(search.media)} - Episode ${episodeNum}.mp4`,
+      name: `${anilistClient.title(capturedMedia)} - Episode ${episodeNum}.mp4`,
       url,
       streamHeaders: headers,
       streamServers: streamData.servers || [],
       subtitle: streamData.subtitle || null,
       length: 0,
       media: {
-        media: search.media,
+        media: capturedMedia,
         episode: episodeNum,
-        parseObject: { anime_title: anilistClient.title(search.media), episode_number: episodeNum }
+        parseObject: { anime_title: anilistClient.title(capturedMedia), episode_number: episodeNum }
       },
       activeServerIndex: serverIndex
     }])
