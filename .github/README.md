@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://i.ibb.co/TBjgmCp6/header.png" alt="Tsumi" width="50%">
+  <img src="https://i.ibb.co/TBjgmCp6/header.png" alt="Tsumi" width="49%">
 </div>
 
 #
