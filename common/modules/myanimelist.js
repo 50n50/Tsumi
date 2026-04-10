@@ -9,7 +9,7 @@ import Helper from '@/modules/helper.js'
 import Debug from 'debug'
 const debug = Debug('ui:myanimelist')
 
-export const clientID = atob('YmI3ZGNlMzg4MWQ4MDNlNjU2YzQ1YWEzOWJkYTljY2M=') // app type MUST be set to other, do not generate a seed.
+export const clientID = atob('ZDZjNTlhNjI4M2U1NWU3NGZlMDQyMDY4OTk0ZTRmYjY=') // app type MUST be set to other, do not generate a seed.
 
 const queryFields =  [
   'synopsis',
