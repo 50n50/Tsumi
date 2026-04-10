@@ -40,7 +40,7 @@
 </SettingCard>
 <SettingCard title='CSS Variables' description='Used for custom themes. Can change colors, sizes, spacing and more. Supports only variables.{!SUPPORTS.isAndroid ? ` Best way to discover variables is to use the built-in devtools.` : ``}'>
   <div class='d-flex flex-column'>
-    <textarea class='form-control w-md-500 w-full bg-dark' placeholder='--accent-color: #e5204c;' bind:value={$variables} />
+    <textarea class='form-control w-md-500 w-full bg-dark' placeholder='--accent-color: #FFFFFF;' bind:value={$variables} />
     <button type='button' use:click={() => IPC.emit('ui-devtools')} class='btn btn-primary d-none align-items-center justify-content-center mt-10' class:d-flex={!SUPPORTS.isAndroid}><span class='text-truncate'>Open Devtools</span></button>
   </div>
 </SettingCard>

@@ -19,7 +19,7 @@
   --safe-area-top: 0px;
   --safe-area-left: 0px;
 
-  --accent-color: #e5204c;
+  --accent-color: #FFFFFF;
   --highlight-color: #FFFFFF !important;
   --current-color: #3DB4F2 !important;
   --planning-color: #F79A63 !important;
@@ -128,6 +128,7 @@
 
   --theme-color: var(--dark-color) !important;
   color-scheme: dark;
+  accent-color: var(--accent-color);
 }
 
 * {
@@ -428,6 +429,14 @@ details:active,
   --dm-button-secondary-bg-color: var(--white-color) !important;
   --dm-button-secondary-bg-color-hover: var(--white-color-dim) !important;
   --dm-button-secondary-bg-color-focus: var(--dm-button-secondary-bg-color) !important;
+}
+
+.btn-primary {
+  --dm-button-primary-text-color: var(--dark-color) !important;
+  --dm-button-primary-text-color-hover: var(--dark-color) !important;
+  --lm-button-primary-text-color: var(--white-color) !important;
+  --lm-button-primary-text-color-hover: var(--white-color) !important;
+  color: var(--dark-color) !important;
 }
 
 [data-sonner-toaster][data-theme='dark'] {

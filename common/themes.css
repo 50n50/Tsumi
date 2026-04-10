@@ -1,5 +1,5 @@
 :root[data-theme='default-amoled'] {
-  --accent-color: #DA0101;
+  --accent-color: #FFFFFF;
   --highlight-color: #E0E0E0 !important;
   --dark-color-base-hue: 220deg !important;
   --dark-color-base-saturation: 5% !important;
@@ -13,8 +13,8 @@
   --gray-color-light: hsl(var(--gray-color-light-hsl));
   --gray-color-light-hsl: var(--gray-color-base-hue), 10%, 28%;
   --gray-color-base-hue: 216;
-  --primary-color: #DA0101;
-  --primary-color-light: #FF4444;
+  --primary-color: #FFFFFF;
+  --primary-color-light: #E0E0E0;
   --primary-color-dim-hsl: 0deg, 100%, 40%;
   --primary-color-dim: hsl(var(--primary-color-dim-hsl));
   --danger-color: var(--red-color-dim);
