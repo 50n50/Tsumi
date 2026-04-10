@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/50n50/Tsumi/blob/master/electron/buildResources/header.png?raw=true" alt="Tsumi" width="100%">
+  <img src="https://i.ibb.co/TBjgmCp6/header.png" alt="Tsumi" width="50%">
 </div>
 
 #
