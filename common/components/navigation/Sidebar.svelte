@@ -69,6 +69,7 @@
       class:status-transition={statusTransition}
     />
     {#if !SUPPORTS.isAndroid}
+      <!--
       <div
         class="d-flex align-items-center justify-content-center z-102"
         style="width: var(--sidebar-width); margin-top:{`1rem`} !important"
@@ -102,6 +103,7 @@
           />
         </SidebarLink>
       </div>
+      -->
       <img
         src="./icon_filled.png"
         tabindex="-1"
