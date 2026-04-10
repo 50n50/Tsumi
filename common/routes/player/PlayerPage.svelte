@@ -2093,6 +2093,9 @@
         {:else if current}
           {AnimeResolver.cleanFileName(current.name)}
         {/if}
+        {#if $nowPlaying?.episodeTitle}
+          <span class="ml-2 text-muted font-scale-16">- {$nowPlaying.episodeTitle}</span>
+        {/if}
       </div>
       <div class='font-weight-normal overflow-hidden text-truncate text-muted font-scale-16'>
         {#if (media?.episode === 0 || media?.episode) && media?.media?.episodes !== 1 && media?.media?.format !== 'MOVIE' && (!media?.episodeTitle || !new RegExp(`(?<![\\d.])${media.episode}(?![\\d.])`).test(media.episodeTitle))}
