@@ -1,5 +1,7 @@
 <div align="center">
   <img src="https://i.ibb.co/TBjgmCp6/header.png" alt="Tsumi" width="50%">
+
+ <p><sub>I am not trying to be better, I just want to help people by providing more options.</sub></p>
 </div>
 
 #
