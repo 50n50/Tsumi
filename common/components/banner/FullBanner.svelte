@@ -111,9 +111,13 @@
 >
   <div class="pl-15 pl-md-20 flex-column d-flex overflow-hidden">
     <div class="text-white font-weight-bold font-scale-40">
-      <span class="default-cursor title overflow-hidden d-inline-block pr-5"
-        >{anilistClient.title(currentStatic)}</span
-      >
+      {#if currentStatic.logo}
+        <img src={currentStatic.logo} class="media-logo mb-10" alt={anilistClient.title(currentStatic)} />
+      {:else}
+        <span class="default-cursor title overflow-hidden d-inline-block pr-5"
+          >{anilistClient.title(currentStatic)}</span
+        >
+      {/if}
     </div>
     <div
       class="details text-white text-capitalize pt-10 pb-10 d-flex w-600 mw-full default-cursor"
@@ -358,6 +362,21 @@
     }
     to {
       opacity: 1;
+    }
+  }
+
+  .media-logo {
+    max-height: 12rem;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 1rem hsla(var(--black-color-hsl), 0.5));
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  @media (max-width: 768px) {
+    .media-logo {
+      max-height: 8rem;
     }
   }
 </style>

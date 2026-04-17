@@ -21,6 +21,8 @@
   import CustomDropdown from '@/components/CustomDropdown.svelte'
   import { BookUser, Type, Leaf, CalendarRange, MonitorPlay, MonitorUp, MonitorX, Tv, ArrowDownWideNarrow, Filter, FilterX, X, Tags, Hash, SlidersHorizontal, EyeOff, Hourglass, Mic, ImageUp, Search, Grid3X3, Grid2X2 } from 'lucide-svelte'
 
+  import { tmdbGenreList } from '@/modules/tmdb.js'
+
   export let clearNow
   export let search
 
@@ -29,11 +31,14 @@
   let searchTags = getTags()
   $: if (clearNow) searchTags = getTags()
 
+  $: _isWestern = !!(search.excludeAnime || search.isTmdb || search.idTmdb || search.western)
+
   function getTags() {
     delete search.clearNow
     return {
       headers: {
-        [genreList[0]]: 'Genres',
+        [genreList[0]]: 'Anime Genres',
+        [tmdbGenreList[0]]: 'Western Genres',
         [tagList[0]]: 'Tags'
       },
       tags: [...toArray(search?.genre), ...toArray(search?.tag)],
@@ -42,9 +47,10 @@
   }
 
   $: {
-    search.genre = searchTags.tags.filter(val => genreList.includes(val))
+    const allGenres = [...genreList, ...tmdbGenreList]
+    search.genre = searchTags.tags.filter(val => allGenres.includes(val))
     search.tag = searchTags.tags.filter(val => tagList.includes(val))
-    search.genre_not = searchTags.tags_not.filter(val => genreList.includes(val))
+    search.genre_not = searchTags.tags_not.filter(val => allGenres.includes(val))
     search.tag_not = searchTags.tags_not.filter(val => tagList.includes(val))
   }
 
@@ -173,6 +179,19 @@
 
 <form class='container-fluid py-20 px-md-50 bg-dark pb-0 position-sticky top-0 search-container z-40' class:mt-20={!SUPPORTS.isAndroid && !search.fileEdit} class:mt-md-0={!SUPPORTS.isAndroid && !search.fileEdit} class:bg-very-dark={search.fileEdit} on:input bind:this={form}>
   <div class='row'>
+    <div class='col-lg-auto col-4 p-10 d-flex flex-column justify-content-end' class:d-advanced-title={advancedSearch}>
+      <div class='pb-10 font-weight-semi-bold d-flex align-items-center {advancedSearch} font-scale-24'>
+        <Grid2X2 class='mr-10 block-scale-30'/>
+        <div>Source</div>
+      </div>
+      <div class='input-group'>
+        <select class='form-control bg-dark-light rounded-1' bind:value={search.western} on:change={() => form.dispatchEvent(new Event('input', { bubbles: true }))}>
+          <option value={null}>Both</option>
+          <option value={false}>Anime</option>
+          <option value={true}>Western</option>
+        </select>
+      </div>
+    </div>
     <div class='col-lg col-4 p-10 d-flex flex-column justify-content-end' class:d-advanced-title={advancedSearch}>
       <div class='pb-10 font-weight-semi-bold d-flex align-items-center {advancedSearch} font-scale-24'>
         <Type class='mr-10 block-scale-30'/>
@@ -198,7 +217,7 @@
         <div>Genres</div>
       </div>
       <div class='input-group' title={(!Helper.isAniAuth() && Helper.isUserSort(search)) ? 'Cannot use with sort: ' + sortOptions[search.sort] : ''}>
-        <CustomDropdown id={`tags-input`} bind:form headers={searchTags.headers} options={[...toArray(genreList), ...toArray(tagList)]} bind:value={searchTags.tags} bind:altValue={searchTags.tags_not} constrainAlt={false} disabled={search.disableSearch || (!Helper.isAniAuth() && Helper.isUserSort(search))}/>
+        <CustomDropdown id={`tags-input`} bind:form headers={searchTags.headers} options={[...genreList, ...tmdbGenreList, ...tagList]} bind:value={searchTags.tags} bind:altValue={searchTags.tags_not} constrainAlt={false} disabled={search.disableSearch || (!Helper.isAniAuth() && Helper.isUserSort(search))}/>
       </div>
     </div>
     <div class='col-lg col-4 p-10 z-4 d-none {advancedSearch} flex-column justify-content-end' class:d-flex={!search.scheduleList}>

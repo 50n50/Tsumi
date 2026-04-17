@@ -13,6 +13,7 @@
   import { settings } from "@/modules/settings.js";
   import { mediaCache } from "@/modules/cache.js";
   import { anilistClient } from "@/modules/anilist.js";
+  import { tmdbClient } from "@/modules/tmdb.js";
   import { isValidNumber } from "@/modules/util.js";
   import { click } from "@/modules/click.js";
   import Details from "@/modals/details/components/Details.svelte";
@@ -71,9 +72,12 @@
     ) && media?.mediaListEntry?.progress;
   $: missingIds = staticMedia && [];
   $: recommendations =
-    staticMedia && anilistClient.recommendations({ id: staticMedia.id });
+    staticMedia &&
+    !staticMedia.isTmdb &&
+    anilistClient.recommendations({ id: staticMedia.id });
   $: searchIDS =
     staticMedia &&
+    !staticMedia.isTmdb &&
     (async () => {
       const searchIDS = [
         ...(staticMedia.relations?.edges
@@ -106,6 +110,87 @@
         },
       });
     })();
+
+  // TMDB detail enrichment for western media
+  $: {
+    if (
+      staticMedia?.isTmdb &&
+      staticMedia?.idTmdb &&
+      !staticMedia._tmdbEnriched
+    ) {
+      tmdbClient
+        .getDetails(
+          staticMedia.idTmdb,
+          staticMedia.format === "MOVIE" ? "movie" : "tv",
+        )
+        .then((details) => {
+          if (details && staticMedia?.isTmdb) {
+            staticMedia = {
+              ...staticMedia,
+              _tmdbEnriched: true,
+              genres: details.genres || staticMedia.genres,
+              tags: details.tags || staticMedia.tags || [],
+              description: details.description || staticMedia.description,
+              episodes: details.episodes || staticMedia.episodes,
+              duration: details.duration || staticMedia.duration,
+              status: details.status || staticMedia.status,
+              averageScore: details.averageScore || staticMedia.averageScore,
+              trailer: details.trailer || staticMedia.trailer,
+              bannerImage: details.backdrop || staticMedia.bannerImage,
+              seasonYear: details.seasonYear || staticMedia.seasonYear,
+              isAdult: details.isAdult || staticMedia.isAdult,
+              studios: {
+                nodes: details.studios?.map((name) => ({ name })) || [],
+              },
+              staff: {
+                edges:
+                  details.staff?.map((person) => ({
+                    node: {
+                      name: { userPreferred: person.name },
+                      image: {
+                        large: person.image
+                          ? `https://image.tmdb.org/t/p/w185${person.image}`
+                          : null,
+                      },
+                    },
+                    role: person.role,
+                  })) || [],
+              },
+              characters: {
+                edges:
+                  details.characters?.map((char) => ({
+                    node: {
+                      name: { userPreferred: char.name },
+                      image: {
+                        large: char.image
+                          ? `https://image.tmdb.org/t/p/w185${char.image}`
+                          : null,
+                      },
+                    },
+                    voiceActors: [{ name: { userPreferred: char.actorName } }],
+                  })) || [],
+              },
+              rating: details.rating || staticMedia.rating,
+              externalIds: details.externalIds || {},
+            };
+          }
+        });
+    }
+  }
+  $: tmdbRecs =
+    staticMedia?.isTmdb &&
+    staticMedia?.idTmdb &&
+    tmdbClient.getRecommendations(
+      staticMedia.idTmdb,
+      staticMedia.format === "MOVIE" ? "movie" : "tv",
+    );
+  $: tmdbRelations =
+    staticMedia?.isTmdb &&
+    staticMedia?.idTmdb &&
+    tmdbClient.getRelations(
+      staticMedia.idTmdb,
+      staticMedia.format === "MOVIE" ? "movie" : "tv",
+    );
   $: staticMedia &&
     (_modal?.focus(),
     container && container.scrollTo({ top: 0, behavior: "smooth" }));
@@ -411,10 +496,10 @@
                     {playButtonText}
                   </button>
                   <div class="mt-20 d-flex">
-                    {#if Helper.isAuthorized()}
+                    {#if Helper.isAuthorized() && !staticMedia.isTmdb}
                       <Scoring class="mr-10 " {media} viewAnime={true} />
                     {/if}
-                    {#if Helper.isAniAuth()}
+                    {#if Helper.isAniAuth() && !staticMedia.isTmdb}
                       <button
                         class="btn bg-dark-light btn-lg btn-square d-flex align-items-center justify-content-center shadow-none border-0 mr-10"
                         data-toggle="tooltip"
@@ -447,7 +532,7 @@
                     <TrailerModal {staticMedia} />
                     <button
                       class="btn bg-dark-light btn-lg btn-square d-none align-items-center justify-content-center shadow-none border-0 mr-10"
-                      class:d-flex={staticMedia.id}
+                      class:d-flex={staticMedia.id && !staticMedia.isTmdb}
                       data-toggle="tooltip"
                       data-placement="top"
                       data-target-breakpoint="md"
@@ -471,7 +556,35 @@
                     </button>
                     <button
                       class="btn bg-dark-light btn-lg btn-square d-none align-items-center justify-content-center shadow-none border-0"
-                      class:d-flex={staticMedia.idMal}
+                      class:d-flex={staticMedia.isTmdb && staticMedia.idTmdb}
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      data-target-breakpoint="md"
+                      data-title="Share to Clipboard"
+                      use:click={() =>
+                        copyToClipboard(
+                          `https://www.themoviedb.org/${staticMedia.format === "MOVIE" ? "movie" : "tv"}/${staticMedia.idTmdb}`,
+                          "share URL",
+                        )}
+                      on:contextmenu|preventDefault={() =>
+                        IPC.emit(
+                          "open",
+                          `https://www.themoviedb.org/${staticMedia.format === "MOVIE" ? "movie" : "tv"}/${staticMedia.idTmdb}`,
+                        )}
+                    >
+                      <img
+                        class="rounded"
+                        style="max-width: 20px; object-fit: contain;"
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Tmdb.new.logo.svg/3840px-Tmdb.new.logo.svg.png"
+                        alt="TMDB"
+                        on:error={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </button>
+                    <button
+                      class="btn bg-dark-light btn-lg btn-square d-none align-items-center justify-content-center shadow-none border-0 ml-10"
+                      class:d-flex={staticMedia.idMal && !staticMedia.isTmdb}
                       data-toggle="tooltip"
                       data-placement="top"
                       data-target-breakpoint="md"
@@ -521,11 +634,13 @@
                 <div
                   class="bg-dark-light px-20 py-10 mr-10 rounded text-nowrap d-flex align-items-center select-all"
                 >
-                  <svelte:component
-                    this={genreIcons[genre]}
-                    class="mr-5"
-                    size="1.8rem"
-                  />
+                  {#if genreIcons[genre]}
+                    <svelte:component
+                      this={genreIcons[genre]}
+                      class="mr-5"
+                      size="1.8rem"
+                    />
+                  {/if}
                   {genre}
                 </div>
               {/each}
@@ -586,88 +701,140 @@
               />
             </div>
             <div class="d-lg-block">
-              <ToggleList
-                list={staticMedia.relations?.edges
-                  ?.filter(
-                    ({ node, relationType }) =>
-                      relationType !== "CHARACTER" &&
-                      node.type === "ANIME" &&
-                      node.format !== "MUSIC" &&
-                      !(settings.value.adult === "none" && node.isAdult) &&
-                      !(
-                        settings.value.adult !== "hentai" &&
-                        node.genres?.includes("Hentai")
-                      ) &&
-                      !missingIds.includes(node.id),
-                  )
-                  .sort(
-                    (a, b) =>
-                      (a.node.seasonYear || Infinity) -
-                      (b.node.seasonYear || Infinity),
-                  )}
-                promise={searchIDS}
-                let:item
-                let:promise
-                title="Relations"
-              >
-                {#await promise}
-                  <div class="small-card">
-                    <SmallCardSk />
-                  </div>
-                {:then res}
-                  {#if res}
+              {#if !staticMedia.isTmdb}
+                <ToggleList
+                  list={staticMedia.relations?.edges
+                    ?.filter(
+                      ({ node, relationType }) =>
+                        relationType !== "CHARACTER" &&
+                        node.type === "ANIME" &&
+                        node.format !== "MUSIC" &&
+                        !(settings.value.adult === "none" && node.isAdult) &&
+                        !(
+                          settings.value.adult !== "hentai" &&
+                          node.genres?.includes("Hentai")
+                        ) &&
+                        !missingIds.includes(node.id),
+                    )
+                    .sort(
+                      (a, b) =>
+                        (a.node.seasonYear || Infinity) -
+                        (b.node.seasonYear || Infinity),
+                    )}
+                  promise={searchIDS}
+                  let:item
+                  let:promise
+                  title="Relations"
+                >
+                  {#await promise}
                     <div class="small-card">
-                      <SmallCard
-                        data={item.node}
-                        type={item.relationType
-                          .replace(/_/g, " ")
-                          .toLowerCase()}
-                      />
+                      <SmallCardSk />
                     </div>
+                  {:then res}
+                    {#if res}
+                      <div class="small-card">
+                        <SmallCard
+                          data={item.node}
+                          type={item.relationType
+                            .replace(/_/g, " ")
+                            .toLowerCase()}
+                        />
+                      </div>
+                    {/if}
+                  {/await}
+                </ToggleList>
+                {#await recommendations then res}
+                  {@const media = res?.data?.Media}
+                  {#if media}
+                    <ToggleList
+                      list={media.recommendations?.edges
+                        ?.filter(
+                          ({ node }) =>
+                            node.mediaRecommendation &&
+                            !(
+                              settings.value.adult === "none" &&
+                              node.mediaRecommendation.isAdult
+                            ) &&
+                            !(
+                              settings.value.adult !== "hentai" &&
+                              node.mediaRecommendation.genres?.includes(
+                                "Hentai",
+                              )
+                            ) &&
+                            !missingIds.includes(node.mediaRecommendation.id),
+                        )
+                        .sort((a, b) => b.node.rating - a.node.rating)}
+                      promise={searchIDS}
+                      let:item
+                      let:promise
+                      title="Recommendations"
+                    >
+                      {#await promise}
+                        <div class="small-card">
+                          <SmallCardSk />
+                        </div>
+                      {:then res}
+                        {#if res}
+                          <div class="small-card">
+                            <SmallCard
+                              data={item.node.mediaRecommendation}
+                              type={item.node.rating}
+                            />
+                          </div>
+                        {/if}
+                      {/await}
+                    </ToggleList>
                   {/if}
                 {/await}
-              </ToggleList>
-              {#await recommendations then res}
-                {@const media = res?.data?.Media}
-                {#if media}
-                  <ToggleList
-                    list={media.recommendations?.edges
-                      ?.filter(
-                        ({ node }) =>
-                          node.mediaRecommendation &&
-                          !(
-                            settings.value.adult === "none" &&
-                            node.mediaRecommendation.isAdult
-                          ) &&
-                          !(
-                            settings.value.adult !== "hentai" &&
-                            node.mediaRecommendation.genres?.includes("Hentai")
-                          ) &&
-                          !missingIds.includes(node.mediaRecommendation.id),
-                      )
-                      .sort((a, b) => b.node.rating - a.node.rating)}
-                    promise={searchIDS}
-                    let:item
-                    let:promise
-                    title="Recommendations"
-                  >
-                    {#await promise}
-                      <div class="small-card">
-                        <SmallCardSk />
-                      </div>
-                    {:then res}
-                      {#if res}
+              {:else}
+                {#await tmdbRelations then recs}
+                  {#if recs?.relations?.length}
+                    <ToggleList
+                      list={recs.relations}
+                      promise={Promise.resolve(true)}
+                      let:item
+                      let:promise
+                      title="Relations"
+                    >
+                      {#await promise}
+                        <div class="small-card">
+                          <SmallCardSk />
+                        </div>
+                      {:then}
                         <div class="small-card">
                           <SmallCard
-                            data={item.node.mediaRecommendation}
-                            type={item.node.rating}
+                            data={item.node}
+                            type={item.relationType
+                              .replace(/_/g, " ")
+                              .toLowerCase()}
                           />
                         </div>
-                      {/if}
-                    {/await}
-                  </ToggleList>
-                {/if}
-              {/await}
+                      {/await}
+                    </ToggleList>
+                  {/if}
+                {/await}
+                {#await tmdbRecs then recs}
+                  {#if recs?.recommendations?.length}
+                    <ToggleList
+                      list={recs.recommendations.map((r) => ({ node: r }))}
+                      promise={Promise.resolve(true)}
+                      let:item
+                      let:promise
+                      title="Recommendations"
+                    >
+                      {#await promise}
+                        <div class="small-card">
+                          <SmallCardSk />
+                        </div>
+                      {:then}
+                        <div class="small-card">
+                          <SmallCard data={item.node} />
+                        </div>
+                      {/await}
+                    </ToggleList>
+                  {/if}
+                {/await}
+              {/if}
             </div>
           </div>
         </div>

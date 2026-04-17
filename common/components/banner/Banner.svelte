@@ -14,7 +14,7 @@
           settings.value.hentaiBanner &&
           media.coverImage?.extraLarge),
     ); // filter entries that shouldn't be considered first.
-    let currentIndex = array.length >= 10 ? 10 : array.length; // We only need the first 10 entries, anything else wouldn't really be high in popularity.
+    let currentIndex = array.length >= 20 ? 20 : array.length; // We only need the first 20 entries, anything else wouldn't really be high in popularity.
     let randomIndex;
     while (currentIndex > 0) {
       randomIndex = Math.floor(Math.random() * currentIndex--);
@@ -27,7 +27,7 @@
   }
 
   function shuffleAndFilter(media) {
-    return shuffle(media).slice(0, 5);
+    return shuffle(media).slice(0, 10);
   }
 </script>
 

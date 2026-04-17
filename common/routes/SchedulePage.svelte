@@ -6,10 +6,10 @@
   import { nextAiring } from '@/modules/anime/anime.js'
   import { animeSchedule } from '@/modules/anime/animeschedule.js'
   import { cache, caches } from '@/modules/cache.js'
-  import Helper from '@/modules/helper.js'
+  import { tmdbClient } from '@/modules/tmdb.js'
 
   const key = writable({})
-  const search = writable(cache.getEntry(caches.HISTORY, 'lastSchedule') || { scheduleList: true, format: ['TV'], format_not: [], genre: [], genre_not: [], tag: [], tag_not: [], status: [], status_not: [] })
+  const search = writable(cache.getEntry(caches.HISTORY, 'lastSchedule') || { scheduleList: true, western: false, format: ['TV'], format_not: [], genre: [], genre_not: [], tag: [], tag_not: [], status: [], status_not: [] })
   search.subscribe(value => {
     const searched = { ...value }
     delete searched.load
@@ -18,6 +18,9 @@
   })
 
   async function fetchAllScheduleEntries (variables) {
+    if (variables.western) {
+      return await tmdbClient.getSchedule(variables)
+    }
     const results = { data: { Page: { media: [], pageInfo: { hasNextPage: false } } } }
     const airingLists = await (variables.hideSubs ? animeSchedule.dubAiringLists.value : animeSchedule.subAiringLists.value)
     let ids = airingLists.map(entry => {

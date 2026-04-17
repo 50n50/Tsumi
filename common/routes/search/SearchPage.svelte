@@ -51,7 +51,7 @@
 
   function loadSearchData() {
     const load = $search.load || SectionsManager.createFallbackLoad();
-    const nextData = load(++page, undefined, searchCleanup($search));
+    const nextData = load(++page, undefined, { ...searchCleanup($search), isSearch: true });
     $items = [...$items, ...nextData];
     requestAnimationFrame(updateRowMarkers);
     return nextData[nextData.length - 1].data;

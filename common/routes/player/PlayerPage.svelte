@@ -1878,7 +1878,7 @@
         currentParseObject?.anime_title ||
         currentParseObject?.file_name ||
         cleanCurrentName ||
-        "Watching Anime";
+        "Watching Media";
 
       if (typeof details === 'string' && details.includes('undefined')) {
         details = details.replace(/undefined\s*-\s*/g, '').replace('undefined', '').trim();
@@ -1895,7 +1895,7 @@
           }
         : undefined;
       activity = {
-        details: details || "Watching anime on Tsumi",
+        details: details || "Watching on Tsumi",
         state:
           details &&
           ((($nowPlaying?.media ?? fullMedia)?.format === "MOVIE" && (($nowPlaying?.media ?? fullMedia)?.episodes ?? 0) <= 1)
@@ -1914,7 +1914,7 @@
             undefined,
         },
         assets: {
-          large_text: details || "Watching anime on Tsumi",
+          large_text: details || "Watching on Tsumi",
           large_image:
             $nowPlaying?.media?.coverImage?.extraLarge ||
             $nowPlaying?.media?.coverImage?.large ||

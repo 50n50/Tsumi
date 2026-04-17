@@ -1,6 +1,7 @@
 <script>
   import { formatMap, getKitsuMappings, getMediaMaxEp, playMedia } from '@/modules/anime/anime.js'
   import { anilistClient, seasons } from '@/modules/anilist.js'
+  import { tmdbClient } from '@/modules/tmdb.js'
   import { episodesList } from '@/modules/episodes.js'
   import { fadeIn, fadeOut } from '@/modules/util.js'
   import { click } from '@/modules/click.js'
@@ -52,11 +53,11 @@
   <div class='banner position-relative bg-black'>
     <div class='ratio-16-9 w-full h-full clip-0'>
       <SmartImage class='img-cover w-full h-full' images={[media.bannerImage, ...(media.trailer?.id ? [`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`] : []), media.coverImage?.extraLarge ]}/>
-      {#await (media.trailer?.id && media) || episodesList.getMedia(media.idMal) then trailer}
+      {#await (media.trailer?.id && media) || (media.isTmdb ? tmdbClient.getTrailer(media) : episodesList.getMedia(media.idMal)) then trailer}
         {#if trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id }
           {#await ELECTRON.getYouTube() then youtubeServer}
             <div style='transition: opacity .3s' class:transparent={hide}>
-              <SmartImage class='position-absolute top-0 left-0 w-full h-full img-cover blur-6' images={[`https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${media.trailer.id}/hqdefault.jpg`]}/>
+              <SmartImage class='position-absolute top-0 left-0 w-full h-full img-cover blur-6' images={[`https://i.ytimg.com/vi/${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${trailer?.trailer?.id || trailer?.data?.trailer?.youtube_id}/hqdefault.jpg`]}/>
               <button type='button' class='position-absolute z-10 top-0 right-0 m-15 btn-square bg-transparent shadow-none border-0 rounded pointer mute' style='filter: drop-shadow(0 0 .4rem hsla(var(--black-color-hsl), 1))' use:click={toggleMute}>
                 {#if muted}
                   <VolumeX size='2.2rem' fill='currentColor'/>

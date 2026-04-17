@@ -5,6 +5,7 @@
     currentSeason,
     currentYear,
   } from "@/modules/anilist.js";
+  import { tmdbClient } from "@/modules/tmdb.js";
   import { animeSchedule } from "@/modules/anime/animeschedule.js";
   import { settings } from "@/modules/settings.js";
   import { uniqueStore } from "@/modules/util.js";
@@ -17,24 +18,84 @@
   const debug = Debug("ui:home");
 
   const bannerData = writable(getTitles());
-  // Refresh banner every 15 minutes
   setInterval(() => getTitles(true), 5 * 60 * 1000);
 
   async function getTitles(refresh) {
-    const res = anilistClient.search({
-      method: "Search",
-      ...(settings.value.adult === "hentai" && settings.value.hentaiBanner
-        ? { genre: ["Hentai"] }
-        : {}),
-      sort: "TRENDING_DESC",
-      perPage: 50,
-      onList: false,
-      ...(settings.value.adult !== "hentai" || !settings.value.hentaiBanner
-        ? { season: currentSeason }
-        : {}),
-      year: currentYear,
-      status_not: "NOT_YET_RELEASED",
-    });
+    const provider = settings.value.bannerProvider || "mix";
+    const limit = 50;
+
+    const anilistPromise =
+      provider !== "western"
+        ? anilistClient.search({
+            method: "Search",
+            ...(settings.value.adult === "hentai" && settings.value.hentaiBanner
+              ? { genre: ["Hentai"] }
+              : {}),
+            sort: "TRENDING_DESC",
+            perPage: limit,
+            onList: false,
+            ...(settings.value.adult !== "hentai" ||
+            !settings.value.hentaiBanner
+              ? { season: currentSeason }
+              : {}),
+            year: currentYear,
+            status_not: "NOT_YET_RELEASED",
+          })
+        : null;
+
+    const tmdbPromise =
+      provider !== "anime"
+        ? (async () => {
+            const p1 = await tmdbClient.search({
+              page: 1,
+              sort: "TRENDING_DESC",
+              format: ["TV", "MOVIE"],
+              excludeAnime: true,
+            });
+            const p2 = await tmdbClient.search({
+              page: 2,
+              sort: "TRENDING_DESC",
+              format: ["TV", "MOVIE"],
+              excludeAnime: true,
+            });
+            return {
+              results: [
+                ...(p1?.data?.Page?.media || []),
+                ...(p2?.data?.Page?.media || []),
+              ],
+            };
+          })()
+        : null;
+
+    const res = Promise.all([anilistPromise, tmdbPromise]).then(
+      async ([anilistRes, tmdbData]) => {
+        const anilistMedia = anilistRes?.data?.Page?.media || [];
+        const tmdbMedia = tmdbData?.results || [];
+
+        if (anilistRes) await tmdbClient.injectTmdbImages(anilistRes);
+        if (tmdbMedia?.length > 0)
+          await tmdbClient.injectMediaImages(tmdbMedia);
+
+        if (provider === "anime") return anilistRes;
+        if (provider === "western")
+          return {
+            data: {
+              Page: { pageInfo: { hasNextPage: false }, media: tmdbMedia },
+            },
+          };
+
+        const mixed = [];
+        const iterations = Math.max(anilistMedia.length, tmdbMedia.length);
+        for (let i = 0; i < iterations; i++) {
+          if (i < anilistMedia.length) mixed.push(anilistMedia[i]);
+          if (i < tmdbMedia.length) mixed.push(tmdbMedia[i]);
+        }
+        return {
+          data: { Page: { pageInfo: { hasNextPage: false }, media: mixed } },
+        };
+      },
+    );
+
     if (refresh) {
       const renderData = await res;
       bannerData.set(Promise.resolve(renderData));
@@ -42,19 +103,23 @@
   }
 
   let mappedSections = {};
-  const manager = new SectionsManager();
+  let manager = new SectionsManager();
   mapSections();
   WPC.listen("remap-sections", () => {
     manager.clear();
     mappedSections = {};
     mapSections();
+    manager = manager;
   });
 
   function mapSections() {
+    manager.clear();
+    mappedSections = {};
     for (const section of sections.value)
       mappedSections[section.title] = section;
     for (const sectionTitle of settings.value.homeSections)
-      manager.add(mappedSections[sectionTitle[0]]);
+      if (mappedSections[sectionTitle[0]])
+        manager.add(mappedSections[sectionTitle[0]]);
   }
 
   const continueWatching = "Continue Watching";
@@ -86,7 +151,7 @@
   if (Helper.getUser()) {
     refreshSections(
       Helper.getClient().userLists,
-      ["Dubbed Releases", "Subbed Releases", "Hentai Releases"],
+      ["Anime - Recent Dubs", "Anime - Recent Subs", "Hentai Releases"],
       true,
     );
     refreshSections(Helper.getClient().userLists, [
@@ -102,14 +167,14 @@
     ]);
   }
   if (Helper.isMalAuth())
-    refreshSections(animeSchedule.subAiredLists, continueWatching); // When authorized with Anilist, this is already automatically handled.
+    refreshSections(animeSchedule.subAiredLists, continueWatching);
   refreshSections(animeSchedule.dubAiredLists, continueWatching);
+
   function refreshSections(list, sections, schedule = false) {
     uniqueStore(list).subscribe(async (_value) => {
       const value = await _value;
       if (!value) return;
       for (const section of manager.sections) {
-        // remove preview value, to force UI to re-request data, which updates it once in viewport
         if (
           sections.includes(section.title) &&
           !section.hide &&
@@ -129,7 +194,6 @@
     });
   }
 
-  // update AniSchedule 'Releases' feeds when a change is detected for the specified feed(s).
   WPC.listen("feedChanged", ({ updateFeeds, manifest }) => {
     for (const section of manager.sections) {
       try {
@@ -159,7 +223,6 @@
     }
   });
 
-  // force update RSS feed when the user adjusts a series in the FileManager.
   window.addEventListener("fileEdit", async () => {
     for (const section of manager.sections) {
       if (section.isRSS && !section.isSchedule) {
@@ -205,7 +268,6 @@
     hideBanner.value = e.target.scrollTop > 100;
   }
 
-  // Check scroll position when banner changes
   export function checkScrollPosition() {
     if (scrollContainer) {
       hideBanner.value = scrollContainer.scrollTop > 100;
@@ -214,9 +276,14 @@
     }
   }
 
-  // Sync hideBanner with scroll position when banner changes
   $: if ($bannerImages && scrollContainer) {
     hideBanner.value = scrollContainer.scrollTop > 100;
+  }
+
+  $: if ($settings) {
+    getTitles(true);
+    mapSections();
+    manager = manager;
   }
 
   hideBanner.value = false;

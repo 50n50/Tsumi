@@ -121,14 +121,14 @@ const ranges = {
  * @param {T[]} arr
  * @param {number} n
  */
-export function * chunks (arr, n) {
+export function* chunks(arr, n) {
   for (let i = 0; i < arr.length; i += n) {
     yield arr.slice(i, i + n)
   }
 }
 
 /** @param {Date} date */
-export function since (date) {
+export function since(date) {
   const secondsElapsed = (date.getTime() - Date.now()) / 1000
   for (const key in ranges) {
     if (ranges[key] < Math.abs(secondsElapsed)) {
@@ -182,7 +182,7 @@ export function monthDay(date, year = false) {
 }
 
 const units = [' B', ' kB', ' MB', ' GB', ' TB']
-export function fastPrettyBytes (num) {
+export function fastPrettyBytes(num) {
   if (isNaN(num)) return '0 B'
   if (num < 1) return num + ' B'
   const exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1)
@@ -194,7 +194,7 @@ export const DOMPARSER = (typeof DOMParser !== 'undefined') && DOMParser.prototy
 
 export const sleep = t => new Promise(resolve => setTimeout(resolve, t).unref?.())
 
-export function toTS (sec, full) {
+export function toTS(sec, full) {
   if (isNaN(sec) || sec < 0) {
     switch (full) {
       case 1:
@@ -231,7 +231,7 @@ export function base32toHex(base32) {
   return hex
 }
 
-export function generateRandomHexCode (len) {
+export function generateRandomHexCode(len) {
   let hexCode = ''
   while (hexCode.length < len) hexCode += (Math.round(Math.random() * 15)).toString(16)
   return hexCode
@@ -401,7 +401,7 @@ export function toFlags(code) {
   return code.toUpperCase().split('').map(letter => String.fromCodePoint(0x1F1E6 + letter.charCodeAt(0) - 'A'.charCodeAt(0))).join('')
 }
 
-export function throttle (fn, time) {
+export function throttle(fn, time) {
   let wait = false
   return (...args) => {
     if (!wait) {
@@ -415,7 +415,7 @@ export function throttle (fn, time) {
   }
 }
 
-export function debounce (fn, time) {
+export function debounce(fn, time) {
   let timeout
   return (...args) => {
     const later = () => {
@@ -576,7 +576,9 @@ export const defaults = {
   subAnnounce: 'none',
   dubAnnounce: 'none',
   hentaiAnnounce: 'none',
-  customSections: [['Romance', ['Romance'], [], [], []], ['Isekai Comedy', ['Comedy'], ['Isekai'], [], []]],
+  customSections: [['Anime - Romance', ['Romance'], [], [], []], ['Anime - Isekai Comedy', ['Comedy'], ['Isekai'], [], []]],
+  westernSections: [['Western - Trending Now', [], 'Both'], ['Western - Crime Dramas', ['Crime', 'Drama'], 'TV Shows'], ['Western - Sci-Fi & Fantasy', ['Sci-Fi & Fantasy'], 'Both']],
+  bannerProvider: 'mix',
   torrentSpeed: 5,
   torrentPersist: false,
   torrentDHT: false,

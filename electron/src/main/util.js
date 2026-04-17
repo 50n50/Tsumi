@@ -29,7 +29,7 @@ app.commandLine.appendSwitch('use-angle', store.get('angle') || 'default')
 
 ipcMain.on('open', (event, url) => shell.openExternal(url))
 ipcMain.on('set:angle', (event, data) => store.set('angle', data))
-ipcMain.on('version', ({ sender }) => sender.send('version', '1.0.0'))
+ipcMain.on('version', ({ sender }) => sender.send('version', '1.0.2b'))
 ipcMain.handle('get:angle', () => store.get('angle') || 'default')
 ipcMain.on('doh', (event, dns) => {
   try {
@@ -37,7 +37,7 @@ ipcMain.on('doh', (event, dns) => {
       secureDnsMode: 'secure',
       secureDnsServers: ['' + new URL(dns)]
     })
-  } catch (e) {}
+  } catch (e) { }
 })
 
 app.setJumpList?.([
@@ -80,7 +80,7 @@ export function saveWindowState(window) {
   let bounds
   if (!window.isMaximized() && !window.isFullScreen()) bounds = window.getBounds()
   else bounds = store.get('windowState')?.bounds || defaultBounds
-  store.set('windowState', { bounds,  isMaximized: window.isMaximized(), isFullScreen: window.isFullScreen() })
+  store.set('windowState', { bounds, isMaximized: window.isMaximized(), isFullScreen: window.isFullScreen() })
 }
 
 export function getDefaultBounds() {

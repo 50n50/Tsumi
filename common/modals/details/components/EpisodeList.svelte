@@ -50,6 +50,7 @@
   import EpisodeListSk from '@/components/skeletons/EpisodeListSk.svelte'
   import AudioLabel from '@/components/AudioLabel.svelte'
   import SmartImage from '@/components/visual/SmartImage.svelte'
+  import { tmdbClient } from '@/modules/tmdb.js'
 
   export let media
 
@@ -207,13 +208,61 @@
     return episodeList && episodeList?.length > 0 ? episodeList : null
   }
 
+  async function loadTmdbEpisodes() {
+    const mediaType = media.format === 'MOVIE' ? 'movie' : 'tv'
+    const details = await tmdbClient.getDetails(media.idTmdb, mediaType)
+    if (!details) {
+      episodeList = [{ episode: 1, title: media.title?.userPreferred || 'Episode 1', summary: media.description, image: media.bannerImage, airdate: null, length: media.duration, filler: null, dubAiring: null }]
+      currentEpisodes = episodeList.slice(0, maxEpisodes)
+      return episodeList
+    }
+
+    if (mediaType === 'movie') {
+      const releaseDate = details.releaseDate ? new Date(details.releaseDate) : null
+      episodeList = [{
+        episode: 1,
+        title: details.title || media.title?.userPreferred,
+        summary: details.description || media.description,
+        image: details.backdrop || media.bannerImage,
+        airdate: releaseDate,
+        length: details.runtime,
+        rating: details.averageScore,
+        filler: null,
+        dubAiring: null
+      }]
+    } else {
+      const allEpisodes = []
+      for (const season of (details.seasons || [])) {
+        const eps = await tmdbClient.getSeasonEpisodes(media.idTmdb, season.season_number)
+        for (const ep of eps) {
+          const epAirDate = ep.airdate ? new Date(ep.airdate) : null
+          allEpisodes.push({
+            episode: allEpisodes.length + 1,
+            title: details.numberOfSeasons > 1 ? `S${ep.seasonNumber}E${ep.episode} - ${ep.title}` : ep.title,
+            summary: ep.summary,
+            image: ep.image || details.backdrop || media.bannerImage,
+            airdate: epAirDate,
+            length: ep.length,
+            rating: ep.rating,
+            filler: null,
+            dubAiring: null
+          })
+        }
+      }
+      episodeList = allEpisodes.length > 0 ? allEpisodes : [{ episode: 1, title: 'Episode 1', summary: media.description, image: media.bannerImage, airdate: null, length: null, filler: null, dubAiring: null }]
+    }
+
+    currentEpisodes = episodeList.slice(0, maxEpisodes)
+    return episodeList.length > 0 ? episodeList : null
+  }
+
   $: if (media) {
     episodeList = []
     episodeOrder = true
     currentEpisodes = []
     mobileWaiting = null
     loadScroll = false
-    if (!mobileList) episodeLoad = load()
+    if (!mobileList) episodeLoad = media.isTmdb ? loadTmdbEpisodes() : load()
   }
 
   $: {
@@ -285,7 +334,7 @@
             {@const resolvedTitle = episodeList.filter((ep) => ep.episode < episode).some((ep) => matchPhrase(ep.title, title, 0.1, true)) ? null : title}
             {@const largeCard = image}
             <div class='w-full content-visibility-auto scale my-20' class:load-in={!loadScroll} class:opacity-half={completed} class:scale-target={target} class:px-20={!target} class:px-10={target} class:h-150={!SUPPORTS.isAndroid && largeCard} class:h-165={SUPPORTS.isAndroid && largeCard}>
-              <div role='button' tabindex='0' class='episode-card rounded-2 w-full h-full overflow-hidden d-flex flex-xsm-column flex-row position-relative {unreleased ? `unreleased not-allowed` : `pointer`}' class:not-reactive={!$reactive} class:smallCard={!largeCard} class:android={SUPPORTS.isAndroid}  class:border={target || hasFiller} class:bg-black={completed} class:border-secondary={hasFiller} class:bg-dark-light={!completed} use:click={() => play(media, episode)} on:contextmenu|preventDefault={() => play(media, episode, true)}>
+              <div role='button' tabindex='0' class='episode-card rounded-2 w-full h-full overflow-hidden d-flex flex-xsm-column flex-row position-relative {unreleased ? `unreleased not-allowed` : `pointer`}' class:not-reactive={!$reactive} class:smallCard={!largeCard} class:android={SUPPORTS.isAndroid}  class:border={target || hasFiller} class:bg-black={completed} class:border-secondary={hasFiller} class:bg-dark-light={!completed} use:click={() => !unreleased && play(media, episode)} on:contextmenu|preventDefault={() => !unreleased && play(media, episode, true)}>
                 <div class='unreleased-overlay position-absolute top-0 left-0 right-0 h-full pointer-events-none rounded-2' class:d-none={!unreleased}/>
                 {#if image}
                   <div class='d-flex'>
@@ -330,26 +379,28 @@
                     {#if dubAiring}
                       <div class='d-flex flex-row date-row'>
                         <div class='mr-5 py-5 px-10 text-dark text-nowrap rounded-top rounded-left font-weight-bold' class:lg-label={image} class:bg-danger={dubAiring.delayed} class:bg-senary={!dubAiring.delayed}>
-                          Dub: {dubAiring.text}
+                          {dubAiring.label || 'Dub'}: {dubAiring.text}
                         </div>
-                        <div class='py-5 px-10 text-dark text-nowrap rounded-top rounded-left font-weight-bold bg-septenary' class:lg-label={image} class:bg-danger={!airdate && dubAiring.delayed && !dubAiring.notPlanned}>
-                          Sub:
-                          {#if airdate}
-                            {since(new Date(airdate))}
-                          {:else if !dubAiring.notPlanned}
-                            {dubAiring.text}
-                          {:else if (media.status === 'RELEASING' && episode > 1 && unreleased) || (media.status === 'NOT_YET_RELEASED' && !media.startDate?.month && !media?.season)}
-                            In Production
-                          {:else if ((media.status === 'NOT_YET_RELEASED' || episode <= 1) && !media.startDate?.month && media?.season)}
-                            {capitalize(media.season.toLowerCase()) + ' ' + (media.seasonYear || '')}
-                          {:else if ((media.status === 'NOT_YET_RELEASED' || episode <= 1) && media.startDate?.month)}
-                            {monthDay(new Date(media.startDate.year, media.startDate.month, media.startDate.day), true)}
-                          {:else if media.status === 'FINISHED'}
-                            Released
-                          {:else}
-                            Unknown
-                          {/if}
-                        </div>
+                        {#if !media.isTmdb}
+                          <div class='py-5 px-10 text-dark text-nowrap rounded-top rounded-left font-weight-bold bg-septenary' class:lg-label={image} class:bg-danger={!airdate && dubAiring.delayed && !dubAiring.notPlanned}>
+                            Sub:
+                            {#if airdate}
+                              {since(new Date(airdate))}
+                            {:else if !dubAiring.notPlanned}
+                              {dubAiring.text}
+                            {:else if (media.status === 'RELEASING' && episode > 1 && unreleased) || (media.status === 'NOT_YET_RELEASED' && !media.startDate?.month && !media?.season)}
+                              In Production
+                            {:else if ((media.status === 'NOT_YET_RELEASED' || episode <= 1) && !media.startDate?.month && media?.season)}
+                              {capitalize(media.season.toLowerCase()) + ' ' + (media.seasonYear || '')}
+                            {:else if ((media.status === 'NOT_YET_RELEASED' || episode <= 1) && media.startDate?.month)}
+                              {monthDay(new Date(media.startDate.year, media.startDate.month, media.startDate.day), true)}
+                            {:else if media.status === 'FINISHED'}
+                              Released
+                            {:else}
+                              Unknown
+                            {/if}
+                          </div>
+                        {/if}
                       </div>
                     {:else}
                       {#if airdate}

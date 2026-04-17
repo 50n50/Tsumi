@@ -104,7 +104,7 @@
 </span>
 <div class='position-relative' class:isRSS={opts.isRSS}>
   <div class='pb-10 w-full d-flex flex-row justify-content-start gallery' use:dragScroll bind:this={scrollContainer}>
-    {#each ($preview || fakecards).slice(0, visibleLength || previewLength) as card}
+    {#each ($preview || fakecards || []).slice(0, visibleLength || previewLength) as card}
       <Card {card} variables={{...opts.variables, section: true}} />
     {/each}
     {#if $preview?.length}

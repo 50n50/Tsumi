@@ -15,7 +15,16 @@
     US: 'United States',
     CN: 'China',
     HK: 'Hong Kong',
-    TW: 'Taiwan'
+    TW: 'Taiwan',
+    GB: 'United Kingdom',
+    UK: 'United Kingdom',
+    DE: 'Germany',
+    FR: 'France',
+    ES: 'Spain',
+    IT: 'Italy',
+    CA: 'Canada',
+    AU: 'Australia',
+    IN: 'India'
   }
   const detailsMap = [
     { property: 'season', label: 'Season', icon: CalendarRange, custom: 'property' },
@@ -54,9 +63,17 @@
     } else if (property === 'countryOfOrigin') {
       return countryMap[media.countryOfOrigin]
     } else if (property === 'studios') { // has to be manually fetched as studios returned by user lists are broken.
+      if (media.isTmdb) {
+        studio = media.studios?.nodes?.[0]?.name || media.studios?.[0] || media.networks?.[0]
+        return studio
+      }
       studio = ((await alt)?.data?.Media || media)?.studios?.nodes?.map(node => node.name)?.[0] // sometimes this can still be wrong, so we just get the first studio in the list and assume that's correct.
       return studio
     } else if (property === 'season') {
+      if (media.isTmdb && media.seasonYear) {
+        seasonal = [media.season, media.seasonYear].filter(f => f).join(' ')
+        return seasonal
+      }
       const details = await (((media.season || media.seasonYear || (media.status === 'NOT_YET_RELEASED')) && media) || getKitsuMappings(media.id))
       const attributes = details?.included?.[0]?.attributes
       const seasonYear = details.seasonYear || (attributes?.startDate && new Date(attributes?.startDate).getFullYear()) || (attributes?.createdAt && new Date(attributes?.createdAt).getFullYear())

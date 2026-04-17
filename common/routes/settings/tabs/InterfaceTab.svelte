@@ -7,6 +7,7 @@
   import { SUPPORTS } from '@/modules/support.js'
   import { Trash2, RotateCcw } from 'lucide-svelte'
   import { genreList, tagList } from '@/modules/anime/anime.js'
+  import { tmdbGenreList } from '@/modules/tmdb.js'
   import CustomDropdown from '@/components/CustomDropdown.svelte'
   import Helper from '@/modules/helper.js'
   function updateAngle () {
@@ -139,7 +140,7 @@
     </select>
   </SettingCard>
 {/if}
-{#each ['Sub', 'Dub', 'Hentai'] as type}
+{#each ['Sub', 'Dub', 'Hentai', 'Western'] as type}
   {#if type !== 'Hentai' || settings.adult === 'hentai'}
     <SettingCard title='{type} Announcements' description={`Get ${type} announcement notifications when an airing date is confirmed. Choose to get all announcements, updates on sequels for related anime you're following, or turn off notifications entirely.`}>
       <select class='form-control bg-dark w-120 mw-120 text-truncate' bind:value={settings[`${type.toLowerCase()}Announce`]}>
@@ -196,6 +197,13 @@
     </div>
   </SettingCard>
 {/if}
+<SettingCard title='Hero Content' description={'What content to display on the home screen hero banner section. Balanced interleaves trending Anime and Western media, while the others restrict it to a single source.'}>
+  <select class='form-control bg-dark w-150 mw-full text-truncate' bind:value={settings.bannerProvider}>
+    <option value='mix' selected>Balanced (50/50)</option>
+    <option value='anime'>Anime (AniList)</option>
+    <option value='western'>Western (TMDB)</option>
+  </select>
+</SettingCard>
 <SettingCard title='RSS Feeds' description={`RSS feeds to display on the home screen. This needs to be a CORS enabled URL to a RSS feed which cotains either an "infoHash" or "enclosure" tag. This only shows the releases on the home screen, it doesn't automatically download the content.\n\nSince the feeds only provide the name of the file, Tsumi might not always detect the anime correctly! Some presets for popular groups are already provided as an example, custom feeds require the FULL URL. Be aware that adding more than 5 RSS URLs could result in getting rate limited. These will always be resolved and handle notifications so not adding them as a home sections makes no difference.`}>
   <div>
     {#each settings.rssFeedsNew as _, i}
@@ -210,7 +218,7 @@
     <button type='button' use:click={() => { settings.rssFeedsNew[settings.rssFeedsNew.length] = ['New Releases', null] }} class='btn btn-primary mb-10 d-flex align-items-center justify-content-center'><span>Add Feed</span></button>
   </div>
 </SettingCard>
-<SettingCard title='Custom Sections' description={'Create custom sections that can be added to the home screen.'}>
+<SettingCard title='Anime Sections' description={'Create custom anime sections that can be added to the home screen. These use AniList genres and tags.'}>
   <div>
     {#each settings.customSections as _, i}
       {#if i === 0}
@@ -245,6 +253,45 @@
     <button type='button' use:click={() => { settings.customSections[settings.customSections.length] = ['New Section', [], [], [], []] }} class='btn btn-primary mb-10 d-flex align-items-center justify-content-center'><span>Add Section</span></button>
   </div>
 </SettingCard>
+<SettingCard title='Western Sections (TMDB)' description={'Create custom western media sections powered by TMDB. These filter out anime and use TMDB genres.'}>
+  <div>
+    {#each (settings.westernSections || []) as _, i}
+      {#if i === 0}
+        <div class='d-flex mb-5 w-500 mw-full'>
+          <div class='flex-shrink-1 w-150 font-size-16 text-center font-weight-bold'>Name</div>
+          <div class='flex-shrink-1 w-200 font-size-16 text-center font-weight-bold'>Genres</div>
+          <div class='flex-shrink-1 w-120 mr-5 font-size-16 text-center font-weight-bold'>Type</div>
+          <div class='flex-shrink-1 w-30 font-size-16 text-center font-weight-bold hidden'>&nbsp;</div>
+        </div>
+      {/if}
+      <div class='d-flex mb-10 w-500 mw-full'>
+        <div class='position-relative flex-shrink-1 w-150'>
+          <input
+            type='text'
+            class='form-control bg-dark fix-border-right text-capitalize text-truncate'
+            placeholder='Name'
+            autocomplete='off'
+            bind:value={settings.westernSections[i][0]}
+          />
+        </div>
+        <div class='position-relative flex-shrink-1 w-200'>
+          <CustomDropdown id={`tmdb-genre-${i}`} options={tmdbGenreList} bind:value={settings.westernSections[i][1]} />
+        </div>
+        <div class='position-relative flex-shrink-1 w-120'>
+          <select class='form-control bg-dark mw-full text-truncate' bind:value={settings.westernSections[i][2]}>
+            <option value='Both'>Both</option>
+            <option value='TV Shows'>TV Shows</option>
+            <option value='Movies'>Movies</option>
+          </select>
+        </div>
+        <div class='input-group-append'>
+          <button type='button' use:click={() => { settings.westernSections.splice(i, 1); settings.westernSections = settings.westernSections }} class='btn btn-danger btn-square input-group-append px-5 d-flex align-items-center'><Trash2 size='1.8rem' /></button>
+        </div>
+      </div>
+    {/each}
+    <button type='button' use:click={() => { if (!settings.westernSections) settings.westernSections = []; settings.westernSections[settings.westernSections.length] = ['New Section', [], 'Both'] }} class='btn btn-primary mb-10 d-flex align-items-center justify-content-center'><span>Add Section</span></button>
+  </div>
+</SettingCard>
 <SettingCard title='Sections And Order' description="Sections and their order on the home screen, if you want more RSS feeds to show up here, create them first in the RSS feed list. Adding many multiple normal lists doesn't impact performance, but adding a lot of RSS feeds will impact app startup times. Drag/drop these sections to re-order them.">
   <div class='position-relative'>
     <HomeSections bind:homeSections={settings.homeSections} />
@@ -257,6 +304,15 @@
   }
   .w-480 {
     width: 48rem;
+  }
+  .w-500 {
+    width: 50rem;
+  }
+  .w-200 {
+    width: 20rem;
+  }
+  .w-120 {
+    width: 12rem;
   }
   textarea {
     min-height: 6.6rem;
