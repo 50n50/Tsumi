@@ -73,11 +73,11 @@
   $: missingIds = staticMedia && [];
   $: recommendations =
     staticMedia &&
-    !staticMedia.isTmdb &&
+    typeof staticMedia.id !== "string" &&
     anilistClient.recommendations({ id: staticMedia.id });
   $: searchIDS =
     staticMedia &&
-    !staticMedia.isTmdb &&
+    typeof staticMedia.id !== "string" &&
     (async () => {
       const searchIDS = [
         ...(staticMedia.relations?.edges
@@ -114,7 +114,8 @@
   // TMDB detail enrichment for western media
   $: {
     if (
-      staticMedia?.isTmdb &&
+      staticMedia &&
+      typeof staticMedia.id === "string" &&
       staticMedia?.idTmdb &&
       !staticMedia._tmdbEnriched
     ) {
@@ -178,14 +179,16 @@
     }
   }
   $: tmdbRecs =
-    staticMedia?.isTmdb &&
+    staticMedia &&
+    typeof staticMedia.id === "string" &&
     staticMedia?.idTmdb &&
     tmdbClient.getRecommendations(
       staticMedia.idTmdb,
       staticMedia.format === "MOVIE" ? "movie" : "tv",
     );
   $: tmdbRelations =
-    staticMedia?.isTmdb &&
+    staticMedia &&
+    typeof staticMedia.id === "string" &&
     staticMedia?.idTmdb &&
     tmdbClient.getRelations(
       staticMedia.idTmdb,
@@ -210,7 +213,7 @@
   function play(media, episode, force = false) {
     if (!media) return;
     if (isValidNumber(episode)) return playAnime(media, episode, force);
-    if (media.status === "NOT_YET_RELEASED") return;
+    if (media.status === "NOT_YET_RELEASED" && !media.isTmdb) return;
     playMedia(media);
   }
   function getPlayButtonText(media) {
@@ -244,7 +247,7 @@
         : cachedEpisode;
     if (torrentOnly) {
       if (desiredEpisode) return playAnime(cachedMedia, desiredEpisode);
-      if (cachedMedia?.status === "NOT_YET_RELEASED") return;
+      if (cachedMedia?.status === "NOT_YET_RELEASED" && !cachedMedia?.isTmdb) return;
       playMedia(cachedMedia);
     } else play(cachedMedia, desiredEpisode);
   }
@@ -496,10 +499,10 @@
                     {playButtonText}
                   </button>
                   <div class="mt-20 d-flex">
-                    {#if Helper.isAuthorized() && !staticMedia.isTmdb}
+                    {#if Helper.isAuthorized() && typeof staticMedia.id !== 'string'}
                       <Scoring class="mr-10 " {media} viewAnime={true} />
                     {/if}
-                    {#if Helper.isAniAuth() && !staticMedia.isTmdb}
+                    {#if Helper.isAniAuth() && typeof staticMedia.id !== 'string'}
                       <button
                         class="btn bg-dark-light btn-lg btn-square d-flex align-items-center justify-content-center shadow-none border-0 mr-10"
                         data-toggle="tooltip"
@@ -532,7 +535,7 @@
                     <TrailerModal {staticMedia} />
                     <button
                       class="btn bg-dark-light btn-lg btn-square d-none align-items-center justify-content-center shadow-none border-0 mr-10"
-                      class:d-flex={staticMedia.id && !staticMedia.isTmdb}
+                      class:d-flex={staticMedia.id && typeof staticMedia.id !== 'string'}
                       data-toggle="tooltip"
                       data-placement="top"
                       data-target-breakpoint="md"
@@ -584,7 +587,7 @@
                     </button>
                     <button
                       class="btn bg-dark-light btn-lg btn-square d-none align-items-center justify-content-center shadow-none border-0 ml-10"
-                      class:d-flex={staticMedia.idMal && !staticMedia.isTmdb}
+                      class:d-flex={staticMedia.idMal && typeof staticMedia.id !== 'string'}
                       data-toggle="tooltip"
                       data-placement="top"
                       data-target-breakpoint="md"
@@ -701,7 +704,7 @@
               />
             </div>
             <div class="d-lg-block">
-              {#if !staticMedia.isTmdb}
+              {#if typeof staticMedia.id !== "string"}
                 <ToggleList
                   list={staticMedia.relations?.edges
                     ?.filter(

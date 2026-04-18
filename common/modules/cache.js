@@ -665,7 +665,16 @@ class Cache {
     const mediaMap = new Map(filledMedias.map(m => [m.id, m]))
     mediaCache.update(current => {
       for (const [id, media] of mediaMap.entries()) {
-        if (media) current[id] = media
+        if (media) {
+          const existing = current[id] || {}
+          current[id] = {
+            ...existing,
+            ...media,
+            logo: media.logo || existing.logo,
+            bannerImage: media.bannerImage || existing.bannerImage,
+            airingSchedule: media.airingSchedule || existing.airingSchedule
+          }
+        }
       }
       return current
     })
@@ -678,7 +687,7 @@ class Cache {
    * @returns {Promise<Object | null>}
    */
   async requestMedia(id) {
-    if (!id) return null
+    if (!id || typeof id === "string") return null;
     const media = mediaCache.value[id]
     if (media) return media
     if (!this.anilistClient) {

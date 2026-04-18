@@ -17,10 +17,11 @@
   export let type = null
   export let variables = null
   let _variables = variables
+  $: _variables = variables
 
   let media
-  $: if (data && !media) media = mediaCache.value[data?.id]
-  mediaCache.subscribe((value) => { if (value && (JSON.stringify(value[media?.id]) !== JSON.stringify(media))) media = value[media?.id] })
+  $: media = mediaCache.value[data?.id] || data
+  mediaCache.subscribe((value) => { if (value && media?.id && (JSON.stringify(value[media?.id]) !== JSON.stringify(media))) media = value[media?.id] })
   function viewMedia() {
     if (_variables?.fileEdit) _variables.fileEdit(media)
     else modal.open(modal.ANIME_DETAILS, media)
@@ -78,15 +79,17 @@
   }
 
   let airingInterval
-  let _airingAt = null
+  $: _airingAt = media && _variables?.scheduleList && airingAt(media, _variables)
   $: airingInfo = getAiringInfo(_airingAt)
-  onMount(() => {
-    container.addEventListener('focusout', handleBlur)
-    _airingAt = media && _variables?.scheduleList && airingAt(media, _variables)
+  $: {
+    clearInterval(airingInterval)
     if (_airingAt) {
       airingInterval = setInterval(() => airingInfo = getAiringInfo(_airingAt), 60_000)
       airingInterval.unref?.()
     }
+  }
+  onMount(() => {
+    container.addEventListener('focusout', handleBlur)
   })
   onDestroy(() => {
     document.removeEventListener('pointerup', handleOutsideClick)
@@ -115,7 +118,7 @@
     {/if}
     <div class='d-inline-block position-relative'>
       <span class='airing-badge rounded-10 font-weight-semi-bold text-light bg-success' class:d-none={!airingInfo?.episode?.match(/out for/i)}>AIRING</span>
-      <SmartImage class='cover-img cover-color cover-ratio w-full rounded' color={media.coverImage.color || 'var(--tertiary-color)'} images={[media.coverImage.extraLarge, media.coverImage?.medium, './404_cover.png']}/>
+      <SmartImage class='cover-img cover-color cover-ratio w-full rounded' color={media?.coverImage?.color || 'var(--tertiary-color)'} images={[media?.coverImage?.extraLarge, media?.coverImage?.medium, './404_cover.png']}/>
       {#if !_variables?.scheduleList}
         <AudioLabel {media} />
       {/if}
@@ -139,13 +142,13 @@
     <div class='d-flex flex-row mt-auto font-weight-medium justify-content-between w-full text-muted'>
       <div class='d-flex align-items-center pr-5'>
         <CalendarDays class='pr-5' size='2.6rem' />
-        {#await ((media.seasonYear || (media.status === 'NOT_YET_RELEASED')) && media) || getKitsuMappings(media.id) then details}
+        {#await ((media?.seasonYear || (media?.status === 'NOT_YET_RELEASED')) && media) || (media?.id && getKitsuMappings(media.id)) then details}
           {@const attributes = details?.included?.[0]?.attributes}
-          <span class='line-height-1'>{details.seasonYear || ((media.status === 'NOT_YET_RELEASED') && 'TBA') || (attributes?.startDate && new Date(attributes?.startDate).getFullYear()) || (attributes?.createdAt && new Date(attributes?.createdAt).getFullYear()) || (media.status === 'RELEASING' && currentYear) || 'N/A'}</span>
+          <span class='line-height-1'>{details?.seasonYear || ((media?.status === 'NOT_YET_RELEASED') && 'TBA') || (attributes?.startDate && new Date(attributes?.startDate).getFullYear()) || (attributes?.createdAt && new Date(attributes?.createdAt).getFullYear()) || (media?.status === 'RELEASING' && currentYear) || 'N/A'}</span>
         {/await}
       </div>
       <div class='d-flex align-items-center text-nowrap text-right'>
-        <span class='line-height-1'>{formatMap[media.format]}</span>
+        <span class='line-height-1'>{formatMap[media?.format] || 'N/A'}</span>
         <Tv class='pl-5' size='2.6rem' />
       </div>
     </div>

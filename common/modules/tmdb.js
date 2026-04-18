@@ -156,10 +156,13 @@ class TMDBClient {
       isAdult: tmdbItem.adult || false,
       genres: (tmdbItem.genre_ids || []).map(id => this.getTmdbGenre(id)),
       tags: [],
+      synonyms: [],
+      streamingEpisodes: [],
+      stats: null,
       seasonYear: tmdbItem.first_air_date ? parseInt(tmdbItem.first_air_date.substring(0, 4)) : (tmdbItem.release_date ? parseInt(tmdbItem.release_date.substring(0, 4)) : null),
       status: tmdbItem.status ?
-        (['Ended', 'Canceled'].includes(tmdbItem.status) ? 'FINISHED' : ['Returning Series', 'Released', 'In Production', 'Post Production', 'Pilot'].includes(tmdbItem.status) ? 'RELEASING' : 'NOT_YET_RELEASED') :
-        ((tmdbItem.release_date || tmdbItem.first_air_date) ? (new Date(tmdbItem.release_date || tmdbItem.first_air_date) <= new Date() ? 'RELEASING' : 'NOT_YET_RELEASED') : 'RELEASING'),
+        (['Ended', 'Canceled', 'Finished'].some(s => tmdbItem.status?.includes(s)) ? 'FINISHED' : ['Returning Series', 'Released', 'In Production', 'Post Production', 'Pilot', 'Airing'].some(s => tmdbItem.status?.includes(s)) ? 'RELEASING' : 'NOT_YET_RELEASED') :
+        ((tmdbItem.release_date || tmdbItem.first_air_date) ? (new Date(tmdbItem.release_date || tmdbItem.first_air_date).getTime() <= (new Date().getTime() + 86400000) ? 'RELEASING' : 'NOT_YET_RELEASED') : 'RELEASING'),
       isTmdb: true,
       logo: tmdbItem.images?.logos?.find(l => l.iso_639_1 === 'en') || tmdbItem.images?.logos?.[0] ? `https://image.tmdb.org/t/p/w500${(tmdbItem.images?.logos?.find(l => l.iso_639_1 === 'en') || tmdbItem.images?.logos?.[0]).file_path}` : null
     }
@@ -300,9 +303,9 @@ class TMDBClient {
     }
   }
 
-  getSchedule = this.limiter.wrap(async (variables = {}) => {
-    debug('TMDB Schedule', variables)
-    const { page = 1 } = variables
+  getSchedule = this.limiter.wrap(async (pageArg = 1) => {
+    const page = typeof pageArg === 'object' ? (pageArg.page || 1) : pageArg
+    debug('TMDB Schedule', page)
 
     try {
       let res = await this.handleRequest('/tv/on_the_air', { page }).catch(() => ({ results: [] }))
@@ -310,15 +313,43 @@ class TMDBClient {
         res = await this.handleRequest('/tv/popular', { page }).catch(() => ({ results: [] }))
       }
 
-      const detailedResults = await Promise.all((res.results || []).map(async (item) => {
+      const westernOnly = (res.results || []).filter(item => {
+        const isAsianLanguage = ['ja', 'zh', 'ko'].includes(item.original_language)
+        const isAsianCountry = item.origin_country?.some(c => ['JP', 'CN', 'KR'].includes(c))
+        const isMappedAnime = !!this.tmdbToAnilist[`tv-${item.id}`] || !!this.tmdbToAnilist[`movie-${item.id}`]
+        return !isAsianLanguage && !isAsianCountry && !isMappedAnime
+      })
+
+      const detailedResults = await Promise.all(westernOnly.map(async (item) => {
         try {
           const details = await this.getDetails(item.id, 'tv')
-          const ep = details?.next_episode_to_air || details?.last_episode_to_air
-          if (ep) {
+          let ep = details?.next_episode_to_air || details?.last_episode_to_air
+
+          if ((!details?.next_episode_to_air || new Date(details?.next_episode_to_air?.air_date) < new Date()) && details?.externalIds?.imdb_id) {
+            try {
+              const imdbId = details.externalIds.imdb_id
+              const tvmazeRes = await fetch(`https://api.tvmaze.com/lookup/shows?imdb=${imdbId}`).then(r => r.ok ? r.json() : null)
+              if (tvmazeRes?._links?.nextepisode?.href) {
+                const nextEp = await fetch(tvmazeRes._links.nextepisode.href).then(r => r.ok ? r.json() : null)
+                if (nextEp) {
+                  ep = {
+                    air_date: nextEp.airdate,
+                    episode_number: nextEp.number,
+                    season_number: nextEp.season,
+                    name: nextEp.name
+                  }
+                }
+              }
+            } catch (e) {
+            }
+          }
+
+          if (ep && ep.air_date) {
             const media = this.normalizeMedia({ ...item, ...details })
             media.next_episode_to_air = details.next_episode_to_air
             media.last_episode_to_air = details.last_episode_to_air
-            const airDate = ep.air_date ? new Date(ep.air_date) : new Date()
+            const airDateStr = ep.air_date
+            const airDate = airDateStr ? (airDateStr.includes('T') ? new Date(airDateStr) : new Date(`${airDateStr}T23:59:59`)) : new Date()
             media.airingSchedule = {
               nodes: [{
                 episode: ep.episode_number,
@@ -335,7 +366,7 @@ class TMDBClient {
       const mediaList = detailedResults.filter(Boolean).sort((a, b) => {
         const aTime = a.airingSchedule?.nodes?.[0]?.airingAt || 0
         const bTime = b.airingSchedule?.nodes?.[0]?.airingAt || 0
-        return bTime - aTime
+        return aTime - bTime
       })
 
       await cache.updateMedia(mediaList)

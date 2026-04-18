@@ -177,7 +177,6 @@ export async function anitomyscript (...args) {
   // @ts-ignore
   const res = await _anitomyscript(...args)
   const parseObjs = Array.isArray(res) ? res : [res]
-  debug('AnitoMyScript found titles:', JSON.stringify(parseObjs))
 
   for (const obj of parseObjs) {
     obj.anime_title ??= ''
@@ -212,7 +211,6 @@ export async function anitomyscript (...args) {
     if (obj.file_name?.match(/(^|[\s()[\]\-_])NCOP($|[\s()[\]\-_])/i)) addAnimeType(obj, 'NCOP')
     if (obj.file_name && /(^|\s|[[(-_])trailer(?=$|\s|[\]))-_])/i.test(obj.file_name)) addAnimeType(obj, 'Trailer')
   }
-  debug('AnitoMyScript corrected titles:', JSON.stringify(parseObjs))
   return parseObjs
 }
 
@@ -735,6 +733,11 @@ export const tagList = [
 ]
 
 export async function playMedia (media) {
+  if (typeof media.id === 'string') {
+    playAnime(media, 1)
+    media = null
+    return
+  }
   const zeroEpisode = await hasZeroEpisode(media)
   let ep = zeroEpisode ? 0 : 1
   if (media.mediaListEntry) {
@@ -877,7 +880,7 @@ export async function isSubbedProgress(media) {
 
 const concurrentRequests = new Map()
 export async function getKitsuMappings(anilistID) {
-  if (!anilistID) return
+  if (!anilistID || typeof anilistID === 'string' || !Number.isInteger(Number(anilistID))) return
   const cachedEntry = cache.cachedEntry(caches.MAPPINGS, `kitsu-${anilistID}`, status.value === 'offline')
   if (cachedEntry) return cachedEntry
   else if (status.value === 'offline') return
@@ -948,7 +951,7 @@ aniLimiter.on('failed', async (error) => {
 })
 
 export async function getAniMappings(anilistID) {
-  if (!anilistID) return
+  if (!anilistID || typeof anilistID === 'string' || !Number.isInteger(Number(anilistID))) return
   const cachedEntry = cache.cachedEntry(caches.MAPPINGS, `ani-${anilistID}`, status.value === 'offline')
   if (cachedEntry) return cachedEntry
   else if (status.value === 'offline') return

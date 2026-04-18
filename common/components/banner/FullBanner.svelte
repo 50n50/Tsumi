@@ -197,10 +197,10 @@
       >
         <span>View Details</span>
       </button>
-      {#if Helper.isAuthorized()}
+      {#if Helper.isAuthorized() && typeof current.id !== 'string'}
         <Scoring media={current} />
       {/if}
-      {#if Helper.isAniAuth()}
+      {#if Helper.isAniAuth() && typeof current.id !== 'string'}
         <button
           class="btn bg-dark-light btn-square ml-10 d-flex align-items-center justify-content-center shadow-none border-0"
           data-toggle="tooltip"

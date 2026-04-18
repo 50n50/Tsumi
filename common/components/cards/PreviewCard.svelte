@@ -40,7 +40,7 @@
     media.isFavourite = anilistClient.favourite({ id: media.id })
   }
   function play() {
-    if (media.status === 'NOT_YET_RELEASED') return
+    if (media.status === 'NOT_YET_RELEASED' && !media.isTmdb) return
     playMedia(media)
   }
   let muted = true
@@ -89,14 +89,14 @@
     {#if !_variables?.fileEdit}
       <div class='d-flex flex-row position-relative'>
         <button type='button' tabindex='-1' class='position-absolute preview-safe-area top-0 left-0 h-50 bg-transparent border-0 shadow-none not-reactive' use:click={() => {}}/>
-        <button class='btn btn-secondary flex-grow-1 text-dark font-weight-bold shadow-none border-0 d-flex align-items-center justify-content-center z-1' use:click={play} disabled={media.status === 'NOT_YET_RELEASED'}>
+        <button class='btn btn-secondary flex-grow-1 text-dark font-weight-bold shadow-none border-0 d-flex align-items-center justify-content-center z-1' use:click={play} disabled={media.status === 'NOT_YET_RELEASED' && !media.isTmdb}>
           <Play class='pr-10 z-10' fill='currentColor' size='2.2rem'/>
           {playButtonText}
         </button>
-        {#if Helper.isAuthorized()}
+        {#if Helper.isAuthorized() && typeof media.id !== 'string'}
           <Scoring {media} previewAnime={true}/>
         {/if}
-        {#if Helper.isAniAuth()}
+        {#if Helper.isAniAuth() && typeof media.id !== 'string'}
           <button class='btn btn-square ml-10 d-flex align-items-center justify-content-center shadow-none border-0 z-1' data-toggle='tooltip' data-placement='top-right' data-target-breakpoint='md' data-title={media.isFavourite ? 'Unfavourite' : 'Favourite'} use:click={toggleFavourite} disabled={!Helper.isAniAuth()}>
             <div class='favourite d-flex align-items-center justify-content-center'>
               <Heart color={media.isFavourite ? 'var(--tertiary-color)' : 'currentColor'} fill={media.isFavourite ? 'var(--tertiary-color)' : 'transparent'} size='1.7rem'/>

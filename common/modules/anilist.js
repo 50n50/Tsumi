@@ -246,6 +246,7 @@ class AnilistClient {
    * @param {Record<string, any>} variables
    */
   alRequest (query, variables) {
+    if (variables && variables.id && typeof variables.id === 'string') return Promise.resolve({ data: null })
     const vars =  {
       variables: {
         page: 1,
@@ -709,6 +710,10 @@ class AnilistClient {
 
   /** returns {import('./al.d.ts').PagedQuery<{media: import('./al.d.ts').Media[]}>} */
   async searchAllIDS(variables) {
+    if (variables && variables.id && Array.isArray(variables.id)) {
+      variables.id = variables.id.filter(i => typeof i !== 'string')
+      if (variables.id.length === 0) return Promise.resolve({ data: { Page: { pageInfo: { hasNextPage: false }, media: [] } } })
+    }
     variables.sort = variables.sort || 'OMIT'
     if (settings.value.adult === 'none') variables.isAdult = false
     if (settings.value.adult !== 'hentai' && (!variables.genre_not || !variables.genre_not.includes('Hentai'))) variables.genre_not = [ ...(variables.genre_not ? variables.genre_not : []), 'Hentai' ]
@@ -897,7 +902,7 @@ class AnilistClient {
    */
   requestMediaID(id) {
     debug(`Requesting media ID: ${id}`, `Current queue: ${Array.from(this.queuedMediaIDs)}`)
-    if (status.value.match(/offline/i)) return Promise.resolve(null)
+    if (!id || typeof id === 'string' || status.value.match(/offline/i)) return Promise.resolve(null)
     if (this.mediaIDHandlers.get(id)?.promise) return this.mediaIDHandlers.get(id).promise
     let resolveFn, rejectFn
     const promise = new Promise((resolve, reject) => { resolveFn = resolve; rejectFn = reject })
