@@ -17,32 +17,35 @@
     <NavbarLink click={() => page.navigateTo(page.SCHEDULE)} _page={page.SCHEDULE} icon='schedule' text='Schedule' let:active>
       <CalendarSearch size='3.6rem' class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active ? 'currentColor' : 'var(--gray-color-very-dim)'} />
     </NavbarLink>
-    {#if $media?.media || ($playPage && (Object.keys($media).length > 0))}
+    {#if $media?.media}
       {@const currentMedia = $modal[modal.ANIME_DETAILS]?.data}
-      {@const wasModal = $modal && modal.length}
       <NavbarLink
         click={() => {
-          if ($playPage && (page.value === page.PLAYER) && !wasModal) {
-            playPage.set(false)
-          }
-          if ($playPage) {
-            page.navigateTo(page.PLAYER)
-          } else if (currentMedia?.id === $media?.media.id && modal.length === 1) {
-            modal.close(modal.ANIME_DETAILS)
+          if ($page !== page.PLAYER) {
+            page.navigateTo(page.PLAYER);
+          } else if (
+            currentMedia?.id === $media?.media.id &&
+            modal.length === 1
+          ) {
+            modal.close(modal.ANIME_DETAILS);
           } else {
-            modal.open(modal.ANIME_DETAILS, $media?.media)
+            modal.open(modal.ANIME_DETAILS, $media?.media);
           }
         }}
-        rbClick={() => {
-          if ($media?.media) {
-            if (currentMedia?.id === $media.media.id && modal.length === 1) {
-              modal.close(modal.ANIME_DETAILS)
-            } else {
-              modal.open(modal.ANIME_DETAILS, $media.media)
-            }
-          }
-        }} _page={$playPage ? page.PLAYER : null} icon='queue_music' text={$media?.display ? 'Last Watched' : 'Now Playing'} _modal={modal.ANIME_DETAILS} let:active>
-        <svelte:component this={$playPage ? TvMinimalPlay : $media?.display ? History : ListVideo} size='3.6rem' class='flex-shrink-0 p-5 m-5 rounded' strokeWidth='2.5' color={active && (currentMedia?.id === $media?.media?.id) ? 'currentColor' : 'var(--gray-color-very-dim)'} />
+        icon="queue_music"
+        text={$media?.display ? "Last Watched" : "Now Playing"}
+        _modal={modal.ANIME_DETAILS}
+        let:active
+      >
+        <svelte:component
+          this={$media?.display ? History : ListVideo}
+          size="3.6rem"
+          class="flex-shrink-0 p-5 m-5 rounded"
+          strokeWidth="2.5"
+          color={active && currentMedia?.id === $media?.media?.id
+            ? "currentColor"
+            : "var(--gray-color-very-dim)"}
+        />
       </NavbarLink>
     {/if}
     <NavbarLink click={() => page.navigateTo(page.WATCH_TOGETHER)} _page={page.WATCH_TOGETHER} icon='groups' text='Watch Together' let:active>

@@ -5,6 +5,7 @@
   import {
     page,
     modal,
+    playPage as playPageStore,
     destroyHistory,
     enableHistory,
   } from "@/modules/navigation.js";
@@ -40,11 +41,12 @@
   import Navbar from "@/components/navigation/Navbar.svelte";
   import Status from "@/components/Status.svelte";
   import { status } from "@/modules/networking.js";
-  import { bannerImages, hideBanner } from "@/modules/bannerStore.js";
-  import SmartImage from "@/components/visual/SmartImage.svelte";
   import { Toaster } from "svelte-sonner";
   import { onMount, onDestroy } from "svelte";
-  import { fade } from "svelte/transition";
+  import MediaHandler, {
+    nowPlaying as media,
+  } from "@/components/MediaHandler.svelte";
+  import Miniplayer from "@/components/Miniplayer.svelte";
 
   IPC.emit("main-ready");
 
@@ -76,6 +78,23 @@
     clearTimeout(transitionTimer);
     document.removeEventListener("fullscreenchange", updateFullscreen);
   });
+
+  $: visible =
+    !$modal[modal.EXTENSION_MENU] &&
+    !$modal[modal.NOTIFICATIONS] &&
+    !$modal[modal.PROFILE] &&
+    !$modal[modal.MINIMIZE_PROMPT] &&
+    !$modal[modal.TRAILER] &&
+    !$media?.display;
+
+  $: miniplayer =
+    $media &&
+    Object.keys($media).length > 0 &&
+    (($page !== page.PLAYER && visible) ||
+      ($modal[modal.ANIME_DETAILS] && visible));
+
+  $: showPlayerLayer = ($media && Object.keys($media).length > 0) &&
+    (visible || $page === page.PLAYER);
 </script>
 
 <MinimizeModal />
@@ -108,8 +127,25 @@
     <ServerSelectorModal />
     <NotificationsModal />
     <Profiles />
-    <Router bind:statusTransition={$statusTransition} />
+    <Router bind:statusTransition={$statusTransition} {miniplayer} />
   </div>
+</div>
+
+<div
+  class="global-player-layer"
+  class:miniplayer-active={miniplayer}
+  class:invisible={!showPlayerLayer}
+>
+  <Miniplayer
+    active={miniplayer}
+    class="bg-dark-light rounded-10 miniplayer-border {$page ===
+      page.PLAYER && !$modal[modal.ANIME_DETAILS]
+      ? `w-full h-full`
+      : ``}"
+    padding="2rem"
+  >
+    <MediaHandler {miniplayer} />
+  </Miniplayer>
 </div>
 
 <style>
@@ -127,5 +163,21 @@
     margin-left: 0 !important;
     width: 100% !important;
     height: calc(100% - var(--wrapper-offset, 0rem)) !important;
+  }
+  .global-player-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .global-player-layer.miniplayer-active {
+    z-index: 1000;
+  }
+  .global-player-layer :global(.miniplayer-container) {
+    pointer-events: auto !important;
   }
 </style>

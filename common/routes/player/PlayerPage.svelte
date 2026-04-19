@@ -958,10 +958,23 @@
     else element.play();
   }
   $: updatePiPState(paused);
-  function togglePopout() {
-    if (video.readyState && $page === page.PLAYER) {
-      resetImmerse();
-      page.navigateTo(page.HOME);
+  async function togglePopout() {
+    if (video && video.readyState) {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        pip = false;
+      } else {
+        try {
+          await video.requestPictureInPicture();
+          pip = true;
+        } catch (e) {
+          console.error("PiP failed, falling back to miniplayer", e);
+          if ($page === page.PLAYER) {
+            resetImmerse();
+            page.navigateTo(page.HOME);
+          }
+        }
+      }
     }
   }
   let fitWidth = false;
@@ -2064,10 +2077,9 @@
     on:loadedmetadata={checkSubtitle}
     on:loadedmetadata={clearLoadInterval}
     on:loadedmetadata={loadAnimeProgress}
+    on:enterpictureinpicture={() => (pip = true)}
     on:leavepictureinpicture={() => {
       pip = false;
-      stopStream(video);
-      paused = true;
     }}><track kind="captions" src="" srclang="en" label="English" /></video
   >
   {#if stats && !miniplayer}
@@ -2233,15 +2245,6 @@
     >
     <!-- player minimize button (z-11 to sit above fullscreen/immerse overlays) -->
     {#if miniplayer}
-      <span
-        class="position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11 player-close-btn"
-        class:mr-40={!SUPPORTS.isAndroid}
-        class:mr-50={SUPPORTS.isAndroid}
-        title="Minimize"
-        use:click={() => playPage.set(!playPage.value)}
-      >
-        <Minus size="1.9rem" strokeWidth="3" />
-      </span>
       <span
         class="position-absolute rounded-10 top-0 right-0 m-10 btn-shadow button z-11 player-close-btn"
         title="Exit"

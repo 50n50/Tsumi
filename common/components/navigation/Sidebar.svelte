@@ -156,15 +156,11 @@
         color={active ? "currentColor" : "var(--gray-color-very-dim)"}
       />
     </SidebarLink>
-    {#if $media?.media || ($playPage && Object.keys($media).length > 0)}
+    {#if $media?.media}
       {@const currentMedia = $modal[modal.ANIME_DETAILS]?.data}
-      {@const wasModal = $modal && modal.length}
       <SidebarLink
         click={() => {
-          if ($playPage && $page === page.PLAYER && !wasModal) {
-            playPage.set(false);
-          }
-          if ($playPage) {
+          if ($page !== page.PLAYER) {
             page.navigateTo(page.PLAYER);
           } else if (
             currentMedia?.id === $media?.media.id &&
@@ -175,27 +171,13 @@
             modal.open(modal.ANIME_DETAILS, $media?.media);
           }
         }}
-        rbClick={() => {
-          if ($media?.media) {
-            if (currentMedia?.id === $media.media.id && modal.length === 1) {
-              modal.close(modal.ANIME_DETAILS);
-            } else {
-              modal.open(modal.ANIME_DETAILS, $media.media);
-            }
-          }
-        }}
-        _page={$playPage ? page.PLAYER : null}
         icon="queue_music"
         text={$media?.display ? "Last Watched" : "Now Playing"}
         _modal={modal.ANIME_DETAILS}
         let:active
       >
         <svelte:component
-          this={$playPage
-            ? TvMinimalPlay
-            : $media?.display
-              ? History
-              : ListVideo}
+          this={$media?.display ? History : ListVideo}
           size={btnSize}
           class="flex-shrink-0 p-5 m-5 rounded"
           strokeWidth="2.5"

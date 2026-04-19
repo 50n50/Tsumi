@@ -46,7 +46,7 @@ const debug = Debug('ui:history')
  */
 
 /** @type {import('simple-store-svelte').Writable<boolean>} */
-export const playPage = writable(settings.value.disableMiniplayer || false)
+export const playPage = writable(false)
 playPage.subscribe((value) => {
   const currentSettings = settings.value
   currentSettings.disableMiniplayer = value

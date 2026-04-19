@@ -37,12 +37,6 @@
 </script>
 
 <h4 class='mb-10 font-weight-bold'>Player Settings</h4>
-<SettingCard title='Disable Miniplayer' description='Disables the built-in Miniplayer, this is not recommended but could be useful for small screens. When utilizing the minimize button on the Miniplayer, this setting is changed automatically.'>
-  <div class='custom-switch'>
-    <input type='checkbox' id='miniplayer-disabled' bind:checked={$playPage} />
-    <label for='miniplayer-disabled'>{$playPage ? 'On' : 'Off'}</label>
-  </div>
-</SettingCard>
 <h4 class='mb-10 font-weight-bold'>Subtitle Settings</h4>
 {#if ('queryLocalFonts' in self)}
   <SettingCard title='Default Subtitle Font' description={"What font to use when the current loaded video doesn't provide or specify one.\nThis uses fonts installed on your OS."}>

@@ -1,21 +1,22 @@
 <script>
   import HomePage from "@/routes/home/HomePage.svelte";
-  import MediaHandler, {
+  import {
     nowPlaying as media,
   } from "@/components/MediaHandler.svelte";
   import SettingsPage from "@/routes/settings/SettingsPage.svelte";
   import WatchTogetherPage from "@/routes/w2g/WatchTogetherPage.svelte";
   import SchedulePage from "@/routes/SchedulePage.svelte";
-  import Miniplayer, {
+  import {
     isMobile,
     isSuperSmall,
   } from "@/components/Miniplayer.svelte";
   import SearchPage from "@/routes/search/SearchPage.svelte";
   import { cache, caches } from "@/modules/cache.js";
   import { search, key } from "@/modules/sections.js";
-  import { page, modal, playPage } from "@/modules/navigation.js";
+  import { page, playPage } from "@/modules/navigation.js";
 
   export let statusTransition = false;
+  export let miniplayer = false;
 
   export let miniplayerPadding = getPadding();
   export let miniplayerActive = false;
@@ -38,44 +39,8 @@
     );
   }
 
-  $: miniplayerActive = !(
-    $playPage ||
-    !$media ||
-    !Object.keys($media).length ||
-    $media?.display
-  );
-  $: visible =
-    !$modal[modal.EXTENSION_MENU] &&
-    !$modal[modal.NOTIFICATIONS] &&
-    !$modal[modal.PROFILE] &&
-    !$modal[modal.MINIMIZE_PROMPT] &&
-    !$modal[modal.TRAILER] &&
-    !$playPage &&
-    !$media?.display;
-  $: miniplayer =
-    $media &&
-    Object.keys($media).length > 0 &&
-    (($page !== page.PLAYER && visible) ||
-      ($modal[modal.ANIME_DETAILS] && visible));
+  $: miniplayerActive = miniplayer;
 </script>
-
-<div
-  class="w-full h-full position-absolute overflow-hidden"
-  class:invisible={!($media && Object.keys($media).length > 0) ||
-    ($playPage && $modal[modal.ANIME_DETAILS]) ||
-    (!visible && $page !== page.PLAYER)}
->
-  <Miniplayer
-    active={miniplayer}
-    class="bg-dark-light rounded-10 z-100 miniplayer-border {$page ===
-      page.PLAYER && !$modal[modal.ANIME_DETAILS]
-      ? `h-full`
-      : ``}"
-    padding="2rem"
-  >
-    <MediaHandler {miniplayer} />
-  </Miniplayer>
-</div>
 
 {#if $page === page.SETTINGS}
   <SettingsPage
