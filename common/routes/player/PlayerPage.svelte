@@ -1912,7 +1912,7 @@
           }
         : undefined;
       activity = {
-        details: details || "Watching on Tsumi",
+        details: details || "Watching Media on Tsumi",
         state:
           details &&
           ((($nowPlaying?.media ?? fullMedia)?.format === "MOVIE" && (($nowPlaying?.media ?? fullMedia)?.episodes ?? 0) <= 1)
@@ -1968,11 +1968,11 @@
     } else {
       activity = {
         timestamps: { start: Date.now() },
-        details: "Watching anime on Tsumi",
+        details: "Watching Media on Tsumi",
         state: "Browsing the library",
         assets: {
           large_image: "icon",
-          large_text: "Tsumi — Anime Streaming",
+          large_text: "Tsumi — Media Streaming",
         },
         buttons: [
           {

@@ -6,11 +6,11 @@ export default class Discord {
   defaultStatus = {
     activity: {
       timestamps: { start: Date.now() },
-      details: 'Watching anime on Tsumi',
+      details: 'Watching media on Tsumi',
       state: 'Browsing the library',
       assets: {
         large_image: 'icon',
-        large_text: 'Tsumi — Anime Streaming'
+        large_text: 'Tsumi — Media Streaming'
       },
       buttons: [
         {
@@ -31,7 +31,7 @@ export default class Discord {
   cachedPresence
 
   /** @param {import('electron').BrowserWindow} window */
-  constructor (window) {
+  constructor(window) {
     ipcMain.on('discord', (event, data) => {
       this.cachedPresence = data
       this.debouncedDiscordRPC(this.enableRPC === 'full' ? this.cachedPresence : undefined, this.enableRPC === 'disabled')
@@ -64,11 +64,11 @@ export default class Discord {
     this.debouncedDiscordRPC = debounce((status, clearActivity) => this.setDiscordRPC(status, clearActivity), 4_500)
   }
 
-  loginRPC () {
+  loginRPC() {
     this.discord.login().catch(() => setTimeout(() => this.loginRPC(), 5_000).unref?.())
   }
 
-  setDiscordRPC (data = this.defaultStatus, clearActivity = false) {
+  setDiscordRPC(data = this.defaultStatus, clearActivity = false) {
     if (clearActivity) {
       if (this.discord?.user) this.discord.user.clearActivity(process.pid)
     } else if (this.discord.user && data && this.enableRPC !== 'disabled') {
