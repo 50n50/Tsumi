@@ -207,7 +207,6 @@ function createSections() {
 
       return section
     }),
-    // official episode releases section
     ...['Anime - Recent Dubs', 'Anime - Recent Subs', ...(settings.value.adult === 'hentai' ? ['Hentai Releases'] : []), 'Western - Recent TV Episodes'].map((title) => {
       const isWestern = title === 'Western - Recent TV Episodes'
       const type = title.includes('Subs') ? 'Sub' : title.includes('Dubs') ? 'Dub' : 'Hentai'
@@ -222,11 +221,10 @@ function createSections() {
         preview: writable(isWestern ? tmdbClient.getMediaForRSS(1, 50) : animeSchedule.getMediaForRSS(1, 50, type)),
       }
     }),
-    // user specific sections
     createSection({
       title: 'Sequels You Missed', sort: 'POPULARITY_DESC', format: [], hide: !Helper.isAuthorized() || Helper.isMalAuth(),
       load: (page = 1, perPage = 50, variables = {}) => {
-        if (Helper.isMalAuth()) return {} // not going to bother handling this, see below.
+        if (Helper.isMalAuth()) return {}
         const res = Helper.userLists(variables).then(res => {
           if (!res?.data && res?.errors) throw res.errors[0]
           const mediaList = res.data.MediaListCollection.lists.find(({ status }) => status === 'COMPLETED')?.entries

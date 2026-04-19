@@ -104,18 +104,29 @@ export async function startStreamProxy() {
             const lines = body.toString('utf-8').split(/\r?\n/)
             const rewritten = lines.map(line => {
               const trimmed = line.trim()
-              if (!trimmed || trimmed.startsWith('#')) return line
+              if (!trimmed || trimmed.startsWith('##')) return line
+
+              if (trimmed.startsWith('#')) {
+                // Rewrite URIs in tags like #EXT-X-MEDIA:URI="...", #EXT-X-STREAM-INF:URI="..."
+                return line.replace(/URI=(["']?)([^"']+)\1/gi, (match, quote, uri) => {
+                  const absolute = uri.startsWith('http') ? uri : baseUrl + uri
+                  const proxied = `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
+                  debug(`Rewriting tag URI: ${uri} -> ${proxied}`)
+                  return `URI=${quote}${proxied}${quote}`
+                })
+              }
+
               const absolute = trimmed.startsWith('http') ? trimmed : baseUrl + trimmed
-              return `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
+              const proxied = `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
+              debug(`Rewriting segment/variant URI: ${trimmed} -> ${proxied}`)
+              return proxied
             }).join('\n')
             body = Buffer.from(rewritten, 'utf-8')
             res.setHeader('Content-Length', body.length)
             res.send(body)
           } else {
-            // Stream non-m3u8 responses (MP4, TS segments, etc.)
             res.status(response.status)
 
-            // Forward relevant headers for Range/partial content support
             const contentLength = response.headers.get('content-length')
             const contentRange = response.headers.get('content-range')
             const acceptRanges = response.headers.get('accept-ranges')

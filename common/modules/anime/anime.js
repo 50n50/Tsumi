@@ -149,6 +149,7 @@ function constructChapters (results, duration) {
 }
 
 export async function getChaptersAniSkip (file, duration) {
+  if (!file.media?.media?.idMal || !file.media?.episode) return []
   const resAccurate = await fetch(`https://api.aniskip.com/v2/skip-times/${file.media.media.idMal}/${file.media.episode}/?episodeLength=${duration}&types=op&types=ed&types=recap`)
   const jsonAccurate = await resAccurate.json()
 
@@ -157,7 +158,7 @@ export async function getChaptersAniSkip (file, duration) {
 
   const map = {}
   if (jsonAccurate?.statusCode === 500 || jsonRough?.statusCode === 500) return []
-  for (const result of [...jsonAccurate.results, ...jsonRough.results]) {
+  for (const result of [...(jsonAccurate.results || []), ...(jsonRough.results || [])]) {
     map[result.skipType] ||= result
   }
 

@@ -312,10 +312,14 @@
     subHeaders = subs?.headers;
   }
 
-  async function loadExternalSubtitleUrl(url) {
+  async function loadExternalSubtitleUrl(url, headers = {}) {
     if (!subs || !url) return;
     try {
-      const res = await fetch(url);
+      const port = await ELECTRON.getProxyPort?.();
+      const res = (port && Object.keys(headers).length > 0) 
+        ? await fetch(`http://localhost:${port}/proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(JSON.stringify(headers))}`)
+        : await fetch(url);
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       const ext = url.split(/[?#]/)[0].split(".").pop()?.toLowerCase() || "vtt";
@@ -437,7 +441,7 @@
         if (!isHLS) video.load();
         // Load external subtitle URL from extension stream response
         if (file.subtitle) {
-          loadExternalSubtitleUrl(file.subtitle).catch((err) =>
+          loadExternalSubtitleUrl(file.subtitle, file.streamHeaders || {}).catch((err) =>
             debug("Failed to load subtitle:", err),
           );
         }

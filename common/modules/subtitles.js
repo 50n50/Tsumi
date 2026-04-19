@@ -192,24 +192,18 @@ export default class Subtitles {
         const match = split.match(srtRx)
         if (match) {
           // timestamps
-          match[1] = match[1].match(/.*[.,]\d{2}/)[0]
-          match[2] = match[2].match(/.*[.,]\d{2}/)[0]
-          if (match[1].length === 9) {
-            match[1] = '0:' + match[1]
-          } else {
-            if (match[1][0] === '0') {
-              match[1] = match[1].substring(1)
-            }
+          match[1] = match[1].replace(',', '.')
+          match[2] = match[2].replace(',', '.')
+          
+          const formatTime = (t) => {
+            const parts = t.split(':')
+            if (parts.length === 2) return `0:${t}`
+            if (parts.length === 3 && parts[0].startsWith('00')) return `${parts[0].substring(1)}:${parts[1]}:${parts[2]}`
+            return t
           }
-          match[1].replace(',', '.')
-          if (match[2].length === 9) {
-            match[2] = '0:' + match[2]
-          } else {
-            if (match[2][0] === '0') {
-              match[2] = match[2].substring(1)
-            }
-          }
-          match[2].replace(',', '.')
+
+          match[1] = formatTime(match[1])
+          match[2] = formatTime(match[2])
           // create array of all tags
           const matches = match[4].match(/<[^>]+>/g)
           if (matches) {
