@@ -107,7 +107,6 @@ export async function startStreamProxy() {
               if (!trimmed || trimmed.startsWith('##')) return line
 
               if (trimmed.startsWith('#')) {
-                // Rewrite URIs in tags like #EXT-X-MEDIA:URI="...", #EXT-X-STREAM-INF:URI="..."
                 return line.replace(/URI=(["']?)([^"']+)\1/gi, (match, quote, uri) => {
                   const absolute = uri.startsWith('http') ? uri : baseUrl + uri
                   const proxied = `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`

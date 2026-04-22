@@ -21,7 +21,7 @@ Style: Default, ${settings.value.font?.name.toLowerCase() || 'Roboto Medium'},52
 `
 const stylesRx = /^Style:[^,]*/gm
 export default class Subtitles {
-  constructor (video, files, selected, onHeader) {
+  constructor(video, files, selected, onHeader) {
     this.video = video
     this.selected = selected || null
     this.files = files || []
@@ -121,10 +121,10 @@ export default class Subtitles {
   }
 
   // Client event handlers are now noops
-  handleTracks() {}
-  handleSubtitle() {}
-  handleFile() {}
-  handleSubtitleFile() {}  async addSingleSubtitleFile (file) {
+  handleTracks() { }
+  handleSubtitle() { }
+  handleFile() { }
+  handleSubtitleFile() { } async addSingleSubtitleFile(file) {
     // lets hope there's no more than 100 subtitle tracks in a file
     const index = 100 + this.headers.length
     this.subtitleFiles[index] = file
@@ -155,7 +155,7 @@ export default class Subtitles {
     } else console.error(`Failed to load the file ${file.name} as it is not a subtitle file.`)
   }
 
-  initSubtitleRenderer () {
+  initSubtitleRenderer() {
     if (!this.renderer) {
       const options = {
         video: this.video,
@@ -183,7 +183,7 @@ export default class Subtitles {
     }
   }
 
-  static convertSubText (text, type) {
+  static convertSubText(text, type) {
     const srtRx = /(?:\d+\r?\n)?(\S{9,12})\s?-->\s?(\S{9,12})(.*)\r?\n([\s\S]*)$/i
     const srt = text => {
       const subtitles = []
@@ -191,10 +191,9 @@ export default class Subtitles {
       for (const split of replaced.split(/\r?\n\r?\n/)) {
         const match = split.match(srtRx)
         if (match) {
-          // timestamps
           match[1] = match[1].replace(',', '.')
           match[2] = match[2].replace(',', '.')
-          
+
           const formatTime = (t) => {
             const parts = t.split(':')
             if (parts.length === 2) return `0:${t}`
@@ -204,11 +203,10 @@ export default class Subtitles {
 
           match[1] = formatTime(match[1])
           match[2] = formatTime(match[2])
-          // create array of all tags
           const matches = match[4].match(/<[^>]+>/g)
           if (matches) {
             matches.forEach(matched => {
-              if (/<\//.test(matched)) { // check if its a closing tag
+              if (/<\//.test(matched)) {
                 match[4] = match[4].replace(matched, matched.replace('</', '{\\').replace('>', '0}'))
               } else {
                 match[4] = match[4].replace(matched, matched.replace('<', '{\\').replace('>', '1}'))
@@ -246,7 +244,7 @@ export default class Subtitles {
     }
   }
 
-  constructSub (subtitle, isNotAss, subtitleIndex, trackNumber) {
+  constructSub(subtitle, isNotAss, subtitleIndex, trackNumber) {
     if (isNotAss === true) { // converts VTT or other to SSA
       const matches = subtitle.text.match(/<[^>]+>/g) // create array of all tags
       if (matches) {
@@ -277,7 +275,7 @@ export default class Subtitles {
     }
   }
 
-  selectCaptions (trackNumber) {
+  selectCaptions(trackNumber) {
     if (trackNumber != null) {
       this.current = Number(trackNumber)
       this.onHeader()
@@ -290,7 +288,7 @@ export default class Subtitles {
     }
   }
 
-  destroy () {
+  destroy() {
     // Client event listeners removed
     this.stream?.destroy()
     this.parser?.destroy()

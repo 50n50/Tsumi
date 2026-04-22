@@ -35,22 +35,14 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
 
-      - name: Build Web Assets
-        run: pnpm run build:web
-
-      - name: Add iOS Platform
+      - name: Add iOS Platform (if missing)
         run: |
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
 
-      - name: Sync iOS
-        run: npx cap sync ios
-
-      - name: Install CocoaPods
-        run: |
-          cd ios/App
-          pod install
+      - name: Build iOS App
+        run: pnpm run build:ios
 
       - name: Build Archive (Unsigned)
         run: |
