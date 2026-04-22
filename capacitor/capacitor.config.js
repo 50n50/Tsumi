@@ -1,14 +1,14 @@
 const mode = process.env.NODE_ENV?.trim() || 'development'
 
 const config = {
-  appId: 'watch.shiru',
-  appName: 'Shiru',
+  appId: 'org.tsumi.app',
+  appName: 'Tsumi',
   webDir: 'build',
   android: {
     buildOptions: {
-      keystorePath: './watch.shiru',
+      keystorePath: './tsumi',
       keystorePassword: '',
-      keystoreAlias: 'watch.shiru'
+      keystoreAlias: 'tsumi'
     },
     webContentsDebuggingEnabled: true
   },

@@ -1,0 +1,81 @@
+name: iOS Build
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Electron Build and Release"]
+    types:
+      - completed
+
+jobs:
+  build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-latest
+    
+    defaults:
+      run:
+        working-directory: ./capacitor
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.1'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Build Web Assets
+        run: pnpm run build:web
+
+      - name: Add iOS Platform
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+
+      - name: Sync iOS
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          cd ios/App
+          pod install
+
+      - name: Build Archive (Unsigned)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     -archivePath $PWD/App.xcarchive \
+                     archive \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGN_IDENTITY=""
+
+      - name: Export IPA (Unsigned)
+        run: |
+          echo "Building unsigned IPA for side-loading..."
+          mkdir -p output/Payload
+          cp -r App.xcarchive/Products/Applications/App.app output/Payload/
+          cd output
+          zip -r Tsumi-unsigned.ipa Payload
+          rm -rf Payload
+
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tsumi-iOS-IPA
+          path: capacitor/output/*.ipa
+          if-no-files-found: warn

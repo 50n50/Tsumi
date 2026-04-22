@@ -100,7 +100,7 @@ jobs:
             keyAlias: ${{ secrets.ALIAS }}
             keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
             keyPassword: ${{ secrets.KEY_PASSWORD }}
-            appName: Shiru
+            appName: Tsumi
             appVersion: ${{ env.GIT_CURR_TAG }}
             appPrefix: android
 
