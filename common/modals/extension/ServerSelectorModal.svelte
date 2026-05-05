@@ -6,17 +6,23 @@
 
 <script>
   import SoftModal from '@/components/modals/SoftModal.svelte'
+  import { sessionServer } from '@/modules/session.js'
 
   $: data = $modal[modal.SERVER_SELECTOR]?.data
   $: servers = data?.servers || []
   $: onSelect = data?.onSelect
   $: onBack = data?.onBack
 
+  let remember = false
+
   function close () {
     modal.close(modal.SERVER_SELECTOR)
   }
 
   function pickServer (index) {
+    if (remember) {
+      sessionServer.set(servers[index].title || `Server ${index + 1}`)
+    }
     close()
     onSelect?.(index)
   }
@@ -35,6 +41,10 @@
     <h5 class='mb-0 font-weight-bold text-white'>Select Server</h5>
   </div>
   <div class='server-list d-flex flex-column gap-10'>
+    <label class='d-flex align-items-center mb-10 pointer'>
+      <input type='checkbox' bind:checked={remember} class='mr-10' />
+      <span class='text-muted font-scale-14'>Remember selection for this session</span>
+    </label>
     {#each servers as server, i}
       <button type='button' class='server-item bg-dark-light rounded-2 p-15 border-0 pointer w-full d-flex align-items-center' use:click={() => pickServer(i)}>
         <Server size='1.8rem' class='text-primary mr-15 flex-shrink-0' />

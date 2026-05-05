@@ -5,6 +5,7 @@
     extensionManager,
     callExtensionFunction,
   } from "@/modules/extension.js";
+  import { sessionServer } from "@/modules/session.js";
   import { anilistClient } from "@/modules/anilist.js";
   import {
     files,
@@ -258,6 +259,24 @@
           typeof episode === "object"
             ? episode.number
             : targetEp.number || capturedEpisode;
+
+        const sessionPref = sessionServer.value;
+        if (sessionPref) {
+          const matchedIndex = streamData.servers.findIndex(
+            (s, i) => (s.title || `Server ${i + 1}`) === sessionPref,
+          );
+          if (matchedIndex !== -1) {
+            launchPlayer(
+              streamData,
+              episodeNum,
+              capturedMedia,
+              matchedIndex,
+              streamData.servers[matchedIndex],
+            );
+            return;
+          }
+        }
+
         close();
         modal.open(modal.SERVER_SELECTOR, {
           servers: streamData.servers,

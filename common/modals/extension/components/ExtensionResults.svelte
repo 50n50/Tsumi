@@ -4,6 +4,7 @@
     extensionManager,
     callExtensionFunction,
   } from "@/modules/extension.js";
+  import { sessionServer } from "@/modules/session.js";
   import {
     files,
     nowPlaying as currentMedia,
@@ -237,6 +238,25 @@
             ? capturedEpisode.number
             : targetEp.number || capturedEpisode;
         const capturedStreamData = streamData;
+
+        const sessionPref = sessionServer.value;
+        if (sessionPref) {
+          const matchedIndex = capturedStreamData.servers.findIndex(
+            (s, i) => (s.title || `Server ${i + 1}`) === sessionPref,
+          );
+          if (matchedIndex !== -1) {
+            playingResult = null;
+            launchPlayer(
+              capturedStreamData,
+              episodeNum,
+              capturedMedia,
+              matchedIndex,
+              capturedStreamData.servers[matchedIndex],
+            );
+            return;
+          }
+        }
+
         playingResult = null;
         modal.open(modal.SERVER_SELECTOR, {
           servers: capturedStreamData.servers,
