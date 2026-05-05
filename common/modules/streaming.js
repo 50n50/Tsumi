@@ -69,12 +69,12 @@ export async function loadStream(video, streamUrl, options = {}) {
 
   const Hls = await loadHLSLibrary()
 
-  const port = hasHeaders ? await getProxyPortInternal() : null
+  const port = await getProxyPortInternal()
 
   if (!Hls) {
     debug('HLS.js unavailable, using proxied native playback')
-    if (hasHeaders && port) {
-      video.src = getProxyUrl(streamUrl, options.headers, port)
+    if (port) {
+      video.src = getProxyUrl(streamUrl, options.headers || {}, port)
     } else {
       video.src = streamUrl
     }
@@ -89,7 +89,7 @@ export async function loadStream(video, streamUrl, options = {}) {
   }
 
   const hlsInstance = new Hls(hlsConfig)
-  const sourceUrl = (hasHeaders && port) ? getProxyUrl(streamUrl, options.headers, port) : streamUrl
+  const sourceUrl = port ? getProxyUrl(streamUrl, options.headers || {}, port) : streamUrl
   debug(`Loading HLS source: ${sourceUrl}`)
   hlsInstance.loadSource(sourceUrl)
   hlsInstance.attachMedia(video)
@@ -136,12 +136,11 @@ export function parseStreamResponse(response) {
   }
 
   if (response?.streams && Array.isArray(response.streams)) {
-    // Handle flat array format: ["DUB", url, "SUB", url]
     if (response.streams.length && typeof response.streams[0] === 'string') {
       const servers = []
       for (let i = 0; i < response.streams.length; i += 2) {
         if (i + 1 < response.streams.length) {
-          servers.push({ title: response.streams[i], streamUrl: response.streams[i + 1], headers: {} })
+          servers.push({ title: response.streams[i], streamUrl: response.streams[i + 1], headers: response.headers || {} })
         }
       }
       if (servers.length) {
@@ -154,7 +153,6 @@ export function parseStreamResponse(response) {
         }
       }
     }
-    // Handle object array format: [{ title, streamUrl, headers }]
     const firstStream = response.streams[0]
     return {
       url: firstStream.streamUrl,

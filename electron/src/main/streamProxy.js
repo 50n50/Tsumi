@@ -108,14 +108,14 @@ export async function startStreamProxy() {
 
               if (trimmed.startsWith('#')) {
                 return line.replace(/URI=(["']?)([^"']+)\1/gi, (match, quote, uri) => {
-                  const absolute = uri.startsWith('http') ? uri : baseUrl + uri
+                  const absolute = uri.startsWith('http') ? uri : new URL(uri, baseUrl).href
                   const proxied = `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
                   debug(`Rewriting tag URI: ${uri} -> ${proxied}`)
                   return `URI=${quote}${proxied}${quote}`
                 })
               }
 
-              const absolute = trimmed.startsWith('http') ? trimmed : baseUrl + trimmed
+              const absolute = trimmed.startsWith('http') ? trimmed : new URL(trimmed, baseUrl).href
               const proxied = `http://localhost:${port}/proxy?url=${encodeURIComponent(absolute)}&headers=${hdrs}`
               debug(`Rewriting segment/variant URI: ${trimmed} -> ${proxied}`)
               return proxied
