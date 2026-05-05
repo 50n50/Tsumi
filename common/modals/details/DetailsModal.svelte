@@ -212,7 +212,8 @@
   }
   function play(media, episode, force = false) {
     if (!media) return;
-    if (isValidNumber(episode)) return playAnime(media, episode, force);
+    const isEpisodeValid = isValidNumber(episode) || (typeof episode === 'object' && episode !== null && isValidNumber(episode.number));
+    if (isEpisodeValid) return playAnime(media, episode, force);
     if (media.status === "NOT_YET_RELEASED" && !media.isTmdb) return;
     playMedia(media);
   }

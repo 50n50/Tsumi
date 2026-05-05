@@ -5,14 +5,14 @@
   import { settings } from '@/modules/settings.js'
 
   export function playAnime (media, episode = 1, force = false) {
-    episode = Number(episode)
-    episode = isNaN(episode) ? 1 : episode
+    const episodeData = typeof episode === 'object' ? episode : { number: Number(episode) }
+    episodeData.number = isNaN(episodeData.number) ? 1 : episodeData.number
 
     // Use compact loading dialog when a default extension is set
     if (settings.value.defaultExtension && !force) {
-      modal.open(modal.DEFAULT_LOADING, { media, episode })
+      modal.open(modal.DEFAULT_LOADING, { media, episode: episodeData })
     } else {
-      modal.open(modal.EXTENSION_MENU, { media, episode })
+      modal.open(modal.EXTENSION_MENU, { media, episode: episodeData })
     }
   }
 </script>

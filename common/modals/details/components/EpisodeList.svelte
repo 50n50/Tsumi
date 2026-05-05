@@ -238,6 +238,8 @@
           const epAirDate = ep.airdate ? new Date(ep.airdate) : null
           allEpisodes.push({
             episode: allEpisodes.length + 1,
+            season: season.season_number,
+            localEpisode: ep.episode,
             title: details.numberOfSeasons > 1 ? `S${ep.seasonNumber}E${ep.episode} - ${ep.title}` : ep.title,
             summary: ep.summary,
             image: ep.image || details.backdrop || media.bannerImage,
@@ -334,7 +336,7 @@
             {@const resolvedTitle = episodeList.filter((ep) => ep.episode < episode).some((ep) => matchPhrase(ep.title, title, 0.1, true)) ? null : title}
             {@const largeCard = image}
             <div class='w-full content-visibility-auto scale my-20' class:load-in={!loadScroll} class:opacity-half={completed} class:scale-target={target} class:px-20={!target} class:px-10={target} class:h-150={!SUPPORTS.isAndroid && largeCard} class:h-165={SUPPORTS.isAndroid && largeCard}>
-              <div role='button' tabindex='0' class='episode-card rounded-2 w-full h-full overflow-hidden d-flex flex-xsm-column flex-row position-relative {unreleased ? `unreleased not-allowed` : `pointer`}' class:not-reactive={!$reactive} class:smallCard={!largeCard} class:android={SUPPORTS.isAndroid}  class:border={target || hasFiller} class:bg-black={completed} class:border-secondary={hasFiller} class:bg-dark-light={!completed} use:click={() => !unreleased && play(media, episode)} on:contextmenu|preventDefault={() => !unreleased && play(media, episode, true)}>
+              <div role='button' tabindex='0' class='episode-card rounded-2 w-full h-full overflow-hidden d-flex flex-xsm-column flex-row position-relative {unreleased ? `unreleased not-allowed` : `pointer`}' class:not-reactive={!$reactive} class:smallCard={!largeCard} class:android={SUPPORTS.isAndroid}  class:border={target || hasFiller} class:bg-black={completed} class:border-secondary={hasFiller} class:bg-dark-light={!completed} use:click={() => !unreleased && play(media, { number: episode, season: currentEpisodes[index]?.season, localEpisode: currentEpisodes[index]?.localEpisode })} on:contextmenu|preventDefault={() => !unreleased && play(media, { number: episode, season: currentEpisodes[index]?.season, localEpisode: currentEpisodes[index]?.localEpisode }, true)}>
                 <div class='unreleased-overlay position-absolute top-0 left-0 right-0 h-full pointer-events-none rounded-2' class:d-none={!unreleased}/>
                 {#if image}
                   <div class='d-flex'>
