@@ -26,14 +26,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - name: Configure node-gyp for Windows
-        shell: pwsh
-        run: |
-          npm config set msvs_version 2022
-          npm config set python python3
       - name: Setup MSVC developer prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Install dependencies
+        env:
+          GYP_MSVS_VERSION: '2022'
         run: |
           cd electron
           pnpm install --frozen-lockfile
