@@ -1951,12 +1951,16 @@
         };
         activity.party.id = w2g + "p";
       } else {
+        const _media = $nowPlaying?.media ?? fullMedia;
+        const isTmdb = _media?.isTmdb || (typeof _media?.id === 'string' && _media?.id.startsWith('tmdb-'));
+        const tmdbId = typeof _media?.id === 'string' ? _media?.id.replace('tmdb-', '') : _media?.idTmdb;
+        const isMovie = _media?.format === 'MOVIE';
         activity.buttons = [
           {
-            label: "View Anime",
+            label: isTmdb ? (isMovie ? "View Movie" : "View Show") : "View Anime",
             url:
-              ($nowPlaying?.media?.id ?? fullMedia?.id)
-                ? `https://anilist.co/anime/${$nowPlaying?.media?.id ?? fullMedia?.id}`
+              _media?.id
+                ? (isTmdb ? `https://www.themoviedb.org/${isMovie ? 'movie' : 'tv'}/${tmdbId}` : `https://anilist.co/anime/${_media.id}`)
                 : "https://github.com/50n50/Tsumi",
           },
           {
