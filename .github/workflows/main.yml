@@ -26,7 +26,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - name: Setup MSVC Build Tools
+      - name: Install build tooling for node-gyp (Windows)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MSVC Build Tools (Windows)
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup MSVC developer prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Install dependencies
         run: |
