@@ -9,7 +9,7 @@ on:
       - '**.md'
       - '**.yml'
 env:
-  NODE_VERSION: '20.18.1'
+  NODE_VERSION: '22.21.1'
   PNPM_VERSION: '10.15.1'
 jobs:
   release-windows:
@@ -26,12 +26,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - name: Install build tooling for node-gyp (Windows)
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install MSVC Build Tools (Windows)
-        uses: microsoft/setup-msbuild@v2
+      - name: Configure node-gyp for Windows
+        shell: pwsh
+        run: |
+          npm config set msvs_version 2022
+          npm config set python python3
       - name: Setup MSVC developer prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Install dependencies
