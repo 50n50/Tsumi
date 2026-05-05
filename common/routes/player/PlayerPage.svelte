@@ -2012,6 +2012,7 @@
   on:keydown={resetImmerse}
   on:mouseleave={immersePlayer}
 >
+  <div class="w-full h-full position-relative overflow-hidden d-flex flex-column">
   {#if showKeybinds && !miniplayer}
     <div
       class="position-absolute bg-tp w-full h-full z-50 font-size-12 p-20 d-flex align-items-center justify-content-center pointer"
@@ -2850,6 +2851,7 @@
         {/if}
       </span>
     </div>
+  </div>
   </div>
 </div>
 
