@@ -625,7 +625,7 @@
                 >
                   <Hash class="mr-5" size="1.8rem" /><span
                     class="font-weight-bolder select-all">{tag.name}</span
-                  ><span class="font-weight-light">: {tag.rank}%</span>
+                  >{#if typeof staticMedia.id !== 'string' && tag.rank}<span class="font-weight-light">: {tag.rank}%</span>{/if}
                 </div>
               {/each}
             </div>
