@@ -9,7 +9,7 @@ on:
       - '**.md'
       - '**.yml'
 env:
-  NODE_VERSION: '22.21.1'
+  NODE_VERSION: '20.18.1'
   PNPM_VERSION: '10.15.1'
 jobs:
   release-windows:
@@ -26,6 +26,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+      - name: Setup MSVC Build Tools
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Install dependencies
         run: |
           cd electron
