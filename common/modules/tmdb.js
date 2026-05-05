@@ -482,8 +482,8 @@ class TMDBClient {
             title: { en: ep.name }
           },
           onclick: () => {
-            window.dispatchEvent(new CustomEvent('play-media', {
-              detail: { media, episode: ep.episode_number }
+            window.dispatchEvent(new CustomEvent('play-anime', {
+              detail: { id: media.id, episode: ep.episode_number, torrentOnly: true }
             }))
             return true
           }
