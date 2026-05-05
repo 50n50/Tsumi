@@ -69,6 +69,10 @@ export default class SectionsManager {
           })
         }
 
+        if (search.western === false) {
+          return anilistClient.search({ page, perPage, ...hideSubs, ...SectionsManager.sanitiseObject(search) })
+        }
+
         if (search.western === true) {
           const queryParams = SectionsManager.sanitiseObject(search)
           const tmdbPromise = search.search ? tmdbClient.textSearch(search.search, page) : tmdbClient.search({ page, perPage, ...queryParams, excludeAnime: true })
@@ -86,7 +90,7 @@ export default class SectionsManager {
           })
         }
 
-        const isBoth = search.western === null || (search.western === undefined && !search.season && !search.year && !search.id)
+        const isBoth = search.western === null || search.western === undefined
         if (isBoth && search.isSearch) {
           const queryParams = SectionsManager.sanitiseObject(search)
           if (queryParams.sort) delete queryParams.sort
@@ -193,7 +197,7 @@ settings.subscribe((value) => debounceUpdate(value))
 
 function createSections() {
   const sectionFormat = (title) => (settings.value.homeSections.find(([t]) => t === title)?.[2] || [])
-  const createSection = (section, variables = {}, staticSort) => ({ ...section, ...(section.sort && staticSort ? { sort: 'N/A' } : {}), variables: { ...variables, sort: settings.value.homeSections.find(([t]) => !staticSort && t === section.title)?.[1] ?? section.sort, ...(Array.isArray(sectionFormat(section.title)) && sectionFormat(section.title).length > 0 ? { format: sectionFormat(section.title) } : {}) } })
+  const createSection = (section, variables = {}, staticSort) => ({ ...section, ...(section.sort && staticSort ? { sort: 'N/A' } : {}), variables: { western: false, ...variables, sort: settings.value.homeSections.find(([t]) => !staticSort && t === section.title)?.[1] ?? section.sort, ...(Array.isArray(sectionFormat(section.title)) && sectionFormat(section.title).length > 0 ? { format: sectionFormat(section.title) } : {}) } })
   return [
     // RSS feeds
     ...settings.value.rssFeedsNew.filter(([title, url]) => url).map(([title, url]) => {
@@ -227,7 +231,7 @@ function createSections() {
         title,
         sort: 'N/A',
         format: isWestern ? ['TV'] : (!title.includes('Hentai') ? ['TV', 'MOVIE', 'OVA', 'ONA'] : ['OVA']),
-        variables: { disableSearch: true },
+        variables: { disableSearch: true, western: isWestern },
         isRSS: true,
         isSchedule: true,
         load: (page = 1, perPage = 50) => isWestern ? tmdbClient.getMediaForRSS(page, perPage) : animeSchedule.getMediaForRSS(page, perPage, type),
@@ -405,7 +409,7 @@ function createSections() {
     // Western (TMDB) sections
     ...(settings.value.westernSections || []).map(([title, tmdbGenres, mediaType]) => {
       const westernFormat = mediaType === 'Movies' ? ['MOVIE'] : mediaType === 'TV Shows' ? ['TV'] : ['TV', 'MOVIE']
-      const westernVars = { excludeAnime: true, isTmdb: true, genre: tmdbGenres || [], format: westernFormat }
+      const westernVars = { excludeAnime: true, isTmdb: true, genre: tmdbGenres || [], format: westernFormat, western: true }
       const westernLoad = (page = 1, perPage = 50, search = westernVars) => {
         const res = tmdbClient.search({
           page,

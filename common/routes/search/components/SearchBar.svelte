@@ -5,7 +5,7 @@
   const formatOptions = { TV: 'TV Show', MOVIE: 'Movie', TV_SHORT: 'TV Short', SPECIAL: 'Special', OVA: 'OVA', ONA: 'ONA' }
 
   export function searchCleanup(search, badge) {
-    return Object.fromEntries(Object.entries(search).map((entry) => (!badge || badgeKeys.includes(entry[0])) && entry).filter(a => a?.[1]&& (!Array.isArray(a[1]) || a[1].length > 0)))
+    return Object.fromEntries(Object.entries(search).map((entry) => (!badge || badgeKeys.includes(entry[0])) && entry).filter(a => (a?.[1] === false || a?.[1] === 0 || a?.[1]) && (!Array.isArray(a[1]) || a[1].length > 0)))
   }
 </script>
 
