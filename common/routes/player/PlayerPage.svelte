@@ -850,7 +850,7 @@
     if (!externalPlayback)
       document.fullscreenElement
         ? document.exitFullscreen()
-        : document.querySelector(".content-wrapper").requestFullscreen();
+        : container.requestFullscreen();
   }
   function skip() {
     const current = findChapter(currentTime);
