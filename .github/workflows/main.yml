@@ -13,7 +13,7 @@ env:
   PNPM_VERSION: '10.15.1'
 jobs:
   release-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v6
@@ -26,11 +26,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - name: Setup MSVC developer prompt
-        uses: ilammy/msvc-dev-cmd@v1
       - name: Install dependencies
-        env:
-          GYP_MSVS_VERSION: '2022'
         run: |
           cd electron
           pnpm install --frozen-lockfile
