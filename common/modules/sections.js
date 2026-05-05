@@ -105,17 +105,30 @@ export default class SectionsManager {
               if (tmdbMedia[i]) combinedMedia.push(tmdbMedia[i])
             }
 
-            if (search.sort && queryParams.sort !== 'SEARCH_MATCH') {
-              const sortType = Array.isArray(search.sort) ? search.sort[0] : search.sort
-              combinedMedia.sort((a, b) => {
-                if (sortType.includes('POPULARITY') || sortType.includes('TRENDING')) {
-                  const popA = a.isTmdb ? (a.popularity * 1000) : (a.popularity || 0)
-                  const popB = b.isTmdb ? (b.popularity * 1000) : (b.popularity || 0)
-                  return sortType.includes('DESC') ? popB - popA : popA - popB
-                }
-                return 0
-              })
-            }
+            combinedMedia.sort((a, b) => {
+              const titleA = (a.title?.userPreferred || a.title?.english || a.title?.romaji || '').toLowerCase()
+              const titleB = (b.title?.userPreferred || b.title?.english || b.title?.romaji || '').toLowerCase()
+
+              if (search.search) {
+                const query = search.search.toLowerCase()
+                const relevanceA = titleA === query ? 3 : titleA.startsWith(query) ? 2 : titleA.includes(query) ? 1 : 0
+                const relevanceB = titleB === query ? 3 : titleB.startsWith(query) ? 2 : titleB.includes(query) ? 1 : 0
+                if (relevanceA !== relevanceB) return relevanceB - relevanceA
+              }
+
+              const sortType = Array.isArray(search.sort) ? search.sort[0] : (search.sort || '')
+              if (sortType.includes('TITLE')) {
+                const comp = titleA.localeCompare(titleB)
+                return sortType.includes('DESC') ? -comp : comp
+              } else if (sortType.includes('SCORE')) {
+                return (b.averageScore || 0) - (a.averageScore || 0)
+              } else if (sortType.includes('DATE') || sortType.includes('TIME') || sortType.includes('YEAR')) {
+                return (b.seasonYear || 0) - (a.seasonYear || 0)
+              }
+              const popA = a.isTmdb ? (a.popularity * 1000) : (a.popularity || 0)
+              const popB = b.isTmdb ? (b.popularity * 1000) : (b.popularity || 0)
+              return popB - popA
+            })
 
             return {
               data: {
