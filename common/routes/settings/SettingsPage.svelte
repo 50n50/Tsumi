@@ -19,7 +19,7 @@
     sunos: "SunOS",
     win32: "Windows",
   };
-  export let version = "1.0.0";
+  export let version = "1.2.0";
   IPC.on("version", (data) => {
     version = data;
     debug(

@@ -1,6 +1,6 @@
 {
   "name": "capacitor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "build:native": "cd public/nodejs/ && npm install && docker build -t android-build:latest . && docker run -v ${PWD}:/app/ android-build:latest /bin/bash /app/setup-deps.sh",
